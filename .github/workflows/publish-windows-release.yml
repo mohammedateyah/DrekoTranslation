@@ -32,7 +32,65 @@ jobs:
             throw "Release tag must match package.json version: $expectedTag"
           }
 
-      - name: Build and publish installer
-        run: npm run dist -- --publish always
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Build installer
+        run: npm run dist -- --publish never
+
+      - name: Verify and normalize update artifacts
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          $installerName = "Dreko-Translation-Setup-$version.exe"
+          $installerPath = Join-Path "release" $installerName
+          $blockmapPath = "$installerPath.blockmap"
+          $manifestPath = Join-Path "release" "latest.yml"
+          if (-not (Test-Path $manifestPath)) {
+            throw "Update manifest is missing: $manifestPath"
+          }
+          $manifest = Get-Content $manifestPath -Raw
+          $fileEntry = [regex]::Match(
+            $manifest,
+            "(?ms)^\s+-\s+url:\s*(?<name>[^\r\n]+)\s*\r?\n\s+sha512:\s*(?<hash>[A-Za-z0-9+/=]+)\s*\r?\n\s+size:\s*(?<size>\d+)"
+          )
+          if (-not $fileEntry.Success -or $fileEntry.Groups["name"].Value -ne $installerName) {
+            throw "latest.yml does not reference the expected installer: $installerName"
+          }
+
+          $expectedSize = [int64]$fileEntry.Groups["size"].Value
+          $expectedHash = $fileEntry.Groups["hash"].Value
+          $installer = $null
+          foreach ($candidate in Get-ChildItem "release" -File -Filter "*.exe" |
+              Where-Object { $_.Name -match "Setup.*\.exe$" -and $_.Name -notlike "*.__uninstaller.exe" }) {
+            if ($candidate.Length -ne $expectedSize) { continue }
+            $sha512 = [Security.Cryptography.SHA512]::Create()
+            $candidateHash = [Convert]::ToBase64String(
+              $sha512.ComputeHash([IO.File]::ReadAllBytes($candidate.FullName))
+            )
+            $sha512.Dispose()
+            if ($candidateHash -eq $expectedHash) {
+              $installer = $candidate
+              break
+            }
+          }
+          if (-not $installer) {
+            throw "No installer matches the size and SHA-512 in latest.yml."
+          }
+          $blockmap = Get-Item "$($installer.FullName).blockmap" -ErrorAction SilentlyContinue
+          if (-not $blockmap) { throw "The installer's blockmap is missing." }
+
+          if ($installer.FullName -ne (Join-Path (Get-Location) $installerPath)) {
+            Move-Item $installer.FullName $installerPath -Force
+          }
+          if ($blockmap.FullName -ne (Join-Path (Get-Location) $blockmapPath)) {
+            Move-Item $blockmap.FullName $blockmapPath -Force
+          }
+
+      - name: Publish complete GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Dreko Translation ${{ github.ref_name }}
+          files: |
+            release/Dreko-Translation-Setup-*.exe
+            release/Dreko-Translation-Setup-*.exe.blockmap
+            release/latest.yml
+          overwrite_files: true
+          fail_on_unmatched_files: true
