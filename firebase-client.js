@@ -216,6 +216,16 @@ function coverStoragePath(cover) {
   return storagePath;
 }
 
+function isRemoteCoverUrl(value) {
+  if (typeof value !== "string" || value.length < 10 || value.length > 2048) return false;
+  try {
+    const url = new URL(value);
+    return ["http:", "https:"].includes(url.protocol) && Boolean(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
 function normalizeTranslation(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) {
     const error = new Error("INVALID_TRANSLATION");
@@ -282,7 +292,8 @@ function normalizeTranslation(input) {
   }
   if ((!BUILT_IN_COVERS.has(record.cover) &&
        !isStorageCover(record.cover) &&
-       !record.cover.startsWith("firestore:covers/")) ||
+       !record.cover.startsWith("firestore:covers/") &&
+       !isRemoteCoverUrl(record.cover)) ||
       (isStorageCover(record.cover) && !coverStoragePath(record.cover)) ||
       (record.cover.startsWith("firestore:covers/") && !firestoreCoverId(record.cover))) {
     const error = new Error("INVALID_COVER");

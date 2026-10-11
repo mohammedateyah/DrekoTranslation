@@ -397,6 +397,11 @@ const translations = {
     imageSearchArtworkDownloadFailed: "تعذر تنزيل الصورة المختارة. جرّب صورة أخرى.",
     imageSearchCoverSizeLimit: "حجم الصورة أكبر من الحد المسموح (8 ميغابايت).",
     imageSearchUnsupportedCover: "صيغة الصورة غير مدعومة. اختر صورة JPG أو PNG أو WEBP.",
+    coverUrlLabel: "أو أضف رابط صورة مباشر",
+    coverUrlPlaceholder: "https://example.com/game-cover.jpg",
+    coverUrlUse: "استخدام الرابط",
+    coverUrlHelp: "استخدم رابط HTTPS مباشرًا لصورة JPG أو PNG أو WebP.",
+    coverUrlInvalid: "الرابط غير صالح أو لا يشير إلى صورة عامة آمنة.",
     chooseCover: "اختيار صورة",
     descriptionLabel: "نبذة عن الترجمة",
     publishTitle: "إظهار الترجمة في المكتبة العامة",
@@ -821,6 +826,11 @@ const translations = {
     imageSearchArtworkDownloadFailed: "Unable to download the selected image. Try another image.",
     imageSearchCoverSizeLimit: "The image exceeds the 8 MB size limit.",
     imageSearchUnsupportedCover: "Unsupported image format. Choose JPG, PNG, or WEBP.",
+    coverUrlLabel: "Or add a direct image link",
+    coverUrlPlaceholder: "https://example.com/game-cover.jpg",
+    coverUrlUse: "Use link",
+    coverUrlHelp: "Use a direct HTTPS link to a JPG, PNG, or WebP image.",
+    coverUrlInvalid: "The link is invalid or does not point to a safe public image.",
     chooseCover: "Choose artwork",
     descriptionLabel: "About this translation",
     publishTitle: "Publish to the public library",
@@ -993,8 +1003,19 @@ function escapeHtml(value) {
   })[character]);
 }
 
+function isRemoteCoverUrl(value) {
+  if (typeof value !== "string" || value.length < 10 || value.length > 2048) return false;
+  try {
+    const url = new URL(value);
+    return ["http:", "https:"].includes(url.protocol) && Boolean(url.hostname) && !url.username && !url.password;
+  } catch {
+    return false;
+  }
+}
+
 function localCoverPath(cover) {
   if (typeof cover !== "string") return "./assets/covers/astral-observer.svg";
+  if (isRemoteCoverUrl(cover)) return cover;
   if (cover.startsWith("storage:") || cover.startsWith("firestore:covers/")) {
     return cloudCoverUrls.get(cover) || "./assets/covers/astral-observer.svg";
   }
@@ -3498,6 +3519,32 @@ async function selectCoverSearchResult(index) {
   }
 }
 
+function applyRemoteCoverUrl(url, { showNotice = true } = {}) {
+  const value = String(url ?? "").trim();
+  if (!isRemoteCoverUrl(value)) {
+    updateMessage(editorMessage, text("coverUrlInvalid"));
+    return false;
+  }
+
+  state.pendingArtwork = null;
+  state.selectedCover = value;
+  document.querySelector("#translation-cover").value = value;
+  document.querySelector("#cover-url-input").value = value;
+  document.querySelector("#cover-preview").innerHTML = `<img src="${escapeHtml(value)}" alt="" />`;
+  hideMessage(editorMessage);
+  if (showNotice) showToast("coverSelected");
+  return true;
+}
+
+function previewCoverUrlInput() {
+  const value = document.querySelector("#cover-url-input").value.trim();
+  if (!value) {
+    hideMessage(editorMessage);
+    return;
+  }
+  if (!applyRemoteCoverUrl(value, { showNotice: false })) return;
+}
+
 function createNewTranslation() {
   editorForm.reset();
   state.editingId = null;
@@ -3518,6 +3565,7 @@ function createNewTranslation() {
   document.querySelector("#translation-description").value = "";
   document.querySelector("#translation-published").checked = true;
   document.querySelector("#translation-premium").checked = false;
+  document.querySelector("#cover-url-input").value = "";
   document.querySelector("#cover-preview").innerHTML = `<img src="${builtInCoverSource(state.selectedCover)}" alt="" />`;
   document.querySelector("#translation-cover").value = state.selectedCover;
   document.querySelector("#editor-title").textContent = text("addEditorTitle");
@@ -3557,6 +3605,7 @@ function editTranslation(id) {
   document.querySelector("#translation-title-en").dir = "ltr";
   document.querySelector("#editor-title").textContent = text("editEditorTitle");
   document.querySelector("#translation-cover").value = item.cover;
+  document.querySelector("#cover-url-input").value = isRemoteCoverUrl(item.cover) ? item.cover : "";
   document.querySelector("#cover-preview").innerHTML = `<img src="${escapeHtml(localCoverPath(item.cover))}" alt="" />`;
   if ((item.cover.startsWith("storage:") || item.cover.startsWith("firestore:covers/")) &&
       cloudCoverUrls.has(item.cover)) {
@@ -4157,6 +4206,19 @@ coverSearchResults.addEventListener("click", (event) => {
   const button = event.target.closest("[data-cover-image-index]");
   if (button) void selectCoverSearchResult(Number(button.dataset.coverImageIndex));
 });
+document.querySelector("#cover-url-input").addEventListener("input", previewCoverUrlInput);
+document.querySelector("#use-cover-url").addEventListener("click", () => {
+  const nextUrl = document.querySelector("#cover-url-input").value.trim();
+  if (!applyRemoteCoverUrl(nextUrl)) return;
+  document.querySelector("#translation-cover").value = nextUrl;
+});
+document.querySelector("#cover-url-input").addEventListener("keydown", (event) => {
+  if (event.key !== "Enter") return;
+  event.preventDefault();
+  const nextUrl = document.querySelector("#cover-url-input").value.trim();
+  if (!applyRemoteCoverUrl(nextUrl)) return;
+  document.querySelector("#translation-cover").value = nextUrl;
+});
 document.querySelector("#choose-cover").addEventListener("click", async () => {
   try {
     const result = await api.chooseCover();
@@ -4173,6 +4235,8 @@ document.querySelector("#choose-cover").addEventListener("click", async () => {
     state.selectedCoverSrc = state.pendingArtwork.src;
     document.querySelector("#cover-preview").innerHTML =
       `<img src="${escapeHtml(state.pendingArtwork.src)}" alt="" />`;
+    document.querySelector("#cover-url-input").value = "";
+    document.querySelector("#translation-cover").value = state.selectedCoverSrc;
     hideMessage(editorMessage);
     showToast("coverSelected");
   } catch (error) {

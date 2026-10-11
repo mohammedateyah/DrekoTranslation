@@ -26,6 +26,7 @@ const BUILT_IN_COVERS = new Set([
   "quiet-thunder"
 ]);
 const UPLOADED_COVER_PATTERN = /^uploaded:[0-9a-f-]{36}$/i;
+const REMOTE_COVER_PATTERN = /^https?:\/\/[^\s"'<>]+$/i;
 const SCRYPT_OPTIONS = { N: 1 << 15, r: 8, p: 1, maxmem: 64 * 1024 * 1024 };
 const HASH_LENGTH = 64;
 class StoreError extends Error {
@@ -64,6 +65,16 @@ function toPublicTranslation(row) {
   };
 }
 
+function isRemoteCoverUrl(value) {
+  if (typeof value !== "string" || value.length < 10 || value.length > 2048) return false;
+  try {
+    const url = new URL(value);
+    return ["http:", "https:"].includes(url.protocol) && Boolean(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
 function normalizeTranslation(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) {
     throw new StoreError("INVALID_TRANSLATION");
@@ -80,7 +91,10 @@ function normalizeTranslation(input) {
   if (!STATUSES.has(status)) throw new StoreError("INVALID_STATUS");
   if (!VISIBILITIES.has(visibility)) throw new StoreError("INVALID_VISIBILITY");
   if (typeof cover !== "string" ||
-      (!BUILT_IN_COVERS.has(cover) && !UPLOADED_COVER_PATTERN.test(cover))) {
+      (!BUILT_IN_COVERS.has(cover) &&
+       !UPLOADED_COVER_PATTERN.test(cover) &&
+       !REMOTE_COVER_PATTERN.test(cover) &&
+       !isRemoteCoverUrl(cover))) {
     throw new StoreError("INVALID_COVER");
   }
   if (!Number.isSafeInteger(year) || year < 1970 || year > 2200) {

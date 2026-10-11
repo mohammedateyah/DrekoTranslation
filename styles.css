@@ -677,6 +677,12 @@ dialog { color: var(--text); }
 .cover-search-row input { width: 100%; min-width: 0; min-height: 38px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; outline: 0; background: #0b0d11; color: var(--text); font-size: 10px; }
 .cover-search-row input:focus { border-color: #108ea1; box-shadow: 0 0 0 3px #03c5e40d; }
 .cover-search-button { flex: 0 0 auto; min-height: 38px; color: var(--cyan); white-space: nowrap; }
+.cover-url-panel { display: grid; gap: 6px; margin-block: 8px 10px; padding: 10px; border: 1px solid var(--line-soft); border-radius: 11px; background: #ffffff02; }
+.cover-url-panel > label { display: block; color: var(--text); font-size: 9px; font-weight: 650; }
+.cover-url-row { display: flex; gap: 8px; }
+.cover-url-row input { width: 100%; min-width: 0; min-height: 38px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; outline: 0; background: #0b0d11; color: var(--text); font-size: 10px; }
+.cover-url-row input:focus { border-color: #108ea1; box-shadow: 0 0 0 3px #03c5e40d; }
+.cover-url-use { flex: 0 0 auto; min-height: 38px; white-space: nowrap; }
 .cover-search-config-status { margin: 0; color: var(--muted); font-size: 9px; line-height: 1.7; }
 .cover-search-message { margin: 0; color: var(--muted-strong); font-size: 9px; line-height: 1.7; }
 .cover-search-message[data-tone="error"] { color: #ff929e; }
@@ -763,7 +769,7 @@ body.light-theme .request-admin-tabs { border-color: #e2e7ea; background: #f8faf
 body.light-theme .translation-request-copy strong, body.light-theme .translation-request-user strong { color: #172027; }
 body.light-theme .account-admin-copy strong { color: #172027; }
 body.light-theme .auth-card h1, body.light-theme .field-label, body.light-theme .editor-heading h2 { color: #171f25; }
-body.light-theme .field-control, body.light-theme .editor-field > input, body.light-theme .editor-field > select, body.light-theme .editor-field > textarea, body.light-theme .cover-picker, body.light-theme .publish-choice { border-color: #dfe4e7; background: #f7f9fa; color: #17212a; }
+body.light-theme .field-control, body.light-theme .editor-field > input, body.light-theme .editor-field > select, body.light-theme .editor-field > textarea, body.light-theme .cover-url-row input, body.light-theme .cover-picker, body.light-theme .publish-choice { border-color: #dfe4e7; background: #f7f9fa; color: #17212a; }
 body.light-theme .field-control input, body.light-theme .publish-choice > span:last-child { color: #182129; }
 body.light-theme .admin-glow { background: radial-gradient(ellipse at center, #06c7ee0c, #f5f7f800 70%); }
 body.light-theme .admin-decoration { color: #13202717; }

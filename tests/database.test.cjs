@@ -150,6 +150,22 @@ test("published entries can be created, edited, kept private, and deleted", asyn
   );
 });
 
+test("direct HTTPS cover links are accepted and preserved", async (t) => {
+  const environment = await makeDatabase(t);
+  const database = environment.track(new TranslationDatabase(environment.databasePath));
+  const remoteCover = "https://images.example.com/game-cover.jpg";
+
+  const result = database.saveTranslation({
+    ...NEW_TRANSLATION,
+    title: "رابط مباشر",
+    titleEn: "Direct Link",
+    cover: remoteCover
+  });
+
+  assert.equal(result.translation.cover, remoteCover);
+  assert.equal(database.listPublicTranslations()[0].cover, remoteCover);
+});
+
 test("invalid records and unknown image uploads never enter the catalogue", async (t) => {
   const environment = await makeDatabase(t);
   const database = environment.track(new TranslationDatabase(environment.databasePath));

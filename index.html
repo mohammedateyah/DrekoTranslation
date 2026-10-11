@@ -502,11 +502,19 @@
               <p class="cover-search-message" id="cover-search-message" role="status" hidden></p>
               <div class="cover-search-results" id="cover-search-results" aria-live="polite"></div>
             </section>
+            <div class="cover-url-panel">
+              <label for="cover-url-input" data-i18n="coverUrlLabel">أو أضف رابط صورة مباشر</label>
+              <div class="cover-url-row">
+                <input id="cover-url-input" type="url" maxlength="2048" autocomplete="off" data-i18n-placeholder="coverUrlPlaceholder" placeholder="https://example.com/game-cover.jpg" />
+                <button class="outline-button cover-url-use" id="use-cover-url" type="button" data-i18n="coverUrlUse">استخدام الرابط</button>
+              </div>
+              <small class="editor-field-help" data-i18n="coverUrlHelp">استخدم رابط HTTPS مباشرًا لصورة JPG أو PNG أو WebP.</small>
+            </div>
             <div class="cover-picker">
               <div class="cover-preview" id="cover-preview"></div>
               <div class="cover-picker-copy">
                 <b data-i18n="coverPreviewTitle">الغلاف الذي سيراه اللاعبون</b>
-                <span data-i18n="coverPreviewDescription">اختر صورة عالية الجودة من جهازك.</span>
+                <span data-i18n="coverPreviewDescription">اختر صورة عالية الجودة من جهازك أو من رابط خارجي.</span>
               </div>
               <button class="outline-button cover-choose" id="choose-cover" type="button">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16.5V19a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2.5M12 3v11m0-11L8 7m4-4 4 4"/></svg>
