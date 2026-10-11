@@ -4,11 +4,9 @@ import test from "node:test";
 import { importSPKI, jwtVerify } from "jose";
 import { createFirebaseAuth, serveUpdateRequest } from "./cloudflare-worker.mjs";
 
-test("update manifests route release assets through the Worker", async () => {
+test("update manifests route release downloads through GitHub's public asset URL", async () => {
   const releaseApiUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/latest?per_page=1&channel=stable";
-  const taggedReleaseUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/tags/v1.0.2?channel=stable";
-  const assetsApiUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/789/assets?per_page=100";
-  const manifestAssetUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/assets/123";
+  const manifestAssetUrl = "https://github.com/mohammedateyah/DrekoTranslation/releases/download/v1.0.2/latest.yml";
   const requestedUrls = [];
   const response = await serveUpdateRequest(
     new Request("https://dreko-discord-auth.example/updates/latest.yml"),
@@ -17,20 +15,8 @@ test("update manifests route release assets through the Worker", async () => {
       if (url === releaseApiUrl) {
         assert.equal(options.cf.cacheTtl, 30);
         return new Response(JSON.stringify({
-          tag_name: "v1.0.2",
-          assets: [{ name: "Dreko-Translation-Setup-1.0.2.exe.blockmap", url: `${manifestAssetUrl}-blockmap` }]
+          tag_name: "v1.0.2"
         }), { headers: { "Content-Type": "application/json" } });
-      }
-      if (url === taggedReleaseUrl) {
-        return new Response(JSON.stringify({
-          tag_name: "v1.0.2",
-          assets_url: "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/789/assets"
-        }), { headers: { "Content-Type": "application/json" } });
-      }
-      if (url === assetsApiUrl) {
-        return new Response(JSON.stringify([
-          { name: "latest.yml", url: manifestAssetUrl }
-        ]), { headers: { "Content-Type": "application/json" } });
       }
       assert.equal(url, manifestAssetUrl);
       assert.equal(options.redirect, "follow");
@@ -46,18 +32,16 @@ test("update manifests route release assets through the Worker", async () => {
 
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type"), /text\/yaml/);
-  assert.deepEqual(requestedUrls, [releaseApiUrl, taggedReleaseUrl, assetsApiUrl, manifestAssetUrl]);
+  assert.deepEqual(requestedUrls, [releaseApiUrl, manifestAssetUrl]);
   assert.match(
     await response.text(),
     /"https:\/\/dreko-discord-auth\.example\/updates\/Dreko-Translation-Setup-1\.0\.1\.exe"/g
   );
 });
 
-test("installer downloads stream through GitHub's asset API and preserve ranges", async () => {
+test("installer downloads stream through GitHub's public asset URL and preserve ranges", async () => {
   const releaseApiUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/latest?per_page=1&channel=stable";
-  const taggedReleaseUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/tags/v1.0.2?channel=stable";
-  const assetsApiUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/789/assets?per_page=100";
-  const installerAssetUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/assets/456";
+  const installerAssetUrl = "https://github.com/mohammedateyah/DrekoTranslation/releases/download/v1.0.2/Dreko-Translation-Setup-1.0.2.exe";
   const response = await serveUpdateRequest(
     new Request("https://dreko-discord-auth.example/updates/Dreko-Translation-Setup-1.0.2.exe", {
       headers: { Range: "bytes=0-6" }
@@ -65,21 +49,8 @@ test("installer downloads stream through GitHub's asset API and preserve ranges"
     async (url, options) => {
       if (url === releaseApiUrl) {
         return new Response(JSON.stringify({
-          tag_name: "v1.0.2",
-          assets: []
+          tag_name: "v1.0.2"
         }), { headers: { "Content-Type": "application/json" } });
-      }
-      if (url === taggedReleaseUrl) {
-        return new Response(JSON.stringify({
-          tag_name: "v1.0.2",
-          assets_url: "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/789/assets"
-        }), { headers: { "Content-Type": "application/json" } });
-      }
-      if (url === assetsApiUrl) {
-        return new Response(JSON.stringify([{
-            name: "Dreko-Translation-Setup-1.0.2.exe",
-            url: installerAssetUrl
-          }]), { headers: { "Content-Type": "application/json" } });
       }
       assert.equal(url, installerAssetUrl);
       assert.equal(options.redirect, "follow");
@@ -98,6 +69,36 @@ test("installer downloads stream through GitHub's asset API and preserve ranges"
   assert.equal(response.status, 206);
   assert.equal(response.headers.get("content-range"), "bytes 0-6/100");
   assert.equal(await response.text(), "partial");
+});
+
+test("installer HEAD requests return asset headers without a body", async () => {
+  const releaseApiUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/latest?per_page=1&channel=stable";
+  const installerAssetUrl = "https://github.com/mohammedateyah/DrekoTranslation/releases/download/v1.0.2/Dreko-Translation-Setup-1.0.2.exe";
+  const response = await serveUpdateRequest(
+    new Request("https://dreko-discord-auth.example/updates/Dreko-Translation-Setup-1.0.2.exe", {
+      method: "HEAD"
+    }),
+    async (url, options) => {
+      if (url === releaseApiUrl) {
+        return new Response(JSON.stringify({ tag_name: "v1.0.2" }), {
+          headers: { "Content-Type": "application/json" }
+        });
+      }
+      assert.equal(url, installerAssetUrl);
+      assert.equal(options.method, "HEAD");
+      return new Response(null, {
+        status: 200,
+        headers: {
+          "Content-Length": "112925610",
+          "Content-Type": "application/octet-stream"
+        }
+      });
+    }
+  );
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("content-length"), "112925610");
+  assert.equal(response.body, null);
 });
 
 test("the legacy update feed rejects unsupported files", async () => {

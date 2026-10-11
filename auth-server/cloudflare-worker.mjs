@@ -11,8 +11,6 @@ const FIREBASE_KEYS = createRemoteJWKSet(
 const FIREBASE_UID_PATTERN = /^discord_\d{17,20}$/;
 const GITHUB_RELEASE_API_URL =
   "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/latest?per_page=1&channel=stable";
-const GITHUB_RELEASES_API_BASE =
-  "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases";
 const UPDATE_ASSET_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._ -]*\.(?:exe|blockmap)$/;
 
 function response(body, status = 200, headers = {}) {
@@ -30,7 +28,8 @@ function response(body, status = 200, headers = {}) {
 
 export async function serveUpdateRequest(request, fetcher = fetch) {
   const url = new URL(request.url);
-  if (request.method !== "GET" || !url.pathname.startsWith("/updates/")) {
+  const isHeadRequest = request.method === "HEAD";
+  if ((request.method !== "GET" && !isHeadRequest) || !url.pathname.startsWith("/updates/")) {
     return response(null, 404);
   }
 
@@ -45,6 +44,7 @@ export async function serveUpdateRequest(request, fetcher = fetch) {
     return response(null, 404);
   }
 
+  let updateStage = "latest-release-api";
   try {
     const releaseResponse = await fetcher(GITHUB_RELEASE_API_URL, {
       headers: {
@@ -53,62 +53,39 @@ export async function serveUpdateRequest(request, fetcher = fetch) {
       },
       cf: { cacheEverything: true, cacheTtl: 30 }
     });
-    if (!releaseResponse.ok) return response(null, releaseResponse.status === 404 ? 404 : 502);
+    if (!releaseResponse.ok) {
+      console.error("Update feed GitHub response failed", updateStage, releaseResponse.status);
+      return response(null, releaseResponse.status === 404 ? 404 : 502);
+    }
 
     const release = await releaseResponse.json();
     if (typeof release.tag_name !== "string" || !/^v\d+\.\d+\.\d+(?:[-+][A-Za-z0-9.-]+)?$/.test(release.tag_name)) {
       return response(null, 404);
     }
-    const taggedReleaseResponse = await fetcher(
-      `${GITHUB_RELEASES_API_BASE}/tags/${encodeURIComponent(release.tag_name)}?channel=stable`,
-      {
-        headers: {
-          Accept: "application/vnd.github+json",
-          "User-Agent": "Dreko-Translation-Updater"
-        },
-        cf: { cacheEverything: true, cacheTtl: 30 }
-      }
+    updateStage = "release-asset-download";
+    const assetUrl = new URL(
+      `/mohammedateyah/DrekoTranslation/releases/download/${encodeURIComponent(release.tag_name)}/${encodeURIComponent(fileName)}`,
+      "https://github.com"
     );
-    if (!taggedReleaseResponse.ok) {
-      return response(null, taggedReleaseResponse.status === 404 ? 404 : 502);
-    }
-    const taggedRelease = await taggedReleaseResponse.json();
-    if (taggedRelease.tag_name !== release.tag_name ||
-        typeof taggedRelease.assets_url !== "string" ||
-        !taggedRelease.assets_url.startsWith(`${GITHUB_RELEASES_API_BASE}/`)) {
-      return response(null, 404);
-    }
-    const assetsResponse = await fetcher(`${taggedRelease.assets_url}?per_page=100`, {
+    const assetResponse = await fetcher(assetUrl.href, {
+      method: request.method,
       headers: {
-        Accept: "application/vnd.github+json",
-        "User-Agent": "Dreko-Translation-Updater"
-      },
-      cf: { cacheEverything: true, cacheTtl: 30 }
-    });
-    if (!assetsResponse.ok) return response(null, assetsResponse.status === 404 ? 404 : 502);
-    const tagAssets = await assetsResponse.json();
-    const assetsByName = new Map();
-    for (const item of [...(Array.isArray(release.assets) ? release.assets : []), ...tagAssets]) {
-      if (item && typeof item.name === "string") assetsByName.set(item.name, item);
-    }
-    const assets = [...assetsByName.values()];
-    const asset = assets.find((item) => item.name === fileName);
-    if (!asset || typeof asset.url !== "string" ||
-        !asset.url.startsWith("https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/assets/")) {
-      return response(null, 404);
-    }
-
-    const assetResponse = await fetcher(asset.url, {
-      headers: {
-        Accept: "application/octet-stream",
-        "User-Agent": "Dreko-Translation-Updater",
         ...(request.headers.has("range") ? { Range: request.headers.get("range") } : {})
       },
       redirect: "follow"
     });
-    if (!assetResponse.ok) return response(null, assetResponse.status === 404 ? 404 : 502);
+    if (!assetResponse.ok) {
+      console.error("Update feed GitHub response failed", updateStage, assetResponse.status);
+      return response(null, assetResponse.status === 404 ? 404 : 502);
+    }
 
     if (fileName === "latest.yml") {
+      if (isHeadRequest) {
+        return response(null, assetResponse.status, {
+          "Cache-Control": "no-store",
+          "Content-Type": "text/yaml; charset=utf-8"
+        });
+      }
       const updateManifest = (await assetResponse.text()).replace(
         /^(\s*(?:-\s*)?(?:url|path):\s*)(?:"([^"]*)"|'([^']*)'|([^\r\n]+))\s*$/gm,
         (_line, prefix, doubleQuoted, singleQuoted, unquoted) => {
@@ -129,14 +106,15 @@ export async function serveUpdateRequest(request, fetcher = fetch) {
     if (assetResponse.status !== 200 && assetResponse.status !== 206) return response(null, 502);
     const downloadHeaders = {
       "Cache-Control": "no-store",
-      "Content-Type": asset.content_type || "application/octet-stream"
+      "Content-Type": assetResponse.headers.get("content-type") || "application/octet-stream"
     };
     for (const header of ["accept-ranges", "content-length", "content-range", "etag", "last-modified"]) {
       const value = assetResponse.headers.get(header);
       if (value) downloadHeaders[header] = value;
     }
-    return response(assetResponse.body, assetResponse.status, downloadHeaders);
-  } catch {
+    return response(isHeadRequest ? null : assetResponse.body, assetResponse.status, downloadHeaders);
+  } catch (error) {
+    console.error("Update feed request failed", updateStage, error?.name || "UNKNOWN");
     return response(null, 502);
   }
 }
