@@ -1,0 +1,87 @@
+{
+  "name": "dreko-translation",
+  "version": "1.0.1",
+  "private": true,
+  "description": "Arabic-first desktop translation library",
+  "author": "Dreko",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mohammedateyah/DrekoTranslation.git"
+  },
+  "main": "main.cjs",
+  "scripts": {
+    "build:app": "esbuild app.js --bundle --outfile=app.bundle.js --platform=browser --format=iife --target=chrome140",
+    "prestart": "npm run build:app",
+    "start": "electron .",
+    "prebuild:dir": "npm run build:app",
+    "test": "node --test",
+    "build:dir": "electron-builder --win dir",
+    "predist": "npm run build:app",
+    "dist": "electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "44.5.1",
+    "electron-builder": "26.15.3",
+    "esbuild": "^0.28.2",
+    "firebase": "^13.0.0"
+  },
+  "build": {
+    "appId": "com.dreko.translation",
+    "productName": "Dreko Translation",
+    "directories": {
+      "output": "release"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "mohammedateyah",
+        "repo": "DrekoTranslation"
+      }
+    ],
+    "files": [
+      "app.js",
+      "app.bundle.js",
+      "database.cjs",
+      "installed-games.cjs",
+      "image-search.cjs",
+      "discord-auth-config.json",
+      "index.html",
+      "main.cjs",
+      "preload.cjs",
+      "translation-installer.cjs",
+      "styles.css",
+      "assets/**/*",
+      "!.env",
+      "!.env.*",
+      "!firebase-client.js",
+      "package.json"
+    ],
+    "win": {
+      "icon": "assets/dreko.ico",
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "displayLanguageSelector": true,
+      "installerLanguages": [
+        "ar_SA",
+        "en_US"
+      ],
+      "include": "build/installer.nsh"
+    }
+  },
+  "overrides": {
+    "@grpc/grpc-js": "^1.14.6"
+  },
+  "dependencies": {
+    "discord-rpc": "^4.0.1",
+    "electron-updater": "^6.8.9",
+    "yauzl": "^3.2.0"
+  }
+}

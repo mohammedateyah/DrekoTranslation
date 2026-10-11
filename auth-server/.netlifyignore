@@ -1,0 +1,9 @@
+/.env
+/.env.*
+!/.env.example
+/firebase-service-account.json
+/node_modules
+/.dev.vars
+/.dev.vars.*
+/.wrangler
+/**/*.test.cjs

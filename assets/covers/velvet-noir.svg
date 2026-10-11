@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="alley" x2="0" y2="1"><stop stop-color="#181a2d"/><stop offset=".64" stop-color="#22273c"/><stop offset="1" stop-color="#7c4e68"/></linearGradient>
+    <linearGradient id="sign" x2="0" y2="1"><stop stop-color="#ff74c1"/><stop offset="1" stop-color="#933ca9"/></linearGradient>
+    <radialGradient id="glow"><stop stop-color="#fb72bd" stop-opacity=".55"/><stop offset="1" stop-color="#fb72bd" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#alley)"/>
+  <path d="M0 0h182L287 360H0Zm640 0H455L351 360h289Z" fill="#121623" opacity=".87"/>
+  <path d="m182 0 113 146 15 214H207L134 79V0Zm276 0L344 147l-9 213h128l72-282V0Z" fill="#28263a" opacity=".8"/>
+  <ellipse cx="432" cy="145" rx="143" ry="115" fill="url(#glow)"/>
+  <path d="M361 65h137v70H361Z" fill="#28182b" stroke="#d963ad" stroke-width="3"/>
+  <path d="M373 79h113v42H373Z" fill="url(#sign)" opacity=".9"/>
+  <text x="429" y="107" fill="#fff0e8" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" letter-spacing="5">VELOUR</text>
+  <path d="M0 261c100-32 207-24 316-5s213-19 324-3v107H0Z" fill="#171723"/>
+  <path d="M36 250h69l24 96H21Zm507-9h44l39 106h-55Z" fill="#101722"/>
+  <path d="M142 276h81l33 84H123Zm286-6h93l36 90H408Z" fill="#282335"/>
+  <path d="M291 360c-5-44 3-81 26-102 10-9 21-13 34-13s27 7 37 18c15 17 21 50 23 97Z" fill="#11141d"/>
+  <path d="M317 259c2-24 18-40 34-40 18 0 34 15 36 43l-12 19h-45Z" fill="#d8ab9a"/>
+  <path d="M311 258c1-30 18-50 43-50 25 0 43 20 42 48l-16-14-7 13-19-18-17 21-11-12Z" fill="#1b1927"/>
+  <path d="m153 201 29 7-3 42-29-9m297-51 20 7-5 44-20-6" fill="none" stroke="#ef7bad" stroke-width="4" opacity=".68"/>
+</svg>

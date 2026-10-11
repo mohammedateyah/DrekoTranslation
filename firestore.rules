@@ -1,0 +1,358 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isDiscordGuildMember() {
+      return request.auth != null
+        && request.auth.token.discordGuildMember == true
+        && request.auth.token.discordGuildId == '766985465323716649'
+        && request.auth.token.discordUserId is string
+        && request.auth.token.discordMembershipExpiresAt is int
+        && request.time.toMillis() < request.auth.token.discordMembershipExpiresAt * 1000
+        && request.auth.uid == 'discord_' + request.auth.token.discordUserId;
+    }
+
+    function isAdministrator() {
+      return isDiscordGuildMember()
+        && exists(/databases/$(database)/documents/administrators/$(request.auth.uid))
+        && get(/databases/$(database)/documents/administrators/$(request.auth.uid)).data.enabled == true;
+    }
+
+    function validTranslationAvailability(data, steamAppId) {
+      return data.keys().hasAll(['steamAppId', 'gameName', 'requestId', 'updatedAt'])
+        && data.keys().hasOnly(['steamAppId', 'gameName', 'requestId', 'updatedAt'])
+        && data.steamAppId == steamAppId
+        && data.gameName is string
+        && data.gameName.size() > 0
+        && data.gameName.size() <= 120
+        && data.requestId is string
+        && data.updatedAt is timestamp
+        && getAfter(/databases/$(database)/documents/translationRequests/$(data.requestId)).data.status == 'archived'
+        && getAfter(/databases/$(database)/documents/translationRequests/$(data.requestId)).data.steamAppId == steamAppId
+        && getAfter(/databases/$(database)/documents/translationRequests/$(data.requestId)).data.gameName == data.gameName;
+    }
+
+    function validTranslation(data) {
+      return data.keys().hasAll([
+          'title', 'titleEn', 'developer', 'genre', 'category', 'status',
+          'visibility', 'year', 'popularity', 'cover', 'description', 'translationUrl',
+          'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'title', 'titleEn', 'developer', 'genre', 'category', 'status',
+          'visibility', 'year', 'popularity', 'cover', 'description', 'translationUrl',
+          'installerProgramUrl', 'packageVersion', 'premium', 'sortOrder', 'createdAt', 'updatedAt'
+        ])
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 100
+        && data.titleEn is string && data.titleEn.size() > 0 && data.titleEn.size() <= 100
+        && data.developer is string && data.developer.size() > 0 && data.developer.size() <= 80
+        && data.genre in ['adventure', 'action', 'rpg', 'horror', 'simulator', 'puzzle', 'strategy', 'other']
+        && data.category in ['full', 'interface']
+        && data.status in ['ready', 'progress']
+        && data.visibility in ['published', 'draft']
+        && data.year is int && data.year >= 1970 && data.year <= 2200
+        && data.popularity is int && data.popularity >= 0 && data.popularity <= 100000000
+        && data.cover is string && data.cover.size() <= 300
+        && (
+          data.cover in [
+            'astral-observer', 'paper-moon', 'last-orchard', 'velvet-noir',
+            'nocturne', 'lantern-keep', 'city-of-glass', 'forgotten-passage',
+            'clockwork-cafe', 'midnight-repairs', 'wilds', 'quiet-thunder'
+          ]
+          || data.cover.matches('^storage:covers/[A-Za-z0-9_-]{1,128}/[A-Za-z0-9-]{1,64}/[A-Za-z0-9._-]{1,128}$')
+          || data.cover.matches('^firestore:covers/[A-Za-z0-9-]{36}$')
+        )
+        && data.description is string && data.description.size() <= 1000
+        && data.translationUrl is string && data.translationUrl.size() <= 2048
+        && (data.translationUrl == '' || data.translationUrl.matches('^https://.+$'))
+        && data.get('installerProgramUrl', '') is string
+        && data.get('installerProgramUrl', '').size() <= 2048
+        && (data.get('installerProgramUrl', '') == ''
+          || data.get('installerProgramUrl', '').matches('^https://.+$'))
+        && data.get('packageVersion', '') is string
+        && data.get('packageVersion', '').size() <= 32
+        && (!data.keys().hasAny(['premium']) || data.premium is bool)
+        && (!data.keys().hasAny(['sortOrder'])
+          || (data.sortOrder is number && data.sortOrder >= -1000000000 && data.sortOrder <= 1000000000))
+        && data.createdAt is timestamp
+        && data.updatedAt == request.time;
+    }
+
+    function validTranslationControlUpdate() {
+      let changedFields = request.resource.data.diff(resource.data).affectedKeys();
+      return changedFields.hasAny(['sortOrder', 'visibility'])
+        && changedFields.hasOnly(['sortOrder', 'visibility'])
+        && (
+          !changedFields.hasAny(['sortOrder'])
+          || (
+            request.resource.data.sortOrder is int
+            && request.resource.data.sortOrder >= -1000000000
+            && request.resource.data.sortOrder <= 1000000000
+          )
+        )
+        && (
+          !changedFields.hasAny(['visibility'])
+          || request.resource.data.visibility in ['published', 'draft']
+        );
+    }
+
+    match /administrators/{uid} {
+      allow get: if isDiscordGuildMember() && request.auth.uid == uid;
+      allow list, create, update, delete: if false;
+    }
+
+    match /accounts/{uid} {
+      allow get: if isAdministrator()
+        || (isDiscordGuildMember() && request.auth.uid == uid);
+      allow list: if isAdministrator();
+      allow create: if isDiscordGuildMember()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasAll([
+          'discordUserId', 'username', 'avatar', 'guildId',
+          'accountType', 'premiumExpiresAt', 'createdAt', 'lastLoginAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'discordUserId', 'username', 'avatar', 'guildId',
+          'accountType', 'premiumExpiresAt', 'createdAt', 'lastLoginAt'
+        ])
+        && request.resource.data.discordUserId == request.auth.token.discordUserId
+        && request.resource.data.username == request.auth.token.discordUsername
+        && request.resource.data.avatar == request.auth.token.discordAvatar
+        && request.resource.data.guildId == request.auth.token.discordGuildId
+        && request.resource.data.accountType == 'standard'
+        && request.resource.data.premiumExpiresAt == null
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.lastLoginAt == request.time;
+      allow update: if (
+          isDiscordGuildMember()
+          && request.auth.uid == uid
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['username', 'avatar', 'lastLoginAt'])
+          && request.resource.data.discordUserId == request.auth.token.discordUserId
+          && request.resource.data.username == request.auth.token.discordUsername
+          && request.resource.data.avatar == request.auth.token.discordAvatar
+          && request.resource.data.guildId == request.auth.token.discordGuildId
+          && request.resource.data.accountType == resource.data.accountType
+          && request.resource.data.get('premiumExpiresAt', null)
+            == resource.data.get('premiumExpiresAt', null)
+          && request.resource.data.createdAt == resource.data.createdAt
+          && request.resource.data.lastLoginAt == request.time
+        ) || (
+          isAdministrator()
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['accountType', 'premiumExpiresAt'])
+          && request.resource.data.accountType in ['standard', 'premium']
+          && (
+            request.resource.data.accountType == 'standard'
+              ? request.resource.data.premiumExpiresAt == null
+              : request.resource.data.premiumExpiresAt == null
+                || (
+                  request.resource.data.premiumExpiresAt is timestamp
+                  && request.resource.data.premiumExpiresAt > request.time
+                  && request.resource.data.premiumExpiresAt
+                    <= request.time + duration.value(366, 'd')
+                )
+          )
+        );
+      allow delete: if false;
+    }
+
+    match /translations/{translationId} {
+      allow get, list: if isDiscordGuildMember()
+        && (resource.data.visibility == 'published' || isAdministrator());
+      allow create: if isAdministrator() && validTranslation(request.resource.data);
+      allow update: if isAdministrator()
+        && (
+          (
+            request.resource.data.createdAt == resource.data.createdAt
+            && validTranslation(request.resource.data)
+          )
+          || validTranslationControlUpdate()
+        );
+      allow delete: if isAdministrator();
+    }
+
+    match /translationCovers/{coverId} {
+      function isVisibleCover() {
+        return isDiscordGuildMember()
+          && resource.data.translationId is string
+          && exists(/databases/$(database)/documents/translations/$(resource.data.translationId))
+          && get(/databases/$(database)/documents/translations/$(resource.data.translationId)).data.visibility == 'published'
+          && get(/databases/$(database)/documents/translations/$(resource.data.translationId)).data.cover
+            == 'firestore:covers/' + coverId;
+      }
+
+      function validCoverData(data) {
+        return data.keys().hasAll([
+            'uploadedBy', 'translationId', 'imageBase64', 'contentType', 'updatedAt'
+          ])
+          && data.keys().hasOnly([
+            'uploadedBy', 'translationId', 'imageBase64', 'contentType', 'updatedAt'
+          ])
+          && data.uploadedBy == request.auth.uid
+          && data.translationId is string
+          && data.translationId.matches('^[A-Za-z0-9-]{1,64}$')
+          && data.imageBase64 is string
+          && data.imageBase64.size() > 0
+          && data.imageBase64.size() <= 420000
+          && data.contentType == 'image/webp'
+          && data.updatedAt == request.time;
+      }
+
+      allow get: if isAdministrator() || isVisibleCover();
+      allow list: if false;
+      allow create: if isAdministrator()
+        && coverId.matches('^[A-Za-z0-9-]{36}$')
+        && validCoverData(request.resource.data);
+      allow update: if isAdministrator()
+        && coverId.matches('^[A-Za-z0-9-]{36}$')
+        && validCoverData(request.resource.data)
+        && request.resource.data.uploadedBy == resource.data.uploadedBy
+        && request.resource.data.translationId == resource.data.translationId;
+      allow delete: if isAdministrator()
+        && resource.data.uploadedBy == request.auth.uid;
+    }
+
+    match /translationRequests/{requestId} {
+      allow get, list: if isAdministrator()
+        || (isDiscordGuildMember() && resource.data.uid == request.auth.uid);
+      allow create: if isDiscordGuildMember()
+        && request.resource.data.keys().hasAll([
+          'uid', 'discordUserId', 'username', 'gameName', 'steamAppId',
+          'platform', 'status', 'createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'uid', 'discordUserId', 'username', 'gameName', 'steamAppId',
+          'platform', 'status', 'createdAt', 'avatar'
+        ])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.discordUserId == request.auth.token.discordUserId
+        && request.resource.data.username == request.auth.token.discordUsername
+        && request.resource.data.username.size() <= 80
+        && (!request.resource.data.keys().hasAny(['avatar'])
+          || (request.resource.data.avatar is string
+            && request.resource.data.avatar.size() <= 128
+            && request.resource.data.avatar == request.auth.token.discordAvatar))
+        && request.resource.data.gameName is string
+        && request.resource.data.gameName.size() > 0
+        && request.resource.data.gameName.size() <= 120
+        && request.resource.data.steamAppId is string
+        && request.resource.data.steamAppId.matches('^[0-9]{1,10}$')
+        && request.resource.data.platform == 'Steam'
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time
+        && !existsAfter(/databases/$(database)/documents/translationAvailability/$(request.resource.data.steamAppId))
+        && getAfter(/databases/$(database)/documents/translationRequestLocks/$(request.auth.uid)).data.status == 'pending'
+        && getAfter(/databases/$(database)/documents/translationRequestLocks/$(request.auth.uid)).data.activeRequestId == requestId;
+      allow update: if isAdministrator()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        && request.resource.data.status in ['pending', 'archived']
+        && (
+          (
+            request.resource.data.status == 'archived'
+            && getAfter(/databases/$(database)/documents/translationRequestLocks/$(resource.data.uid)).data.status == 'archived'
+            && getAfter(/databases/$(database)/documents/translationRequestLocks/$(resource.data.uid)).data.lastRequestId == requestId
+            && validTranslationAvailability(
+              getAfter(/databases/$(database)/documents/translationAvailability/$(resource.data.steamAppId)).data,
+              resource.data.steamAppId
+            )
+          )
+          || (
+            request.resource.data.status == 'archived'
+            && getAfter(/databases/$(database)/documents/translationRequestLocks/$(resource.data.uid)).data.status == 'pending'
+            && getAfter(/databases/$(database)/documents/translationRequestLocks/$(resource.data.uid)).data.activeRequestId != requestId
+            && validTranslationAvailability(
+              getAfter(/databases/$(database)/documents/translationAvailability/$(resource.data.steamAppId)).data,
+              resource.data.steamAppId
+            )
+          )
+          || (
+            request.resource.data.status == 'pending'
+            && getAfter(/databases/$(database)/documents/translationRequestLocks/$(resource.data.uid)).data.status == 'pending'
+            && getAfter(/databases/$(database)/documents/translationRequestLocks/$(resource.data.uid)).data.activeRequestId == requestId
+          )
+        );
+      allow delete: if isAdministrator()
+        && (
+          (
+            getAfter(/databases/$(database)/documents/translationRequestLocks/$(resource.data.uid)).data.status == 'none'
+            && getAfter(/databases/$(database)/documents/translationRequestLocks/$(resource.data.uid)).data.lastRequestId == requestId
+          )
+          || (
+            getAfter(/databases/$(database)/documents/translationRequestLocks/$(resource.data.uid)).data.status == 'pending'
+            && getAfter(/databases/$(database)/documents/translationRequestLocks/$(resource.data.uid)).data.activeRequestId != requestId
+          )
+          || (
+            getAfter(/databases/$(database)/documents/translationRequestLocks/$(resource.data.uid)).data.status == 'archived'
+            && getAfter(/databases/$(database)/documents/translationRequestLocks/$(resource.data.uid)).data.lastRequestId != requestId
+          )
+        );
+    }
+
+    match /translationAvailability/{steamAppId} {
+      allow get: if isDiscordGuildMember();
+      allow list: if false;
+      allow create, update: if isAdministrator()
+        && steamAppId.matches('^[0-9]{1,10}$')
+        && validTranslationAvailability(request.resource.data, steamAppId)
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if isAdministrator()
+        && (
+          !existsAfter(/databases/$(database)/documents/translationRequests/$(resource.data.requestId))
+          || getAfter(/databases/$(database)/documents/translationRequests/$(resource.data.requestId)).data.status != 'archived'
+        );
+    }
+
+    match /translationRequestLocks/{uid} {
+      allow get: if isAdministrator() || (isDiscordGuildMember() && request.auth.uid == uid);
+      allow list: if false;
+      allow create, update: if (
+          isDiscordGuildMember()
+          && request.auth.uid == uid
+          && request.resource.data.status == 'pending'
+          && request.resource.data.keys().hasOnly(['uid', 'status', 'activeRequestId'])
+          && request.resource.data.uid == uid
+          && request.resource.data.activeRequestId is string
+          && getAfter(/databases/$(database)/documents/translationRequests/$(request.resource.data.activeRequestId)).data.uid == uid
+          && getAfter(/databases/$(database)/documents/translationRequests/$(request.resource.data.activeRequestId)).data.status == 'pending'
+        ) || (
+          isAdministrator()
+          && request.resource.data.uid == uid
+          && (
+            (
+              request.resource.data.status == 'pending'
+              && request.resource.data.keys().hasOnly(['uid', 'status', 'activeRequestId'])
+              && request.resource.data.activeRequestId is string
+              && getAfter(/databases/$(database)/documents/translationRequests/$(request.resource.data.activeRequestId)).data.uid == uid
+              && getAfter(/databases/$(database)/documents/translationRequests/$(request.resource.data.activeRequestId)).data.status == 'pending'
+            )
+            || (
+              request.resource.data.status == 'archived'
+              && request.resource.data.keys().hasOnly(['uid', 'status', 'lastRequestId'])
+              && request.resource.data.lastRequestId is string
+              && getAfter(/databases/$(database)/documents/translationRequests/$(request.resource.data.lastRequestId)).data.uid == uid
+              && getAfter(/databases/$(database)/documents/translationRequests/$(request.resource.data.lastRequestId)).data.status == 'archived'
+            )
+            || (
+              request.resource.data.status == 'none'
+              && request.resource.data.keys().hasOnly(['uid', 'status', 'lastRequestId'])
+              && request.resource.data.lastRequestId is string
+              && !existsAfter(/databases/$(database)/documents/translationRequests/$(request.resource.data.lastRequestId))
+            )
+          )
+        );
+      allow delete: if false;
+    }
+
+    match /settings/{settingId} {
+      allow get, list: if isAdministrator();
+      allow create, update: if isAdministrator()
+        && settingId == 'legacy-catalog-migration'
+        && request.resource.data.keys().hasOnly(['completedAt', 'imported', 'version'])
+        && request.resource.data.completedAt == request.time
+        && request.resource.data.imported is int
+        && request.resource.data.imported >= 0
+        && request.resource.data.version == 1;
+      allow delete: if false;
+    }
+  }
+}

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="winter" x2="0" y2="1"><stop stop-color="#10192c"/><stop offset=".55" stop-color="#465267"/><stop offset="1" stop-color="#bd9981"/></linearGradient>
+    <radialGradient id="lamp"><stop stop-color="#ffe7b8" stop-opacity=".88"/><stop offset=".13" stop-color="#ffdfa3" stop-opacity=".35"/><stop offset="1" stop-color="#ffdfa3" stop-opacity="0"/></radialGradient>
+    <linearGradient id="snow" x2="0" y2="1"><stop stop-color="#bbc5ce"/><stop offset="1" stop-color="#798a9a"/></linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#winter)"/>
+  <circle cx="187" cy="138" r="102" fill="url(#lamp)"/>
+  <path d="m0 215 81-110 48 70L213 75l74 125 98-105 86 106 79-112 90 142v229H0Z" fill="#202e3b"/>
+  <path d="M122 360V183h76V126l49-50 51 50v234Z" fill="#25252d" stroke="#a9aaad" stroke-opacity=".28" stroke-width="3"/>
+  <path d="m108 194 103-90 103 90Z" fill="#282731"/>
+  <rect x="219" y="217" width="39" height="72" rx="19" fill="#f2bd78" opacity=".82"/>
+  <path d="M0 271c89-19 147 15 258-1s257 12 382-20v110H0Z" fill="url(#snow)"/>
+  <path d="M352 224v-54m-22 55 22-79 20 80m160 41V152m-28 114 28-102 30 104" stroke="#14232f" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M0 317c94-17 173 8 262-8 136-24 246 8 378-23v74H0Z" fill="#788898"/>
+  <path d="m390 360 17-60 18 60m65 0 19-52 17 52" fill="#314252"/>
+  <g fill="#e9eef2" opacity=".78"><circle cx="94" cy="83" r="2"/><circle cx="414" cy="69" r="1.7"/><circle cx="500" cy="122" r="2"/><circle cx="355" cy="112" r="1.4"/><circle cx="581" cy="74" r="1.8"/><circle cx="48" cy="155" r="1"/></g>
+</svg>

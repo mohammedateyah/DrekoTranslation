@@ -1,0 +1,17 @@
+node_modules/
+release/
+release-*/
+app.bundle.js
+dist/
+.env
+.env.*
+!.env.example
+npm-debug.log*
+.firebase/
+firebase-debug.log
+firestore-debug.log
+storage-debug.log
+ui-debug.log
+
+# Local Netlify folder
+.netlify

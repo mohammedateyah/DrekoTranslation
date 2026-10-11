@@ -1,0 +1,43 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isDiscordGuildMember() {
+      return request.auth != null
+        && request.auth.token.discordGuildMember == true
+        && request.auth.token.discordGuildId == '766985465323716649'
+        && request.auth.token.discordUserId is string
+        && request.auth.token.discordMembershipExpiresAt is int
+        && request.time.toMillis() < request.auth.token.discordMembershipExpiresAt * 1000
+        && request.auth.uid == 'discord_' + request.auth.token.discordUserId;
+    }
+
+    function isAdministrator() {
+      return isDiscordGuildMember()
+        && firestore.exists(/databases/(default)/documents/administrators/$(request.auth.uid))
+        && firestore.get(/databases/(default)/documents/administrators/$(request.auth.uid)).data.enabled == true;
+    }
+
+    function isPublishedCover(uid, translationId) {
+      return isDiscordGuildMember()
+        && firestore.exists(/databases/(default)/documents/translations/$(translationId))
+        && firestore.get(/databases/(default)/documents/translations/$(translationId)).data.visibility == 'published'
+        && firestore.get(/databases/(default)/documents/translations/$(translationId)).data.cover == resource.metadata.coverPath
+        && resource.metadata.uploadedBy == uid
+        && resource.metadata.translationId == translationId;
+    }
+
+    match /covers/{uid}/{translationId}/{fileName} {
+      allow get: if isAdministrator() || isPublishedCover(uid, translationId);
+      allow list: if false;
+      allow create: if isAdministrator()
+        && request.auth.uid == uid
+        && request.resource.size > 0
+        && request.resource.size <= 8 * 1024 * 1024
+        && request.resource.contentType in ['image/png', 'image/jpeg', 'image/webp']
+        && request.resource.metadata.uploadedBy == request.auth.uid
+        && request.resource.metadata.translationId == translationId;
+      allow update: if false;
+      allow delete: if isAdministrator() && request.auth.uid == uid;
+    }
+  }
+}

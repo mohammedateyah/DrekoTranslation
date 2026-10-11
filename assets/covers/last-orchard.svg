@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="sunset" x2="0" y2="1"><stop stop-color="#ce9a83"/><stop offset=".49" stop-color="#7f5968"/><stop offset="1" stop-color="#263643"/></linearGradient>
+    <radialGradient id="sun"><stop stop-color="#f7e3bc"/><stop offset="1" stop-color="#eabe94" stop-opacity=".1"/></radialGradient>
+    <linearGradient id="hill" x2="0" y2="1"><stop stop-color="#53624f"/><stop offset="1" stop-color="#1e342f"/></linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#sunset)"/>
+  <circle cx="324" cy="139" r="107" fill="url(#sun)" opacity=".63"/>
+  <circle cx="324" cy="139" r="62" fill="#f0ceb0" opacity=".85"/>
+  <path d="M0 221c109-45 189-28 290-1s216-58 350-33v173H0Z" fill="#54614e"/>
+  <path d="M0 267c115-42 221-16 314 12s211-63 326-33v114H0Z" fill="url(#hill)"/>
+  <path d="M0 322c116-34 211 9 333-13s213-35 307-13v64H0Z" fill="#182c29"/>
+  <g fill="#1c332d">
+    <path d="M64 287V157h14v130zm-16-73 23-39 24 39Zm185 80V132h18v162zm-23-82 32-52 32 52Zm244 70V156h14v129zm-22-63 30-49 31 49Zm102 43V181h13v86zm-18-47 25-39 25 39Z"/>
+  </g>
+  <path d="M368 297v-63l29-38 31 38v63Z" fill="#322a30"/>
+  <path d="M361 242 398 213l38 29" fill="none" stroke="#30232c" stroke-width="13"/>
+  <path d="M385 297v-36a13 13 0 0 1 26 0v36Z" fill="#f0c893"/>
+  <path d="M0 307c162-21 261 33 378 6s180-34 262-16" fill="none" stroke="#ebc29b" stroke-width="2" opacity=".28"/>
+  <g fill="#ffe4c2"><circle cx="95" cy="100" r="1.4"/><circle cx="531" cy="92" r="1.6"/><circle cx="557" cy="145" r="1"/><circle cx="148" cy="150" r="1"/></g>
+</svg>

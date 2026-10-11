@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebaseinstallations.googleapis.com https://firestore.googleapis.com https://firebasestorage.googleapis.com; img-src 'self' data: https://firebasestorage.googleapis.com https://cdn.discordapp.com https://*.steamstatic.com https://images.igdb.com https://cdn.thegamesdb.net https://cdn.steamgriddb.com; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'"
+    />
+    <meta name="description" content="Dreko Translation — الترجمات العربية كما يجب أن تُرى." />
+    <meta name="theme-color" content="#090b0f" />
+    <title>Dreko Translation</title>
+    <link rel="icon" href="./assets/dreko-mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="window-titlebar" aria-hidden="true"></div>
+    <main class="discord-gate" id="discord-gate" aria-labelledby="discord-gate-title">
+      <div class="discord-gate-glow discord-gate-glow-one"></div>
+      <div class="discord-gate-glow discord-gate-glow-two"></div>
+      <section class="discord-gate-card">
+        <div class="discord-gate-brand">
+          <img src="./assets/dreko-mark.svg" alt="" />
+        </div>
+        <h1 id="discord-gate-title" data-i18n="discordGateTitle">عالم الألعاب… بلغتك العربية</h1>
+        <p class="discord-gate-description" data-i18n="discordGateDescription">اجعل عالم الألعاب أقرب إليك، واستمتع بتجربة لعب بلغتك العربية.</p>
+        <p class="discord-gate-status" id="discord-gate-status" role="status" aria-live="polite" data-i18n="discordGatePreparing">جارٍ الاتصال بخدمة التحقق...</p>
+        <button class="discord-login-button" id="discord-login" type="button" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.8 5.5A18.2 18.2 0 0 0 15.3 4l-.5 1a16.5 16.5 0 0 0-5.6 0l-.5-1a18.2 18.2 0 0 0-4.5 1.5C1.4 9.7.6 13.8 1 17.8a18.4 18.4 0 0 0 5.5 2.8l1.2-2a11.8 11.8 0 0 1-1.9-.9l.5-.4a13.1 13.1 0 0 0 11.4 0l.5.4a11.8 11.8 0 0 1-1.9.9l1.2 2a18.4 18.4 0 0 0 5.5-2.8c.5-4.7-.8-8.8-3.2-12.3ZM8.8 15.3c-1.1 0-2-1-2-2.2s.9-2.2 2-2.2 2 1 2 2.2-.9 2.2-2 2.2Zm6.4 0c-1.1 0-2-1-2-2.2s.9-2.2 2-2.2 2 1 2 2.2-.9 2.2-2 2.2Z"/></svg>
+          <span data-i18n="discordLogin">المتابعة باستخدام Discord</span>
+        </button>
+        <a class="discord-join-link" id="discord-join" href="#" target="_blank" rel="noreferrer" hidden data-i18n="discordJoinServer">الانضمام إلى سيرفر Dreko</a>
+        <div class="discord-gate-footnote">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg>
+          <span data-i18n="discordGateSecurity">لا نطلب كلمة مرور Discord داخل التطبيق.</span>
+        </div>
+      </section>
+    </main>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="topbar-side topbar-start">
+          <button class="icon-button admin-nav-link" id="admin-nav-link" type="button" data-i18n-aria-label="adminDashboardTitle" aria-label="لوحة الإدارة" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h8v8H3zm10 0h8v5h-8zm0 7h8v11h-8zM3 13h8v8H3z"/></svg>
+          </button>
+          <button class="theme-toggle icon-button" id="theme-toggle" type="button" aria-label="تغيير المظهر" data-i18n-aria-label="themeLabel">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+          </button>
+          <button class="icon-button discord-logout" id="discord-logout" type="button" aria-label="تسجيل الخروج من Discord" data-i18n-aria-label="discordLogoutLabel" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5m5 5H3"/><path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></svg>
+          </button>
+          <button class="profile-chip account-chip" id="profile-button" type="button" aria-label="الملف الشخصي" data-i18n-aria-label="profileEntryLabel">
+            <span class="profile-avatar"><span class="profile-avatar-fallback">D</span><img class="discord-avatar-image" alt="" hidden /></span>
+            <span id="discord-user-label" data-i18n="guest">زائر</span>
+          </button>
+          <button class="language-button" id="language-toggle" type="button">
+            <span data-i18n="language">العربية</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h12M10 3v2c0 6-3 10-7 12m2-7c2 3 5 5 9 6M16 20l4-11 4 11m-6.5-3h5"/></svg>
+          </button>
+          </div>
+          <nav class="primary-nav primary-nav-start" aria-label="روابط الدعم والتحديثات">
+            <a class="nav-link" href="#support" data-nav="support" data-i18n="navSupport">الدعم</a>
+            <a class="nav-link" href="#updates" data-nav="updates" data-i18n="navUpdates">التحديثات</a>
+          </nav>
+        </div>
+
+        <a class="brand" href="#home" aria-label="Dreko Translation">
+          <img class="brand-logo" src="./assets/dreko-mark.svg" alt="" />
+        </a>
+        <nav class="primary-nav primary-nav-end" aria-label="روابط دريكو">
+          <a class="nav-link" href="#community" data-nav="community" data-i18n="navCommunity">المجتمع</a>
+          <a class="nav-link" href="https://dreko8u.web.app/" data-nav="our-site" data-i18n="navOurSite">موقعنا</a>
+          <a class="nav-link nav-link-premium" href="https://drekostore.web.app" data-nav="premium">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m2 8 4 3 6-7 6 7 4-3-2 11H4L2 8Z"/><path d="M4 16h16"/></svg>
+            <span data-i18n="navPremium">دريكو بريميوم</span>
+          </a>
+          <a class="nav-link active" href="#library" data-nav="library" data-i18n="navLibrary">المكتبة</a>
+        </nav>
+      </header>
+
+      <main>
+        <div id="public-view">
+          <section class="featured-section" id="updates">
+            <div class="section-heading featured-heading">
+              <div class="eyebrow"><span class="eyebrow-line"></span><span data-i18n="featuredEyebrow">أُضيف حديثاً</span></div>
+              <h1 data-i18n="featuredTitle">أحدث <span>التعريبات</span></h1>
+            </div>
+
+            <div class="featured-window">
+              <div class="featured-rail" id="featured-track" aria-label="أحدث التعريبات"></div>
+            </div>
+          </section>
+
+          <section class="library-section" id="library">
+            <div class="library-title-row">
+              <div class="section-heading library-heading">
+                <div class="eyebrow"><span class="eyebrow-line"></span><span data-i18n="libraryEyebrow">استكشف المكتبة</span></div>
+                <h2 id="library-title" data-i18n="libraryTitle">مجموعة <span>الألعاب</span></h2>
+                <p><span id="result-count">0</span> <span id="result-count-label" data-i18n="translationCount">ترجمة</span></p>
+              </div>
+            </div>
+
+            <div class="toolbar">
+              <div class="toolbar-group view-switch" role="group" aria-label="طريقة عرض المكتبة">
+                <button class="view-button" data-view="list" type="button" aria-label="عرض القائمة" data-i18n-aria-label="listViewLabel">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+                </button>
+                <button class="view-button selected" data-view="grid" type="button" aria-label="عرض الشبكة" data-i18n-aria-label="gridViewLabel">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                </button>
+              </div>
+              <div class="toolbar-group filter-switch" role="group" aria-label="ترتيب المكتبة">
+                <button class="filter-button selected" data-filter="latest" type="button" data-i18n="filterLatest">الأحدث</button>
+                <button class="filter-button" data-filter="popular" type="button" data-i18n="filterPopular">الأكثر رواجاً</button>
+              </div>
+              <button class="toolbar-button week-button" id="week-filter" type="button" data-active="false" aria-pressed="false">
+                <span data-i18n="weekButton">تعريبات Dreko</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 7 4.5 4L12 4l4.5 7L21 7l-2 12H5L3 7Z"/><path d="M5 22h14"/></svg>
+              </button>
+              <button class="icon-button refresh-button" id="refresh-library" type="button" aria-label="تحديث المكتبة" data-i18n-aria-label="refreshLabel">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 9A7 7 0 0 1 18 6l2 6M4 12l2 6a7 7 0 0 0 11.9-3"/></svg>
+              </button>
+              <div class="search-box">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+                <input id="search-input" type="search" placeholder="ابحث عن لعبة..." aria-label="ابحث عن لعبة" />
+                <kbd>/</kbd>
+              </div>
+              <button class="toolbar-button category-button" id="category-filter" type="button" data-category="all">
+                <span data-i18n="categoryAll">كل الأنواع</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
+              </button>
+              <span class="toolbar-spacer"></span>
+              <button class="toolbar-button platform-button" id="platform-button" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12a3 3 0 0 1 2.8 2l1.1 4a2.2 2.2 0 0 1-3.4 2.4L16 14H8l-2.5 2.4A2.2 2.2 0 0 1 2.1 14l1.1-4A3 3 0 0 1 6 8Z"/><path d="M7 10v4m-2-2h4m8-1h.01M18 13h.01"/></svg>
+                <span data-i18n="platformAll">ألعابك</span>
+              </button>
+            </div>
+
+            <div class="category-menu" id="category-menu" hidden>
+              <button type="button" data-category-option="all" data-i18n="categoryAll">كل الأنواع</button>
+              <button type="button" data-category-option="full" data-i18n="categoryFull">ترجمة كاملة</button>
+              <button type="button" data-category-option="interface" data-i18n="categoryInterface">واجهة وقوائم</button>
+            </div>
+
+            <div class="translation-grid" id="translation-grid"></div>
+            <div class="empty-state" id="empty-state" hidden>
+              <span class="empty-state-icon">⌕</span>
+              <h3 data-i18n="emptyTitle">لا توجد نتائج</h3>
+              <p data-i18n="emptyDescription">جرّب تغيير كلمات البحث أو نوع الترجمة.</p>
+            </div>
+          </section>
+
+          <section class="community-strip" id="community">
+            <div class="community-mark" aria-hidden="true"><img src="./assets/dreko-mark.svg" alt="" /></div>
+            <div>
+              <span class="eyebrow" data-i18n="communityEyebrow"></span>
+              <h2 data-i18n="communityTitle">اللعب أجمل <span>بلغة العربية</span></h2>
+              <p data-i18n="communityDescription">مساحة تمكن الاعبين العرب من لعب العابهم بلغة العربية بكل سهولة</p>
+            </div>
+            <button class="outline-button" type="button" id="support">
+              <span data-i18n="communityCta">اكتشف المجتمع</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>
+            </button>
+          </section>
+        </div>
+
+        <section class="profile-screen" id="profile-screen" aria-labelledby="profile-title" hidden>
+          <div class="admin-glow"></div>
+          <div class="profile-card">
+            <div class="profile-card-heading">
+              <span class="eyebrow"><span class="eyebrow-line"></span><span data-i18n="profileEyebrow">حسابك في Dreko</span></span>
+              <h1 id="profile-title" data-i18n="profileTitle">الملف الشخصي</h1>
+              <p data-i18n="profileDescription">معلومات حساب Discord المرتبط بتطبيق Dreko Translation.</p>
+            </div>
+            <div class="profile-identity">
+              <span class="profile-avatar profile-large-avatar" id="profile-avatar" aria-hidden="true">
+                <span class="profile-avatar-fallback" id="profile-avatar-fallback">D</span>
+                <img class="discord-avatar-image" id="profile-avatar-image" alt="" hidden />
+              </span>
+              <div class="profile-identity-copy">
+                <span class="profile-field-label" data-i18n="profileNameLabel">اسم الحساب</span>
+                <strong id="profile-name">—</strong>
+              </div>
+            </div>
+            <section class="profile-details" aria-label="بيانات وإحصاءات الملف الشخصي" data-i18n-aria-label="profileDetailsLabel">
+              <article class="profile-detail">
+                <span class="profile-field-label" data-i18n="profileCreatedLabel">تاريخ إنشاء حساب Discord</span>
+                <strong id="profile-created">—</strong>
+              </article>
+              <article class="profile-detail">
+                <span class="profile-field-label" data-i18n="profileTypeLabel">نوع الحساب</span>
+                <strong class="profile-account-type" id="profile-account-type" data-i18n="accountTypeStandard">عادي</strong>
+                <small class="profile-premium-expiry" id="profile-premium-expiry" hidden></small>
+              </article>
+              <article class="profile-detail profile-joined-date">
+                <span class="profile-field-label" data-i18n="profileGuildJoinedLabel">عضو في مجتمع Dreko</span>
+                <strong id="profile-guild-joined">—</strong>
+              </article>
+              <section class="used-translations" aria-labelledby="used-translations-count-label">
+                <div class="used-translations-count" aria-label="عدد التعريبات المستخدمة">
+                  <span class="used-translations-count-copy">
+                    <span id="used-translations-count-label" data-i18n="usedTranslationsCount">التعريبات المستخدمة</span>
+                    <strong id="used-translations-count">0</strong>
+                  </span>
+                  <span class="used-translations-count-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 16v4h14v-4"/></svg>
+                  </span>
+                </div>
+              </section>
+            </section>
+              <button class="auth-back profile-back" id="profile-back" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+              <span data-i18n="backToLibrary">العودة إلى المكتبة</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="admin-screen" id="admin-auth" hidden>
+          <div class="admin-glow"></div>
+          <div class="auth-card">
+            <div class="auth-brand">
+              <img src="./assets/dreko-mark.svg" alt="" />
+              <span class="security-pulse"></span>
+            </div>
+            <span class="eyebrow auth-eyebrow" data-i18n="authEyebrow">منطقة الإدارة المحمية</span>
+            <h1 id="auth-title"></h1>
+            <p class="auth-description" id="auth-description"></p>
+            <p class="form-message" id="auth-message" role="alert" hidden></p>
+            <button class="auth-back" id="auth-back" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+              <span data-i18n="backToLibrary">العودة إلى المكتبة</span>
+            </button>
+            <div class="auth-security">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg>
+              <span data-i18n="authSecurityNote">المعلومات تبقى محفوظة محلياً على هذا الجهاز</span>
+            </div>
+          </div>
+          <span class="admin-decoration decoration-one">DREKO / ADMIN</span>
+          <span class="admin-decoration decoration-two">DESKTOP CONSOLE • 01</span>
+        </section>
+
+        <section class="admin-screen admin-dashboard" id="admin-panel" hidden>
+          <div class="admin-glow"></div>
+          <div class="dashboard-top">
+            <div class="dashboard-path">
+              <img class="dashboard-mark" src="./assets/dreko-mark.svg" alt="Dreko" />
+              <span data-i18n="adminBreadcrumb">مساحة الإدارة</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+              <b data-i18n="adminDashboardTitle">لوحة التحكم</b>
+            </div>
+            <div class="dashboard-session">
+              <span class="online-dot"></span>
+              <span data-i18n="secureSession">جلسة مسؤول آمنة</span>
+              <button class="outline-button dashboard-action-button" id="admin-accounts-toggle" type="button" data-i18n="accountsOpen">الحسابات</button>
+              <button class="outline-button dashboard-action-button" id="admin-requests-toggle" type="button" data-i18n="requestsOpen">طلبات التعريب</button>
+            </div>
+          </div>
+          <div id="translation-admin-view">
+          <div class="dashboard-heading">
+            <div>
+              <div class="eyebrow"><span class="eyebrow-line"></span><span data-i18n="adminEyebrow">تحكّم كامل بالمكتبة</span></div>
+              <h1 data-i18n="adminHeading">إدارة <span>التعريبات</span></h1>
+              <p data-i18n="adminDescription">أضف الألعاب، عدّل الترجمات، وتحكم في ما يظهر للاعبين.</p>
+            </div>
+            <button class="primary-action add-translation-button" id="add-translation" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14m-7-7h14"/></svg>
+              <span data-i18n="addTranslation">أضف ترجمة جديدة</span>
+            </button>
+          </div>
+
+          <div class="admin-stats">
+            <article class="stat-card">
+              <span class="stat-icon stat-icon-cyan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m20 16-8 5-8-5V8l8-5 8 5Zm-16-8 8 5 8-5m-8 5v8"/></svg></span>
+              <span class="stat-copy"><span data-i18n="totalTranslations">مجموع الترجمات</span><b id="stat-total">0</b></span>
+              <span class="stat-sparkline"></span>
+            </article>
+            <article class="stat-card">
+              <span class="stat-icon stat-icon-green"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg></span>
+              <span class="stat-copy"><span data-i18n="publishedTranslations">منشورة للاعبين</span><b id="stat-published">0</b></span>
+              <span class="stat-symbol">↗</span>
+            </article>
+            <article class="stat-card">
+              <span class="stat-icon stat-icon-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6m-12 5h8m-8 4h8"/></svg></span>
+              <span class="stat-copy"><span data-i18n="draftTranslations">مسودات خاصة</span><b id="stat-drafts">0</b></span>
+              <span class="stat-symbol">◷</span>
+            </article>
+            <article class="stat-card">
+              <span class="stat-icon stat-icon-violet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v16l-5-3-5 3Zm3 0V2h4v2"/></svg></span>
+              <span class="stat-copy"><span data-i18n="readyTranslations">ترجمات جاهزة</span><b id="stat-ready">0</b></span>
+              <span class="stat-symbol">✳</span>
+            </article>
+          </div>
+
+          <div class="admin-library">
+            <div class="admin-library-heading">
+              <div>
+                <h2 data-i18n="adminListHeading">مكتبة الألعاب</h2>
+                <p data-i18n="adminListDescription">أدر معلومات الألعاب والترجمات المرتبطة بها.</p>
+              </div>
+              <span class="admin-library-count"><span id="admin-count">0</span> <span data-i18n="libraryItems">عنصر</span></span>
+            </div>
+            <div class="admin-toolbar">
+              <div class="admin-search search-box">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+                <input id="admin-search" type="search" placeholder="ابحث في الألعاب..." data-i18n-placeholder="adminSearchPlaceholder" />
+              </div>
+              <select class="filter-select" id="admin-status-filter" aria-label="حالة الترجمة" data-i18n-aria-label="statusFilterLabel">
+                <option value="all" data-i18n="statusAll">كل الحالات</option>
+                <option value="published" data-i18n="statusPublished">منشورة</option>
+                <option value="draft" data-i18n="statusDraft">مسودة</option>
+              </select>
+              <span class="toolbar-spacer"></span>
+              <button class="icon-button" id="admin-refresh" type="button" aria-label="تحديث المكتبة" data-i18n-aria-label="refreshLabel">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 9A7 7 0 0 1 18 6l2 6M4 12l2 6a7 7 0 0 0 11.9-3"/></svg>
+              </button>
+            </div>
+            <div class="admin-table-wrap">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th data-i18n="gameColumn">اللعبة</th>
+                    <th data-i18n="genreColumn">النوع</th>
+                    <th data-i18n="translationColumn">التعريب</th>
+                    <th data-i18n="visibilityColumn">الظهور</th>
+                    <th data-i18n="updatedColumn">آخر تحديث</th>
+                    <th data-i18n="actionsColumn">إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-table-body"></tbody>
+              </table>
+            </div>
+            <div class="admin-empty" id="admin-empty" hidden>
+              <span class="empty-state-icon">⌕</span>
+              <h3 data-i18n="adminEmptyTitle">لا توجد ترجمات هنا بعد</h3>
+              <p data-i18n="adminEmptyDescription">ابدأ بإضافة أول لعبة إلى مكتبتك.</p>
+              <button class="outline-button" id="admin-empty-add" type="button" data-i18n="addTranslation">أضف ترجمة جديدة</button>
+            </div>
+          </div>
+          </div>
+          <section class="accounts-admin-view" id="accounts-admin-view" aria-labelledby="accounts-admin-title" hidden>
+            <div class="dashboard-heading accounts-admin-heading">
+              <div>
+                <div class="eyebrow"><span class="eyebrow-line"></span><span data-i18n="accountsEyebrow">إدارة المستخدمين</span></div>
+                <h1 id="accounts-admin-title" data-i18n="accountsTitle">حسابات <span>المستخدمين</span></h1>
+                <p data-i18n="accountsDescription">استعرض الحسابات وغيّر نوع الاشتراك ومدته.</p>
+              </div>
+              <span class="admin-library-count"><span id="accounts-count">0</span> <span data-i18n="accountsCount">حساب</span></span>
+            </div>
+            <div class="accounts-library">
+              <div class="admin-toolbar accounts-toolbar">
+                <div class="admin-search search-box">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+                  <input id="accounts-search" type="search" placeholder="ابحث بالاسم أو معرّف Discord..." data-i18n-placeholder="accountsSearchPlaceholder" />
+                </div>
+                <span class="toolbar-spacer"></span>
+                <button class="icon-button" id="accounts-refresh" type="button" aria-label="تحديث الحسابات" data-i18n-aria-label="accountsRefresh">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 9A7 7 0 0 1 18 6l2 6M4 12l2 6a7 7 0 0 0 11.9-3"/></svg>
+                </button>
+              </div>
+              <div class="accounts-list" id="accounts-admin-list"></div>
+              <div class="admin-empty accounts-empty" id="accounts-empty" hidden>
+                <span class="empty-state-icon">⌕</span>
+                <h3 data-i18n="accountsEmptyTitle">لا توجد حسابات مطابقة</h3>
+                <p data-i18n="accountsEmptyDescription">جرّب البحث باسم مختلف أو أعد تحميل الحسابات.</p>
+              </div>
+            </div>
+          </section>
+          <section class="requests-admin-view" id="requests-admin-view" aria-labelledby="requests-admin-title" hidden>
+            <div class="dashboard-heading accounts-admin-heading">
+              <div>
+                <div class="eyebrow"><span class="eyebrow-line"></span><span data-i18n="requestsEyebrow">إدارة طلبات التعريب</span></div>
+                <h1 id="requests-admin-title" data-i18n="requestsTitle">طلبات <span>التعريب</span></h1>
+                <p data-i18n="requestsDescription">راجع طلبات اللاعبين، وانقل المكتمل إلى الأرشيف.</p>
+              </div>
+              <span class="admin-library-count"><span id="requests-count">0</span> <span data-i18n="requestsCount">طلب</span></span>
+            </div>
+            <div class="accounts-library requests-library">
+              <div class="request-admin-toolbar">
+                <div class="request-admin-tabs" role="group" aria-label="حالة الطلب">
+                  <button type="button" class="request-admin-tab selected" data-request-status="pending" data-i18n="requestsPending">قيد الانتظار</button>
+                  <button type="button" class="request-admin-tab" data-request-status="archived" data-i18n="requestsArchive">الأرشيف</button>
+                </div>
+                <div class="admin-search search-box">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+                  <input id="requests-search" type="search" placeholder="ابحث باسم اللعبة أو الحساب..." data-i18n-placeholder="requestsSearchPlaceholder" />
+                </div>
+                <span class="toolbar-spacer"></span>
+                <button class="icon-button" id="requests-refresh" type="button" aria-label="تحديث الطلبات" data-i18n-aria-label="requestsRefresh">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 9A7 7 0 0 1 18 6l2 6M4 12l2 6a7 7 0 0 0 11.9-3"/></svg>
+                </button>
+              </div>
+              <div class="translation-requests-list" id="translation-requests-list"></div>
+              <div class="admin-empty accounts-empty" id="requests-empty" hidden>
+                <span class="empty-state-icon">⌕</span>
+                <h3 data-i18n="requestsEmptyTitle">لا توجد طلبات مطابقة</h3>
+                <p data-i18n="requestsEmptyDescription">ستظهر طلبات التعريب الجديدة هنا.</p>
+              </div>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <footer class="footer" id="app-footer">
+        <div class="footer-inner">
+          <section class="footer-about" aria-labelledby="footer-title">
+            <div class="footer-heading">
+              <img src="./assets/dreko-mark.svg" alt="" />
+              <h2 id="footer-title">DREKO TRANSLATION</h2>
+            </div>
+            <p data-i18n="footerNote">منصة Dreko Translation مستقلة، وجميع حقوق الألعاب والتعريبات محفوظة لأصحابها. لا ندّعي ملكية أي تعريب أو لعبة، ونجمع التعريبات المتاحة من مصادرها العامة لتسهيل الوصول إليها فقط.</p>
+          </section>
+          <div class="footer-bottom">
+            <span class="footer-copyright" data-i18n="footerCopyright">© 2026 DREKO TRANSLATION — جميع الحقوق محفوظة لأصحابها.</span>
+            <div class="footer-details">
+              <span data-i18n="footerStatus">منصة مستقلة للألعاب العربية</span>
+              <span class="app-version" id="app-version"></span>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <dialog class="translation-dialog device-games-dialog" id="installed-games-dialog" aria-labelledby="installed-games-title">
+      <button class="dialog-close icon-button" id="installed-games-close" type="button" aria-label="إغلاق" data-i18n-aria-label="closeDialog">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 6-12 12M6 6l12 12"/></svg>
+      </button>
+      <div id="installed-games-content"></div>
+    </dialog>
+
+    <dialog class="translation-dialog" id="translation-dialog">
+      <button class="dialog-close icon-button" id="dialog-close" type="button" aria-label="إغلاق">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 6-12 12M6 6l12 12"/></svg>
+      </button>
+      <div id="dialog-content"></div>
+    </dialog>
+
+    <dialog class="editor-dialog" id="editor-dialog">
+      <form class="editor-form" id="editor-form">
+        <div class="editor-heading">
+          <div>
+            <span class="eyebrow" data-i18n="editorEyebrow">إدارة المكتبة</span>
+            <h2 id="editor-title"></h2>
+          </div>
+          <button class="icon-button editor-close" id="editor-close" type="button" aria-label="إغلاق">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 6-12 12M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <input id="translation-id" type="hidden" />
+        <input id="translation-cover" type="hidden" />
+        <div class="editor-fields">
+          <div class="editor-field">
+            <label for="translation-title" data-i18n="arabicTitleLabel">اسم اللعبة بالعربية</label>
+            <input id="translation-title" name="title" maxlength="100" required />
+          </div>
+          <div class="editor-field" dir="ltr">
+            <label for="translation-title-en" data-i18n="englishTitleLabel">Game title</label>
+            <input id="translation-title-en" name="titleEn" maxlength="100" dir="ltr" required />
+          </div>
+          <div class="editor-field">
+            <label for="translation-developer" data-i18n="developerLabel">المطور / فريق التعريب</label>
+            <input id="translation-developer" name="developer" maxlength="80" required />
+          </div>
+          <div class="editor-field">
+            <label for="translation-genre" data-i18n="genreLabel">تصنيف اللعبة</label>
+            <select id="translation-genre" name="genre" required>
+              <option value="adventure" data-i18n="genreAdventure">مغامرة</option>
+              <option value="action" data-i18n="genreAction">أكشن</option>
+              <option value="rpg" data-i18n="genreRpg">أدوار</option>
+              <option value="horror" data-i18n="genreHorror">رعب</option>
+              <option value="simulator" data-i18n="genreSimulator">محاكاة</option>
+              <option value="puzzle" data-i18n="genrePuzzle">ألغاز</option>
+              <option value="strategy" data-i18n="genreStrategy">استراتيجية</option>
+              <option value="other" data-i18n="genreOther">أخرى</option>
+            </select>
+          </div>
+          <div class="editor-field">
+            <label for="translation-category" data-i18n="categoryLabel">نطاق التعريب</label>
+            <select id="translation-category" name="category" required>
+              <option value="full" data-i18n="categoryFull">ترجمة كاملة</option>
+              <option value="interface" data-i18n="categoryInterface">واجهة وقوائم</option>
+            </select>
+          </div>
+          <div class="editor-field">
+            <label for="translation-status" data-i18n="progressLabel">حالة الترجمة</label>
+            <select id="translation-status" name="status" required>
+              <option value="ready" data-i18n="readyStatus">جاهزة</option>
+              <option value="progress" data-i18n="inProgressStatus">قيد العمل</option>
+            </select>
+          </div>
+          <div class="editor-field">
+            <label for="translation-year" data-i18n="yearLabel">سنة الإصدار</label>
+            <input id="translation-year" name="year" type="number" min="1970" max="2200" inputmode="numeric" required />
+          </div>
+          <div class="editor-field editor-field-full">
+            <span class="field-label" data-i18n="gameArtworkLabel">صورة اللعبة</span>
+            <section class="cover-search-panel" data-i18n-aria-label="coverSearchRegionLabel">
+              <div class="cover-search-row">
+                <input id="cover-search-input" maxlength="100" autocomplete="off" data-i18n-placeholder="coverSearchPlaceholder" data-i18n-aria-label="coverSearchButton" />
+                <button class="outline-button cover-search-button" id="cover-search-button" type="button" data-i18n="coverSearchButton">بحث عن صور</button>
+              </div>
+              <p class="cover-search-config-status" id="cover-search-config-status" role="status"></p>
+              <p class="cover-search-message" id="cover-search-message" role="status" hidden></p>
+              <div class="cover-search-results" id="cover-search-results" aria-live="polite"></div>
+            </section>
+            <div class="cover-picker">
+              <div class="cover-preview" id="cover-preview"></div>
+              <div class="cover-picker-copy">
+                <b data-i18n="coverPreviewTitle">الغلاف الذي سيراه اللاعبون</b>
+                <span data-i18n="coverPreviewDescription">اختر صورة عالية الجودة من جهازك.</span>
+              </div>
+              <button class="outline-button cover-choose" id="choose-cover" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16.5V19a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2.5M12 3v11m0-11L8 7m4-4 4 4"/></svg>
+                <span data-i18n="chooseCover">اختر غلافاً</span>
+              </button>
+            </div>
+          </div>
+          <div class="editor-field editor-field-full">
+            <label for="translation-download-url" data-i18n="translationUrlLabel">رابط التعريب</label>
+            <input id="translation-download-url" name="translationUrl" type="url" maxlength="2048" placeholder="https://..." data-i18n-placeholder="translationUrlPlaceholder" />
+            <small class="editor-field-help" data-i18n="translationUrlHelp">ارفع ملف ZIP يحتوي الملفات كما ستُنسخ إلى مجلد اللعبة؛ لا تضعها داخل مجلد إضافي.</small>
+          </div>
+          <div class="editor-field">
+            <label for="translation-package-version" data-i18n="packageVersionLabel">إصدار حزمة التعريب</label>
+            <input id="translation-package-version" name="packageVersion" type="text" maxlength="32" placeholder="V1.0.0" data-i18n-placeholder="packageVersionPlaceholder" />
+          </div>
+          <div class="editor-field editor-field-full">
+            <label for="translation-installer-url" data-i18n="installerProgramUrlLabel">رابط برنامج التثبيت (اختياري)</label>
+            <input id="translation-installer-url" name="installerProgramUrl" type="url" maxlength="2048" placeholder="https://..." data-i18n-placeholder="translationUrlPlaceholder" />
+            <small class="editor-field-help" data-i18n="installerProgramUrlHelp">سيُطلب من اللاعب تأكيد تشغيل البرنامج بعد التنزيل.</small>
+          </div>
+          <div class="editor-field editor-field-full">
+            <label for="translation-description" data-i18n="descriptionLabel">نبذة عن الترجمة</label>
+            <textarea id="translation-description" name="description" rows="3" maxlength="1000"></textarea>
+          </div>
+          <label class="publish-choice editor-field-full" for="translation-published">
+            <input id="translation-published" type="checkbox" checked />
+            <span class="publish-toggle"></span>
+            <span><b data-i18n="publishTitle">إظهار في المكتبة العامة</b><small data-i18n="publishDescription">إذا ألغيت الاختيار، تحفظ الترجمة كمسودة خاصة لا يراها الزوار.</small></span>
+          </label>
+          <label class="publish-choice editor-field-full" for="translation-premium">
+            <input id="translation-premium" type="checkbox" />
+            <span class="publish-toggle"></span>
+            <span><b data-i18n="premiumTranslationLabel">تعريب بريميوم</b><small data-i18n="premiumTranslationDescription">ميّز هذا التعريب ضمن قائمة تعريبات Dreko المخصصة لبريميوم.</small></span>
+          </label>
+        </div>
+        <p class="form-message editor-message" id="editor-message" role="alert" hidden></p>
+        <div class="editor-actions">
+          <button class="outline-button" id="editor-cancel" type="button" data-i18n="cancel">إلغاء</button>
+          <button class="primary-action" id="editor-save" type="submit">
+            <span data-i18n="saveTranslation">حفظ الترجمة</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <div class="toast-region" id="toast-region" role="status" aria-live="polite"></div>
+    <script src="./app.bundle.js"></script>
+  </body>
+</html>

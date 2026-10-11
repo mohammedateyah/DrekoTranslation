@@ -1,0 +1,20 @@
+name = "dreko-discord-auth"
+main = "cloudflare-worker.mjs"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+PUBLIC_ORIGIN = "https://dreko-discord-auth.drekosteam.workers.dev"
+DISCORD_CLIENT_ID = "1555960188467683328"
+DISCORD_REDIRECT_URI = "https://dreko-discord-auth.drekosteam.workers.dev/discord/callback"
+DISCORD_GUILD_ID = "766985465323716649"
+DISCORD_GUILD_NAME = "DREKO SPACE"
+DISCORD_INVITE_URL = "https://discord.gg/fbkjvss"
+DISCORD_AUTO_JOIN = "false"
+FIREBASE_PROJECT_ID = "drekotranslation"
+
+[[d1_databases]]
+binding = "OAUTH_DB"
+database_name = "dreko-discord-auth"
+database_id = "58cf5b82-34b7-4123-8180-6d3b3ba6520a"
+migrations_dir = "migrations"

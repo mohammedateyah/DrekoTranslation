@@ -1,0 +1,30 @@
+{
+  "name": "dreko-translation-auth-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Private Discord membership and Firebase token service for Dreko Translation",
+  "main": "server.cjs",
+  "scripts": {
+    "start": "node server.cjs",
+    "test": "node --test",
+    "cf:dev": "wrangler dev",
+    "cf:deploy": "wrangler deploy",
+    "cf:d1:create": "wrangler d1 create dreko-discord-auth",
+    "cf:d1:migrate": "wrangler d1 migrations apply dreko-discord-auth --remote"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.2.1",
+    "firebase-admin": "^13.6.0",
+    "helmet": "^8.1.0",
+    "jose": "^6.2.12",
+    "serverless-http": "^4.0.0"
+  },
+  "overrides": {
+    "uuid": "^11.1.1"
+  },
+  "devDependencies": {
+    "wrangler": "^4.149.0"
+  }
+}

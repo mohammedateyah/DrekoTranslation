@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680">
+  <defs>
+    <linearGradient id="twilight" x2="0" y2="1"><stop stop-color="#1e1d38"/><stop offset=".55" stop-color="#544563"/><stop offset="1" stop-color="#d29b8b"/></linearGradient>
+    <radialGradient id="moon"><stop stop-color="#fff1d5"/><stop offset="1" stop-color="#debabe" stop-opacity=".18"/></radialGradient>
+    <linearGradient id="hill" x2="0" y2="1"><stop stop-color="#34354b"/><stop offset="1" stop-color="#182734"/></linearGradient>
+  </defs>
+  <rect width="1200" height="680" fill="url(#twilight)"/>
+  <circle cx="854" cy="176" r="145" fill="url(#moon)" opacity=".82"/>
+  <path d="m0 423 124-123 101 138 163-241 127 201 152-183 145 185 108-116 148 116 132-116v280H0Z" fill="#303043"/>
+  <path d="m0 515 167-146 171 148 174-174 158 169 153-135 128 116 139-102 110 103v186H0Z" fill="#242a3b"/>
+  <path d="M140 680c24-114 83-208 165-208 94 0 163 67 191 208Z" fill="#474057"/>
+  <path d="M233 517c4-94 46-148 104-148 68 0 104 63 109 153l-22 51-167-3Z" fill="#e6c9ad"/>
+  <path d="m221 512 28-120 30 35 29-104 35 84 45-101 14 117 33-81 30 170-41-32-22 45-41-72-21 78-29-49-22 48-22-77Z" fill="#252031"/>
+  <path d="M273 465h41m51-4h44" stroke="#282533" stroke-width="10" stroke-linecap="round"/>
+  <path d="m326 507 28 0-12 20h-19" fill="#c78d81"/>
+  <path d="M0 551c192-51 325-6 464 17s282-33 736-95v207H0Z" fill="url(#hill)"/>
+  <g fill="#fff1cf"><circle cx="91" cy="150" r="2.6"/><circle cx="168" cy="195" r="2"/><circle cx="483" cy="122" r="2.7"/><circle cx="601" cy="231" r="2"/><circle cx="1076" cy="150" r="2.4"/><circle cx="1004" cy="77" r="2"/></g>
+</svg>

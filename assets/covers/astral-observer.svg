@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="sky" x2=".92" y2="1"><stop stop-color="#080d20"/><stop offset=".56" stop-color="#294b67"/><stop offset="1" stop-color="#d48178"/></linearGradient>
+    <radialGradient id="planet"><stop stop-color="#ffe9c1"/><stop offset=".6" stop-color="#dfad7b"/><stop offset="1" stop-color="#845570"/></radialGradient>
+    <linearGradient id="coat" x2="1" y2="1"><stop stop-color="#526f84"/><stop offset="1" stop-color="#172332"/></linearGradient>
+    <linearGradient id="edge"><stop stop-color="#07101d" stop-opacity=".54"/><stop offset=".53" stop-color="#07101d" stop-opacity="0"/><stop offset="1" stop-color="#101629" stop-opacity=".08"/></linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#sky)"/>
+  <path d="M0 205 132 109l87 62L346 77l126 118 92-46 76 76v135H0Z" fill="#26354a" opacity=".75"/>
+  <path d="m0 250 126-79 73 76 117-94 132 111 93-71 99 46v121H0Z" fill="#182638"/>
+  <circle cx="435" cy="119" r="67" fill="url(#planet)" opacity=".93"/>
+  <path d="M364 142c38 17 111 27 153 2" fill="none" stroke="#f5d9be" stroke-width="3" opacity=".52"/>
+  <path d="M0 273c113-52 195 4 289-27s215-8 351-51v165H0Z" fill="#101c28"/>
+  <g fill="#ffe5ae"><circle cx="81" cy="60" r="1.8"/><circle cx="133" cy="94" r="1"/><circle cx="251" cy="45" r="1.4"/><circle cx="341" cy="88" r="1"/><circle cx="541" cy="46" r="1.6"/><circle cx="593" cy="137" r="1"/><circle cx="50" cy="163" r="1"/></g>
+  <path d="M173 360c10-47 38-68 72-75l-2-57h37l3 57c37 11 60 34 72 75Z" fill="#111720"/>
+  <path d="M212 284c22-19 44-27 70-27 26 5 43 18 56 31l30 72H175Z" fill="url(#coat)"/>
+  <path d="M237 220c4-31 22-48 43-48 26 0 44 19 46 52l-18 28h-52Z" fill="#171a24"/>
+  <path d="M238 214c8-30 23-45 46-44 24 2 37 15 42 40l-16-11-8 17-11-22-15 22-11-17-10 19Z" fill="#d6c3ab"/>
+  <path d="m252 208 23 3m21-4 15-2" stroke="#0b1219" stroke-width="5" stroke-linecap="round"/>
+  <path d="m154 349 73-51-7 62h-66m211 0-62-52 15 62Z" fill="#101b2a"/>
+  <path d="m272 259 15 0-5 13h-11" fill="#e4b18d"/>
+  <rect width="640" height="360" fill="url(#edge)"/>
+</svg>
