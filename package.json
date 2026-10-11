@@ -1,6 +1,6 @@
 {
   "name": "dreko-translation",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "description": "Arabic-first desktop translation library",
   "author": "Dreko",
@@ -36,7 +36,8 @@
       {
         "provider": "github",
         "owner": "mohammedateyah",
-        "repo": "DrekoTranslation"
+        "repo": "DrekoTranslation",
+        "releaseType": "release"
       }
     ],
     "files": [

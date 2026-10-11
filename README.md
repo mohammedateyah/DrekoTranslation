@@ -63,7 +63,7 @@ The assisted Windows installer asks the user to choose Arabic or English before 
 The **Updates** navigation link checks GitHub Releases for a newer installed-app version. The public release repository is `mohammedateyah/DrekoTranslation`; Discord authentication and application updates use separate services.
 
 1. Deploy the updated Cloudflare Worker from `auth-server` with `npm run cf:deploy`. Its `/updates/` compatibility route serves release metadata for already-installed version 1.0.0 and redirects installer downloads to GitHub Releases.
-2. Increase `version` in `package.json`, commit the changes, and push a matching version tag such as `v1.0.1`.
+2. Increase `version` in `package.json`, commit the changes, and push a matching version tag such as `v1.0.2`.
 3. The `Publish Windows release` GitHub Actions workflow builds the NSIS installer and publishes it with `latest.yml` and any blockmap files. The tag must exactly match the version in `package.json`; GitHub's built-in workflow token is used for publishing.
 4. Confirm the GitHub release is published. New installs and versions built with the GitHub publisher check GitHub directly; version 1.0.0 continues using the Worker compatibility route until it installs the first GitHub-based update.
 
