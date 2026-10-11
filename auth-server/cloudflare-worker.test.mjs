@@ -5,7 +5,9 @@ import { importSPKI, jwtVerify } from "jose";
 import { createFirebaseAuth, serveUpdateRequest } from "./cloudflare-worker.mjs";
 
 test("update manifests route release assets through the Worker", async () => {
-  const releaseApiUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/latest";
+  const releaseApiUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/latest?per_page=1&channel=stable";
+  const taggedReleaseUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/tags/v1.0.2?channel=stable";
+  const assetsApiUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/789/assets?per_page=100";
   const manifestAssetUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/assets/123";
   const requestedUrls = [];
   const response = await serveUpdateRequest(
@@ -13,10 +15,22 @@ test("update manifests route release assets through the Worker", async () => {
     async (url, options) => {
       requestedUrls.push(url);
       if (url === releaseApiUrl) {
-        assert.equal(options.cf.cacheTtl, 300);
+        assert.equal(options.cf.cacheTtl, 30);
         return new Response(JSON.stringify({
-          assets: [{ name: "latest.yml", url: manifestAssetUrl }]
+          tag_name: "v1.0.2",
+          assets: [{ name: "Dreko-Translation-Setup-1.0.2.exe.blockmap", url: `${manifestAssetUrl}-blockmap` }]
         }), { headers: { "Content-Type": "application/json" } });
+      }
+      if (url === taggedReleaseUrl) {
+        return new Response(JSON.stringify({
+          tag_name: "v1.0.2",
+          assets_url: "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/789/assets"
+        }), { headers: { "Content-Type": "application/json" } });
+      }
+      if (url === assetsApiUrl) {
+        return new Response(JSON.stringify([
+          { name: "latest.yml", url: manifestAssetUrl }
+        ]), { headers: { "Content-Type": "application/json" } });
       }
       assert.equal(url, manifestAssetUrl);
       assert.equal(options.redirect, "follow");
@@ -32,7 +46,7 @@ test("update manifests route release assets through the Worker", async () => {
 
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type"), /text\/yaml/);
-  assert.deepEqual(requestedUrls, [releaseApiUrl, manifestAssetUrl]);
+  assert.deepEqual(requestedUrls, [releaseApiUrl, taggedReleaseUrl, assetsApiUrl, manifestAssetUrl]);
   assert.match(
     await response.text(),
     /"https:\/\/dreko-discord-auth\.example\/updates\/Dreko-Translation-Setup-1\.0\.1\.exe"/g
@@ -40,7 +54,9 @@ test("update manifests route release assets through the Worker", async () => {
 });
 
 test("installer downloads stream through GitHub's asset API and preserve ranges", async () => {
-  const releaseApiUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/latest";
+  const releaseApiUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/latest?per_page=1&channel=stable";
+  const taggedReleaseUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/tags/v1.0.2?channel=stable";
+  const assetsApiUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/789/assets?per_page=100";
   const installerAssetUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/assets/456";
   const response = await serveUpdateRequest(
     new Request("https://dreko-discord-auth.example/updates/Dreko-Translation-Setup-1.0.2.exe", {
@@ -49,11 +65,21 @@ test("installer downloads stream through GitHub's asset API and preserve ranges"
     async (url, options) => {
       if (url === releaseApiUrl) {
         return new Response(JSON.stringify({
-          assets: [{
+          tag_name: "v1.0.2",
+          assets: []
+        }), { headers: { "Content-Type": "application/json" } });
+      }
+      if (url === taggedReleaseUrl) {
+        return new Response(JSON.stringify({
+          tag_name: "v1.0.2",
+          assets_url: "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/789/assets"
+        }), { headers: { "Content-Type": "application/json" } });
+      }
+      if (url === assetsApiUrl) {
+        return new Response(JSON.stringify([{
             name: "Dreko-Translation-Setup-1.0.2.exe",
             url: installerAssetUrl
-          }]
-        }), { headers: { "Content-Type": "application/json" } });
+          }]), { headers: { "Content-Type": "application/json" } });
       }
       assert.equal(url, installerAssetUrl);
       assert.equal(options.redirect, "follow");

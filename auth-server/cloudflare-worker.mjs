@@ -10,7 +10,9 @@ const FIREBASE_KEYS = createRemoteJWKSet(
 );
 const FIREBASE_UID_PATTERN = /^discord_\d{17,20}$/;
 const GITHUB_RELEASE_API_URL =
-  "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/latest";
+  "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/latest?per_page=1&channel=stable";
+const GITHUB_RELEASES_API_BASE =
+  "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases";
 const UPDATE_ASSET_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._ -]*\.(?:exe|blockmap)$/;
 
 function response(body, status = 200, headers = {}) {
@@ -49,12 +51,48 @@ export async function serveUpdateRequest(request, fetcher = fetch) {
         Accept: "application/vnd.github+json",
         "User-Agent": "Dreko-Translation-Updater"
       },
-      cf: { cacheEverything: true, cacheTtl: 300 }
+      cf: { cacheEverything: true, cacheTtl: 30 }
     });
     if (!releaseResponse.ok) return response(null, releaseResponse.status === 404 ? 404 : 502);
 
     const release = await releaseResponse.json();
-    const asset = release.assets?.find((item) => item.name === fileName);
+    if (typeof release.tag_name !== "string" || !/^v\d+\.\d+\.\d+(?:[-+][A-Za-z0-9.-]+)?$/.test(release.tag_name)) {
+      return response(null, 404);
+    }
+    const taggedReleaseResponse = await fetcher(
+      `${GITHUB_RELEASES_API_BASE}/tags/${encodeURIComponent(release.tag_name)}?channel=stable`,
+      {
+        headers: {
+          Accept: "application/vnd.github+json",
+          "User-Agent": "Dreko-Translation-Updater"
+        },
+        cf: { cacheEverything: true, cacheTtl: 30 }
+      }
+    );
+    if (!taggedReleaseResponse.ok) {
+      return response(null, taggedReleaseResponse.status === 404 ? 404 : 502);
+    }
+    const taggedRelease = await taggedReleaseResponse.json();
+    if (taggedRelease.tag_name !== release.tag_name ||
+        typeof taggedRelease.assets_url !== "string" ||
+        !taggedRelease.assets_url.startsWith(`${GITHUB_RELEASES_API_BASE}/`)) {
+      return response(null, 404);
+    }
+    const assetsResponse = await fetcher(`${taggedRelease.assets_url}?per_page=100`, {
+      headers: {
+        Accept: "application/vnd.github+json",
+        "User-Agent": "Dreko-Translation-Updater"
+      },
+      cf: { cacheEverything: true, cacheTtl: 30 }
+    });
+    if (!assetsResponse.ok) return response(null, assetsResponse.status === 404 ? 404 : 502);
+    const tagAssets = await assetsResponse.json();
+    const assetsByName = new Map();
+    for (const item of [...(Array.isArray(release.assets) ? release.assets : []), ...tagAssets]) {
+      if (item && typeof item.name === "string") assetsByName.set(item.name, item);
+    }
+    const assets = [...assetsByName.values()];
+    const asset = assets.find((item) => item.name === fileName);
     if (!asset || typeof asset.url !== "string" ||
         !asset.url.startsWith("https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/assets/")) {
       return response(null, 404);
