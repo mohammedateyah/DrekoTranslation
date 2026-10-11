@@ -1,6 +1,8 @@
 const fs = require("node:fs/promises");
 const fsSync = require("node:fs");
 const { execFileSync, spawn } = require("node:child_process");
+const dns = require("node:dns/promises");
+const { isIP } = require("node:net");
 const os = require("node:os");
 const path = require("node:path");
 const { pathToFileURL } = require("node:url");
@@ -95,6 +97,105 @@ async function readBoundedResponse(response, sizeLimit) {
     chunks.push(Buffer.from(value));
   }
   return Buffer.concat(chunks, totalSize);
+}
+
+function isPublicArtworkAddress(address) {
+  const addressType = isIP(address);
+  if (addressType === 4) {
+    const octets = address.split(".").map(Number);
+    const [first, second, third] = octets;
+    return !(first === 0 || first === 10 || first === 127 || first >= 224 ||
+      (first === 100 && second >= 64 && second <= 127) ||
+      (first === 169 && second === 254) ||
+      (first === 172 && second >= 16 && second <= 31) ||
+      (first === 192 && second === 168) ||
+      (first === 192 && second === 0) ||
+      (first === 192 && second === 88 && third === 99) ||
+      (first === 198 && (second === 18 || second === 19 || second === 51)) ||
+      (first === 203 && second === 0 && third === 113));
+  }
+  if (addressType !== 6) return false;
+
+  const normalized = address.toLowerCase().split("%")[0];
+  if (normalized.startsWith("::ffff:")) {
+    const mappedAddress = normalized.slice("::ffff:".length);
+    if (isIP(mappedAddress) === 4) return isPublicArtworkAddress(mappedAddress);
+    const groups = mappedAddress.split(":");
+    if (groups.length === 2 && groups.every((group) => /^[0-9a-f]{1,4}$/.test(group))) {
+      const high = Number.parseInt(groups[0], 16);
+      const low = Number.parseInt(groups[1], 16);
+      return isPublicArtworkAddress([
+        high >> 8,
+        high & 0xff,
+        low >> 8,
+        low & 0xff
+      ].join("."));
+    }
+    return false;
+  }
+  const firstGroup = Number.parseInt(normalized.split(":")[0] || "0", 16);
+  return firstGroup >= 0x2000 && firstGroup < 0x4000 &&
+    !normalized.startsWith("2001:db8:") &&
+    !normalized.startsWith("2001:10:") &&
+    !normalized.startsWith("2002:");
+}
+
+async function validateExternalArtworkUrl(value) {
+  let url;
+  try {
+    url = new URL(typeof value === "string" ? value.trim() : "");
+  } catch {
+    return "";
+  }
+  const hostname = url.hostname.toLowerCase();
+  if (url.protocol !== "https:" || (url.port && url.port !== "443") ||
+      url.username || url.password || url.hash || isIP(hostname) ||
+      hostname === "localhost" || hostname.endsWith(".localhost") ||
+      hostname.endsWith(".local") || hostname.endsWith(".internal")) {
+    return "";
+  }
+
+  try {
+    const addresses = await dns.lookup(hostname, { all: true, verbatim: true });
+    if (!addresses.length || addresses.some(({ address }) => !isPublicArtworkAddress(address))) {
+      return "";
+    }
+    return url.href;
+  } catch {
+    return "";
+  }
+}
+
+async function downloadArtworkFromUrl(imageUrl, validateFinalUrl) {
+  try {
+    const response = await fetch(imageUrl, {
+      redirect: "manual",
+      signal: AbortSignal.timeout(15000)
+    });
+    if (!response.ok || response.status >= 300) {
+      return { ok: false, code: "ARTWORK_DOWNLOAD_FAILED" };
+    }
+    if (!validateFinalUrl(response.url || imageUrl)) {
+      return { ok: false, code: "INVALID_ARTWORK_URL" };
+    }
+    const contentLength = Number(response.headers.get("content-length") || 0);
+    if (contentLength > COVER_SIZE_LIMIT) {
+      return { ok: false, code: "COVER_SIZE_LIMIT" };
+    }
+    const contentType = response.headers.get("content-type")?.split(";")[0].trim().toLowerCase();
+    if (!["image/jpeg", "image/png", "image/webp"].includes(contentType)) {
+      return { ok: false, code: "UNSUPPORTED_COVER" };
+    }
+    const contents = await readBoundedResponse(response, COVER_SIZE_LIMIT);
+    if (contents === null) return { ok: false, code: "COVER_SIZE_LIMIT" };
+    if (!contents.length) return { ok: false, code: "ARTWORK_DOWNLOAD_FAILED" };
+    const extension = detectArtworkExtension(contents);
+    if (!extension) return { ok: false, code: "UNSUPPORTED_COVER" };
+    return { ok: true, data: createArtworkResult(contents, extension) };
+  } catch (error) {
+    console.error("Unable to download selected game artwork:", error?.name || "UNKNOWN");
+    return { ok: false, code: "ARTWORK_DOWNLOAD_FAILED" };
+  }
 }
 
 if (!gotSingleInstanceLock) {
@@ -959,37 +1060,17 @@ if (!gotSingleInstanceLock) {
       assertTrustedWindow(event);
       const imageUrl = trustedImageUrl(value);
       if (!imageUrl) return { ok: false, code: "INVALID_ARTWORK_URL" };
-      try {
-        const response = await fetch(imageUrl, {
-          redirect: "manual",
-          signal: AbortSignal.timeout(15000)
-        });
-        if (!response.ok || response.status >= 300) {
-          return { ok: false, code: "ARTWORK_DOWNLOAD_FAILED" };
-        }
-        if (trustedImageUrl(response.url || imageUrl) !== imageUrl) {
-          return { ok: false, code: "INVALID_ARTWORK_URL" };
-        }
-        const contentLength = Number(response.headers.get("content-length") || 0);
-        if (contentLength > COVER_SIZE_LIMIT) {
-          return { ok: false, code: "COVER_SIZE_LIMIT" };
-        }
-        const contentType = response.headers.get("content-type")?.split(";")[0].trim().toLowerCase();
-        if (!["image/jpeg", "image/png", "image/webp"].includes(contentType)) {
-          return { ok: false, code: "UNSUPPORTED_COVER" };
-        }
-        const contents = await readBoundedResponse(response, COVER_SIZE_LIMIT);
-        if (contents === null) {
-          return { ok: false, code: "COVER_SIZE_LIMIT" };
-        }
-        if (!contents.length) return { ok: false, code: "ARTWORK_DOWNLOAD_FAILED" };
-        const extension = detectArtworkExtension(contents);
-        if (!extension) return { ok: false, code: "UNSUPPORTED_COVER" };
-        return { ok: true, data: createArtworkResult(contents, extension) };
-      } catch (error) {
-        console.error("Unable to download selected game artwork:", error?.name || "UNKNOWN");
-        return { ok: false, code: "ARTWORK_DOWNLOAD_FAILED" };
-      }
+      return downloadArtworkFromUrl(
+        imageUrl,
+        (responseUrl) => trustedImageUrl(responseUrl) === imageUrl
+      );
+    });
+
+    ipcMain.handle("admin:download-cover-from-url", async (event, value) => {
+      assertTrustedWindow(event);
+      const imageUrl = await validateExternalArtworkUrl(value);
+      if (!imageUrl) return { ok: false, code: "INVALID_ARTWORK_URL" };
+      return downloadArtworkFromUrl(imageUrl, (responseUrl) => responseUrl === imageUrl);
     });
 
     ipcMain.handle("admin:choose-cover", async (event) => {

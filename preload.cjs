@@ -17,6 +17,7 @@ contextBridge.exposeInMainWorld("drekoDesktop", Object.freeze({
   getImageSearchConfig: (idToken) => ipcRenderer.invoke("admin:image-search-config", idToken),
   searchGameArtwork: (query, idToken) => ipcRenderer.invoke("admin:search-game-artwork", { query, idToken }),
   downloadGameArtwork: (url) => ipcRenderer.invoke("admin:download-game-artwork", url),
+  downloadCoverFromUrl: (url) => ipcRenderer.invoke("admin:download-cover-from-url", url),
   getDiscordConfig: () => ipcRenderer.invoke("discord:config"),
   startDiscordLogin: () => ipcRenderer.invoke("discord:start-login"),
   pollDiscordLogin: (sessionId) => ipcRenderer.invoke("discord:poll-login", sessionId),
