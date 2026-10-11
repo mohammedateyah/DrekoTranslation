@@ -480,6 +480,32 @@ body.premium-subscriber .translation-card.premium-locked-card, body.premium-subs
 dialog { color: var(--text); }
 .translation-dialog, .editor-dialog { width: min(470px, calc(100% - 32px)); max-height: min(820px, calc(100dvh - 32px)); padding: 0; overflow: auto; border: 1px solid #30353e; border-radius: 19px; background: var(--surface); box-shadow: 0 30px 110px #000c; scrollbar-color: #363940 #101115; animation: dialog-enter .2s ease-out both; }
 .translation-dialog::backdrop, .editor-dialog::backdrop { background: #030507c4; backdrop-filter: blur(6px); }
+.update-dialog { width: min(448px, calc(100% - 32px)); max-height: min(620px, calc(100dvh - 32px)); padding: 28px; overflow: auto; border: 1px solid #087f90; border-radius: 17px; background: #111317; color: #f4f4f5; box-shadow: 0 28px 90px #000b; text-align: center; animation: dialog-enter .2s ease-out both; }
+.update-dialog::backdrop { background: #030507d9; backdrop-filter: blur(8px); }
+.update-dialog-icon { display: grid; width: 56px; height: 56px; margin: 0 auto 15px; place-items: center; border: 1px solid #087f90; border-radius: 16px; background: #123035; color: #05c9f4; }
+.update-dialog-icon svg { width: 27px; height: 27px; }
+.update-dialog h2 { margin: 0; font-size: 17px; font-weight: 800; }
+.update-dialog-description { margin: 8px 0 18px; color: #a8abb2; font-size: 10px; line-height: 1.8; }
+.update-dialog-message { min-height: 19px; margin: 12px 0 0; color: #a8abb2; font-size: 10px; line-height: 1.8; }
+.mandatory-update-progress { display: block; width: 100%; height: 8px; margin-top: 20px; overflow: hidden; border: 0; border-radius: 8px; background: #292c32; accent-color: #05c9f4; }
+.mandatory-update-progress::-webkit-progress-bar { border-radius: 8px; background: #292c32; }
+.mandatory-update-progress::-webkit-progress-value { border-radius: 8px; background: #05c9f4; transition: width .2s ease; }
+.update-dialog-actions { display: grid; gap: 9px; margin-top: 20px; }
+.update-dialog-primary, .update-dialog-secondary { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; gap: 8px; padding: 0 16px; border: 1px solid transparent; border-radius: 11px; font: inherit; font-size: 11px; font-weight: 750; transition: background .2s ease, border-color .2s ease; }
+.update-dialog-primary { background: #05c9f4; color: #031115; }
+.update-dialog-primary:hover:not(:disabled) { background: #43dcfa; }
+.update-dialog-secondary { border-color: #343942; background: #1a1d22; color: #e6e8eb; }
+.update-dialog-secondary:hover:not(:disabled) { border-color: #05c9f4; }
+.update-dialog button:disabled { cursor: progress; opacity: .65; }
+.whats-new-dialog { padding: 0; text-align: right; }
+.whats-new-heading { padding: 22px 24px 18px; border-bottom: 1px solid #29353b; background: #102329; }
+.whats-new-eyebrow { color: #05c9f4; font-size: 9px; font-weight: 700; }
+.whats-new-heading h2 { margin-top: 7px; }
+.whats-new-heading p { margin: 4px 0 0; color: #a8abb2; font-size: 10px; }
+.whats-new-list { display: grid; gap: 12px; margin: 0; padding: 22px 24px; list-style: none; }
+.whats-new-list li { position: relative; padding-inline-start: 21px; color: #d7d9de; font-size: 10px; line-height: 1.9; }
+.whats-new-list li::before { position: absolute; inset-inline-start: 1px; top: 2px; color: #05c9f4; content: "✓"; font-weight: 800; }
+.whats-new-done { min-width: 105px; margin: 0 24px 22px; }
 .dialog-close { position: absolute; z-index: 3; top: 12px; left: 12px; background: #101319dc; }
 .translation-dialog:has(.install-dialog-body) { width: min(920px, calc(100% - 32px)); max-height: min(900px, calc(100dvh - 24px)); border-color: #303438; border-radius: 22px; background: #1b1b1b; }
 .translation-dialog:has(.install-dialog-body) .dialog-close { top: 16px; right: 16px; left: auto; width: 38px; height: 38px; border: 1px solid #ffffff20; border-radius: 50%; background: #080a0dcc; }
@@ -783,6 +809,10 @@ body.light-theme .community-strip { border-color: #e3e7ea; background: radial-gr
   .translation-request-actions { grid-column: 3; grid-row: 2; }
 }
 @media (max-width: 660px) {
+  .update-dialog { padding: 23px 18px; }
+  .whats-new-heading { padding-inline: 19px; }
+  .whats-new-list { padding-inline: 19px; }
+  .whats-new-done { margin-inline: 19px; }
   .translation-dialog:has(.install-dialog-body) { max-height: calc(100dvh - 16px); }
   .dialog-cover.install-dialog-cover { height: min(45dvh, 340px); min-height: min(250px, 35dvh); }
   .translation-dialog:has(.install-dialog-body) .dialog-close { top: 10px; right: 10px; }

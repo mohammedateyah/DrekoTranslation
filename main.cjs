@@ -491,7 +491,8 @@ if (!gotSingleInstanceLock) {
       assertTrustedWindow(event);
       return {
         version: app.getVersion(),
-        installerLocale
+        installerLocale,
+        packaged: app.isPackaged
       };
     });
 

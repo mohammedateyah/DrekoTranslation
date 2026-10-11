@@ -554,6 +554,30 @@
       </form>
     </dialog>
 
+    <dialog class="update-dialog mandatory-update-dialog" id="mandatory-update-dialog" aria-labelledby="mandatory-update-title" aria-describedby="mandatory-update-message">
+      <div class="update-dialog-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 9A7 7 0 0 1 18 6l2 6M4 12l2 6a7 7 0 0 0 11.9-3"/></svg>
+      </div>
+      <h2 id="mandatory-update-title" data-i18n="mandatoryUpdateTitle">تحديث مطلوب</h2>
+      <p class="update-dialog-description" data-i18n="mandatoryUpdateDescription">يتوفر إصدار جديد مطلوب لمواصلة استخدام التطبيق.</p>
+      <p class="update-dialog-message" id="mandatory-update-message" role="status" aria-live="polite" data-i18n="mandatoryUpdateChecking">جارٍ التحقق من التحديث...</p>
+      <progress class="mandatory-update-progress" id="mandatory-update-progress" max="100" value="0" aria-label="تقدم تنزيل التحديث" data-i18n-aria-label="mandatoryUpdateTitle" hidden></progress>
+      <div class="update-dialog-actions">
+        <button class="update-dialog-secondary" id="mandatory-update-retry" type="button" data-i18n="mandatoryUpdateRetry" hidden>إعادة المحاولة</button>
+        <button class="update-dialog-primary" id="mandatory-update-install" type="button" data-i18n="mandatoryUpdateRestart" hidden>أعد التشغيل وثبّت الآن</button>
+      </div>
+    </dialog>
+
+    <dialog class="update-dialog whats-new-dialog" id="whats-new-dialog" aria-labelledby="whats-new-title">
+      <div class="whats-new-heading">
+        <span class="whats-new-eyebrow" data-i18n="whatsNewTitle">ما الجديد</span>
+        <h2 id="whats-new-title" data-i18n="whatsNewTitle">ما الجديد</h2>
+        <p id="whats-new-version"></p>
+      </div>
+      <ul class="whats-new-list" id="whats-new-list"></ul>
+      <button class="update-dialog-primary whats-new-done" id="whats-new-done" type="button" data-i18n="whatsNewDone">تمام، فهمت</button>
+    </dialog>
+
     <div class="toast-region" id="toast-region" role="status" aria-live="polite"></div>
     <script src="./app.bundle.js"></script>
   </body>

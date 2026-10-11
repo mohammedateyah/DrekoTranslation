@@ -46,6 +46,21 @@ const translations = {
     updateInstalling: "جارٍ إغلاق التطبيق وبدء التثبيت...",
     updateInstall: "تثبيت وإعادة التشغيل",
     updateLater: "لاحقاً",
+    mandatoryUpdateTitle: "تحديث مطلوب",
+    mandatoryUpdateDescription: "يتوفر إصدار جديد مطلوب لمواصلة استخدام التطبيق.",
+    mandatoryUpdateChecking: "جارٍ التحقق من التحديث...",
+    mandatoryUpdateDownloading: "جارٍ تنزيل الإصدار {version}... {percent}٪",
+    mandatoryUpdateReady: "اكتمل تنزيل الإصدار {version}. أعد تشغيل التطبيق لتثبيته.",
+    mandatoryUpdateFailed: "تعذر تنزيل التحديث. تحقق من الاتصال ثم أعد المحاولة.",
+    mandatoryUpdateRetry: "إعادة المحاولة",
+    mandatoryUpdateRestart: "أعد التشغيل وثبّت الآن",
+    mandatoryUpdateInstalling: "جارٍ إغلاق التطبيق وبدء التثبيت...",
+    mandatoryUpdateInstallFailed: "تعذر بدء التثبيت. أعد المحاولة لتشغيل المثبّت.",
+    whatsNewTitle: "ما الجديد",
+    whatsNewVersion: "الإصدار {version}",
+    whatsNewAutoUpdate: "يبدأ التحقق من التحديثات وتنزيلها تلقائيًا بعد تسجيل الدخول.",
+    whatsNewRequiredUpdate: "التحديث المطلوب يبقى ظاهرًا حتى اكتمال التنزيل وإعادة التشغيل.",
+    whatsNewDone: "تمام، فهمت",
     updateUnavailable: "تعذر التحقق من التحديث الآن. تحقق من اتصالك وحاول مجدداً.",
     updateFeedNotConfigured: "خدمة تحديثات التطبيق غير مهيأة حالياً.",
     updateRequiresInstalledApp: "فحص التحديثات متاح في النسخة المثبتة من التطبيق فقط.",
@@ -455,6 +470,21 @@ const translations = {
     updateInstalling: "Closing the app and starting the installer...",
     updateInstall: "Install and restart",
     updateLater: "Later",
+    mandatoryUpdateTitle: "Update required",
+    mandatoryUpdateDescription: "A new version is required to continue using the app.",
+    mandatoryUpdateChecking: "Checking for the required update...",
+    mandatoryUpdateDownloading: "Downloading version {version}... {percent}%",
+    mandatoryUpdateReady: "Version {version} is downloaded. Restart the app to install it.",
+    mandatoryUpdateFailed: "The update could not be downloaded. Check your connection and retry.",
+    mandatoryUpdateRetry: "Retry",
+    mandatoryUpdateRestart: "Restart and install now",
+    mandatoryUpdateInstalling: "Closing the app and starting the installer...",
+    mandatoryUpdateInstallFailed: "The installer could not start. Retry to launch it.",
+    whatsNewTitle: "What's new",
+    whatsNewVersion: "Version {version}",
+    whatsNewAutoUpdate: "The app now checks for and downloads updates automatically after sign-in.",
+    whatsNewRequiredUpdate: "Required updates stay open until the download is complete and the app restarts.",
+    whatsNewDone: "Got it",
     updateUnavailable: "Unable to check for updates right now. Check your connection and try again.",
     updateFeedNotConfigured: "The app update service is not configured yet.",
     updateRequiresInstalledApp: "Update checks are available only in the installed app.",
@@ -888,6 +918,11 @@ let accountPlanExpiryTimer = null;
 let updateToast = null;
 let updateToastTimer = null;
 let updateCheckPending = false;
+let mandatoryUpdateMode = false;
+let installedAppVersion = "";
+let isPackagedApp = false;
+let postLoginExperienceStarted = false;
+let requiredUpdateVersion = "";
 const cloudCoverUrls = new Map();
 const cloudCoverRequests = new Set();
 const grid = document.querySelector("#translation-grid");
@@ -902,6 +937,8 @@ const dialogContent = document.querySelector("#dialog-content");
 const toastRegion = document.querySelector("#toast-region");
 const authMessage = document.querySelector("#auth-message");
 const editorDialog = document.querySelector("#editor-dialog");
+const mandatoryUpdateDialog = document.querySelector("#mandatory-update-dialog");
+const whatsNewDialog = document.querySelector("#whats-new-dialog");
 const editorForm = document.querySelector("#editor-form");
 const coverSearchInput = document.querySelector("#cover-search-input");
 const coverSearchResults = document.querySelector("#cover-search-results");
@@ -1193,47 +1230,135 @@ function showUpdateNotice(messageKey, values = {}, { canInstall = false, progres
   }
 }
 
+function showMandatoryUpdateState(messageKey, values = {}, { progress = null, ready = false, failed = false } = {}) {
+  if (!mandatoryUpdateDialog.open) mandatoryUpdateDialog.showModal();
+  const message = document.querySelector("#mandatory-update-message");
+  message.textContent = text(messageKey).replace(/\{(\w+)\}/g, (_match, key) =>
+    String(values[key] ?? ""));
+
+  const progressElement = document.querySelector("#mandatory-update-progress");
+  progressElement.hidden = typeof progress !== "number";
+  if (typeof progress === "number") {
+    progressElement.value = Math.max(0, Math.min(100, progress));
+  }
+
+  document.querySelector("#mandatory-update-retry").hidden = !failed;
+  const installButton = document.querySelector("#mandatory-update-install");
+  installButton.hidden = !ready;
+  installButton.disabled = false;
+  installButton.textContent = text("mandatoryUpdateRestart");
+}
+
+function closeMandatoryUpdate() {
+  mandatoryUpdateMode = false;
+  if (mandatoryUpdateDialog.open) mandatoryUpdateDialog.close();
+}
+
+function showWhatsNewIfNeeded() {
+  if (!installedAppVersion || !state.discordAccessGranted || whatsNewDialog.open) return;
+  const storageKey = "dreko-whats-new-version";
+  try {
+    if (localStorage.getItem(storageKey) === installedAppVersion) return;
+  } catch (error) {
+    console.error("Unable to read the release notes version:", error?.name || "UNKNOWN");
+  }
+
+  document.querySelector("#whats-new-version").textContent =
+    text("whatsNewVersion").replace("{version}", installedAppVersion);
+  const notes = document.querySelector("#whats-new-list");
+  notes.replaceChildren();
+  for (const key of ["whatsNewAutoUpdate", "whatsNewRequiredUpdate"]) {
+    const item = document.createElement("li");
+    item.textContent = text(key);
+    notes.append(item);
+  }
+  whatsNewDialog.showModal();
+}
+
+async function startPostLoginExperience() {
+  if (postLoginExperienceStarted || !state.discordAccessGranted) return;
+  postLoginExperienceStarted = true;
+  if (!isPackagedApp) {
+    showWhatsNewIfNeeded();
+    return;
+  }
+  mandatoryUpdateMode = true;
+  showMandatoryUpdateState("mandatoryUpdateChecking");
+  await checkForApplicationUpdates({ mandatory: true });
+}
+
 function handleUpdateStatus(status) {
   if (!status || typeof status.type !== "string") return;
   switch (status.type) {
     case "checking":
-      showUpdateNotice("updateChecking");
+      if (mandatoryUpdateMode) showMandatoryUpdateState("mandatoryUpdateChecking");
+      else showUpdateNotice("updateChecking");
       break;
     case "available":
-      showUpdateNotice("updateAvailable", { version: String(status.version || "") });
+      requiredUpdateVersion = String(status.version || "");
+      if (mandatoryUpdateMode) {
+        showMandatoryUpdateState("mandatoryUpdateDownloading", {
+          version: requiredUpdateVersion,
+          percent: "0"
+        }, { progress: 0 });
+      } else {
+        showUpdateNotice("updateAvailable", { version: String(status.version || "") });
+      }
       break;
     case "progress": {
       const percent = Number(status.percent);
       const safePercent = Number.isFinite(percent) ? Math.max(0, Math.min(100, percent)) : 0;
-      showUpdateNotice("updateDownloading", {
-        percent: new Intl.NumberFormat(state.locale, { maximumFractionDigits: 0 }).format(safePercent)
-      }, { progress: safePercent });
+      const formattedPercent = new Intl.NumberFormat(state.locale, { maximumFractionDigits: 0 }).format(safePercent);
+      if (mandatoryUpdateMode) {
+        showMandatoryUpdateState("mandatoryUpdateDownloading", {
+          version: requiredUpdateVersion,
+          percent: formattedPercent
+        }, { progress: safePercent });
+      } else {
+        showUpdateNotice("updateDownloading", { percent: formattedPercent }, { progress: safePercent });
+      }
       break;
     }
     case "not-available":
       updateCheckPending = false;
-      showUpdateNotice("updateCurrent", { version: String(status.version || "") });
+      if (mandatoryUpdateMode) {
+        closeMandatoryUpdate();
+        showWhatsNewIfNeeded();
+      } else {
+        showUpdateNotice("updateCurrent", { version: String(status.version || "") });
+      }
       break;
     case "downloaded":
       updateCheckPending = false;
-      showUpdateNotice("updateDownloaded", { version: String(status.version || "") }, { canInstall: true });
+      requiredUpdateVersion = String(status.version || requiredUpdateVersion);
+      if (mandatoryUpdateMode) {
+        showMandatoryUpdateState("mandatoryUpdateReady", {
+          version: requiredUpdateVersion
+        }, { progress: 100, ready: true });
+      } else {
+        showUpdateNotice("updateDownloaded", { version: String(status.version || "") }, { canInstall: true });
+      }
       break;
     case "error":
       updateCheckPending = false;
-      showUpdateNotice("updateUnavailable");
+      if (mandatoryUpdateMode) showMandatoryUpdateState("mandatoryUpdateFailed", {}, { failed: true });
+      else showUpdateNotice("updateUnavailable");
       break;
     default:
       break;
   }
 }
 
-async function checkForApplicationUpdates() {
+async function checkForApplicationUpdates({ mandatory = false } = {}) {
+  if (mandatory) mandatoryUpdateMode = true;
   if (updateCheckPending) return;
   updateCheckPending = true;
-  showUpdateNotice("updateChecking");
+  if (mandatoryUpdateMode) showMandatoryUpdateState("mandatoryUpdateChecking");
+  else showUpdateNotice("updateChecking");
   if (!api?.checkForUpdates) {
     updateCheckPending = false;
-    showUpdateNotice("updateUnavailable");
+    if (mandatoryUpdateMode) showMandatoryUpdateState("mandatoryUpdateFailed", {}, { failed: true });
+    else showUpdateNotice("updateUnavailable");
     return;
   }
   try {
@@ -1245,12 +1370,14 @@ async function checkForApplicationUpdates() {
         : result?.code === "UPDATES_REQUIRE_INSTALLED_APP"
           ? "updateRequiresInstalledApp"
           : "updateUnavailable";
-      showUpdateNotice(messageKey);
+      if (mandatoryUpdateMode) showMandatoryUpdateState("mandatoryUpdateFailed", {}, { failed: true });
+      else showUpdateNotice(messageKey);
     }
   } catch (error) {
     console.error("Unable to check for Dreko updates:", error?.name || "UNKNOWN");
     updateCheckPending = false;
-    showUpdateNotice("updateUnavailable");
+    if (mandatoryUpdateMode) showMandatoryUpdateState("mandatoryUpdateFailed", {}, { failed: true });
+    else showUpdateNotice("updateUnavailable");
   }
 }
 
@@ -1267,6 +1394,35 @@ async function installDownloadedUpdate(button) {
     showUpdateNotice("updateInstallFailed");
   }
 }
+
+async function installRequiredUpdate() {
+  const button = document.querySelector("#mandatory-update-install");
+  button.disabled = true;
+  document.querySelector("#mandatory-update-message").textContent = text("mandatoryUpdateInstalling");
+  try {
+    const result = await api.installUpdate();
+    if (!result?.ok) throw new Error(result?.code || "UPDATE_INSTALL_FAILED");
+  } catch (error) {
+    console.error("Unable to start the required Dreko update:", error?.code || error?.name || "UNKNOWN");
+    showMandatoryUpdateState("mandatoryUpdateInstallFailed", {}, { progress: 100, ready: true });
+  }
+}
+
+document.querySelector("#mandatory-update-retry").addEventListener("click", () => {
+  void checkForApplicationUpdates({ mandatory: true });
+});
+document.querySelector("#mandatory-update-install").addEventListener("click", () => {
+  void installRequiredUpdate();
+});
+mandatoryUpdateDialog.addEventListener("cancel", (event) => event.preventDefault());
+document.querySelector("#whats-new-done").addEventListener("click", () => {
+  try {
+    localStorage.setItem("dreko-whats-new-version", installedAppVersion);
+  } catch (error) {
+    console.error("Unable to save the release notes version:", error?.name || "UNKNOWN");
+  }
+  whatsNewDialog.close();
+});
 
 function updateHeader() {
   const isMember = Boolean(state.discordProfile);
@@ -2763,6 +2919,7 @@ async function activateDiscordUser(user, { recordLogin = false } = {}) {
       void reverifyDiscordMembership();
     }, 4 * 60 * 1000);
     state.discordVerifyingUserUid = "";
+    void startPostLoginExperience();
     return true;
   } catch (error) {
     state.discordVerifyingUserUid = "";
@@ -4060,6 +4217,8 @@ if (storedView === "list" || storedView === "grid") {
 async function initializeApp() {
   try {
     const appInfo = await api?.bootstrap();
+    installedAppVersion = typeof appInfo?.version === "string" ? appInfo.version : "";
+    isPackagedApp = appInfo?.packaged === true;
     if (appInfo?.installerLocale === "ar" || appInfo?.installerLocale === "en") {
       state.locale = appInfo.installerLocale;
       localStorage.setItem("dreko-locale", state.locale);
