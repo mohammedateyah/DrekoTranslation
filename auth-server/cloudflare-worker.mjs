@@ -1,14 +1,17 @@
 import { createRemoteJWKSet, importPKCS8, jwtVerify, SignJWT } from "jose";
 import discordAuthModule from "./discord-auth.cjs";
+import imageSearchModule from "../image-search.cjs";
 import { D1SessionStore } from "./cloudflare-session-store.mjs";
 
 const { DiscordMembershipService } = discordAuthModule;
+const { searchGameArtwork } = imageSearchModule;
 const OAUTH_AUDIENCE =
   "https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit";
 const FIREBASE_KEYS = createRemoteJWKSet(
   new URL("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com")
 );
 const FIREBASE_UID_PATTERN = /^discord_\d{17,20}$/;
+const IMAGE_SEARCH_REQUEST_LIMIT = 4096;
 const GITHUB_RELEASE_API_URL =
   "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/latest?per_page=1&channel=stable";
 const UPDATE_ASSET_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._ -]*\.(?:exe|blockmap)$/;
@@ -123,6 +126,47 @@ function json(body, status = 200) {
   return response(JSON.stringify(body), status, {
     "Content-Type": "application/json; charset=utf-8"
   });
+}
+
+export function imageSearchProviderStatus(env) {
+  return {
+    igdb: Boolean(env.IGDB_CLIENT_ID && env.IGDB_CLIENT_SECRET),
+    thegamesdb: Boolean(env.THEGAMESDB_API_KEY),
+    steamgriddb: Boolean(env.STEAMGRIDDB_API_KEY)
+  };
+}
+
+function imageSearchCredentials(env) {
+  return {
+    igdbClientId: env.IGDB_CLIENT_ID || "",
+    igdbClientSecret: env.IGDB_CLIENT_SECRET || "",
+    theGamesDbApiKey: env.THEGAMESDB_API_KEY || "",
+    steamGridDbApiKey: env.STEAMGRIDDB_API_KEY || ""
+  };
+}
+
+export async function isEnabledImageSearchAdministrator(idToken, firebaseAuth, projectId, fetchImpl = fetch) {
+  let decoded;
+  try {
+    decoded = await firebaseAuth.verifyIdToken(idToken);
+  } catch {
+    return false;
+  }
+  if (!FIREBASE_UID_PATTERN.test(decoded?.uid || "")) return false;
+
+  const adminResponse = await fetchImpl(
+    `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/administrators/${decoded.uid}`,
+    { headers: { Authorization: `Bearer ${idToken}` } }
+  );
+  if (adminResponse.status === 403 || adminResponse.status === 404) return false;
+  if (!adminResponse.ok) throw new Error("IMAGE_SEARCH_ADMIN_CHECK_FAILED");
+  const adminDocument = await adminResponse.json();
+  return adminDocument.fields?.enabled?.booleanValue === true;
+}
+
+function bearerToken(request) {
+  const authorization = request.headers.get("Authorization") || "";
+  return authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
 }
 
 function loadConfiguration(env) {
@@ -303,6 +347,50 @@ export default {
 
       if (request.method === "GET" && path === "/v1/desktop/config") {
         return json(await discord.publicConfig());
+      }
+
+      const imageSearchConfigPath = path === "/v1/desktop/image-search/config";
+      const imageSearchRequestPath = path === "/v1/desktop/image-search/search";
+      if ((request.method === "GET" && imageSearchConfigPath) ||
+          (request.method === "POST" && imageSearchRequestPath)) {
+        const maximumRequests = imageSearchConfigPath ? 60 : 20;
+        if (!await allowRequest(env.OAUTH_DB, request, "image-search", 60 * 1000, maximumRequests)) {
+          return json({ code: "IMAGE_SEARCH_RATE_LIMITED" }, 429);
+        }
+
+        const idToken = bearerToken(request);
+        if (idToken.length < 100 || idToken.length > 16000) {
+          return json({ code: "ADMIN_REQUIRED" }, 401);
+        }
+        try {
+          if (!await isEnabledImageSearchAdministrator(idToken, firebaseAuth, configuration.projectId)) {
+            return json({ code: "ADMIN_REQUIRED" }, 403);
+          }
+        } catch (error) {
+          console.error("Image search administrator check failed:", error?.name || "UNKNOWN");
+          return json({ code: "IMAGE_SEARCH_UNAVAILABLE" }, 503);
+        }
+
+        if (imageSearchConfigPath) {
+          return json({ ok: true, data: imageSearchProviderStatus(env) });
+        }
+
+        const contentLength = Number(request.headers.get("Content-Length") || 0);
+        if (contentLength > IMAGE_SEARCH_REQUEST_LIMIT) {
+          return json({ code: "INVALID_SEARCH_QUERY" }, 413);
+        }
+        let body;
+        try {
+          body = await request.json();
+        } catch {
+          return json({ code: "INVALID_SEARCH_QUERY" }, 400);
+        }
+        if (typeof body?.query !== "string" ||
+            body.query.trim().length < 1 ||
+            body.query.trim().length > 100) {
+          return json({ code: "INVALID_SEARCH_QUERY" }, 400);
+        }
+        return json(await searchGameArtwork(body.query, imageSearchCredentials(env)));
       }
 
       if (request.method === "POST" && path === "/v1/desktop/sessions") {

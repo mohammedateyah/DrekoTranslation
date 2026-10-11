@@ -59,7 +59,7 @@ const translations = {
     whatsNewTitle: "ما الجديد",
     whatsNewVersion: "الإصدار {version}",
     whatsNewAutoUpdate: "يبدأ التحقق من التحديثات وتنزيلها تلقائيًا بعد تسجيل الدخول.",
-    whatsNewRequiredUpdate: "التحديث المطلوب يبقى ظاهرًا حتى اكتمال التنزيل وإعادة التشغيل.",
+    whatsNewRequiredUpdate: "يمكنك الأن طلب تعريب - قسم طلبات التعريب يستخدم لطلب لعبة غير متوفّر لها تعريب منشور. يعتمد تنفيذ الطلب على المراجعة وعدم توفر التعريب.",
     whatsNewDone: "تمام، فهمت",
     updateUnavailable: "تعذر التحقق من التحديث الآن. تحقق من اتصالك وحاول مجدداً.",
     updateFeedNotConfigured: "خدمة تحديثات التطبيق غير مهيأة حالياً.",
@@ -483,7 +483,7 @@ const translations = {
     whatsNewTitle: "What's new",
     whatsNewVersion: "Version {version}",
     whatsNewAutoUpdate: "The app now checks for and downloads updates automatically after sign-in.",
-    whatsNewRequiredUpdate: "Required updates stay open until the download is complete and the app restarts.",
+    whatsNewRequiredUpdate: "You can now request a game translation! The Translation Requests section lets you request a game that doesn't have a published translation available. Requests are reviewed before being processed.",
     whatsNewDone: "Got it",
     updateUnavailable: "Unable to check for updates right now. Check your connection and try again.",
     updateFeedNotConfigured: "The app update service is not configured yet.",
@@ -3288,10 +3288,17 @@ function renderCoverSearchConfigStatus(config) {
 
 async function refreshCoverSearchConfig() {
   try {
-    const result = await api.getImageSearchConfig();
+    const user = firebaseCloud.currentUser();
+    if (!user) throw new Error("ADMIN_REQUIRED");
+    const result = await api.getImageSearchConfig(await user.getIdToken());
     if (!result.ok) {
       renderCoverSearchConfigStatus({});
-      setCoverSearchMessage(text("imageSearchNotConfigured"), "error");
+      setCoverSearchMessage(
+        result.code === "ADMIN_REQUIRED"
+          ? text("imageSearchUnavailable")
+          : text("imageSearchNotConfigured"),
+        "error"
+      );
       return;
     }
     renderCoverSearchConfigStatus(result.data);
@@ -3416,7 +3423,9 @@ async function searchCoverArtwork() {
   coverSearchResults.replaceChildren();
   setCoverSearchMessage(text("imageSearchLoading"));
   try {
-    const result = await api.searchGameArtwork(query);
+    const user = firebaseCloud.currentUser();
+    if (!user) throw new Error("ADMIN_REQUIRED");
+    const result = await api.searchGameArtwork(query, await user.getIdToken());
     if (requestId !== state.coverSearchRequestId) return;
     if (!result.ok) {
       const message = result.code === "IMAGE_SEARCH_NOT_CONFIGURED"

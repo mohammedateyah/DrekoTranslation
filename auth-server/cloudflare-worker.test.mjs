@@ -2,7 +2,51 @@ import assert from "node:assert/strict";
 import { generateKeyPairSync } from "node:crypto";
 import test from "node:test";
 import { importSPKI, jwtVerify } from "jose";
-import { createFirebaseAuth, serveUpdateRequest } from "./cloudflare-worker.mjs";
+import {
+  createFirebaseAuth,
+  imageSearchProviderStatus,
+  isEnabledImageSearchAdministrator,
+  serveUpdateRequest
+} from "./cloudflare-worker.mjs";
+
+test("image search provider status reports availability without exposing Cloudflare secrets", () => {
+  const status = imageSearchProviderStatus({
+    IGDB_CLIENT_ID: "private-client-id",
+    IGDB_CLIENT_SECRET: "private-client-secret",
+    THEGAMESDB_API_KEY: "private-games-key",
+    STEAMGRIDDB_API_KEY: "private-grid-key"
+  });
+
+  assert.deepEqual(status, { igdb: true, thegamesdb: true, steamgriddb: true });
+  assert.equal(JSON.stringify(status).includes("private"), false);
+});
+
+test("image search requires an enabled administrator document in Firestore", async () => {
+  const idToken = "firebase-id-token";
+  const firebaseAuth = {
+    async verifyIdToken(token) {
+      assert.equal(token, idToken);
+      return { uid: "discord_12345678901234567" };
+    }
+  };
+  const result = await isEnabledImageSearchAdministrator(
+    idToken,
+    firebaseAuth,
+    "drekotranslation",
+    async (url, options) => {
+      assert.equal(
+        url,
+        "https://firestore.googleapis.com/v1/projects/drekotranslation/databases/(default)/documents/administrators/discord_12345678901234567"
+      );
+      assert.equal(options.headers.Authorization, `Bearer ${idToken}`);
+      return new Response(JSON.stringify({ fields: { enabled: { booleanValue: true } } }), {
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+  );
+
+  assert.equal(result, true);
+});
 
 test("update manifests route release downloads through GitHub's public asset URL", async () => {
   const releaseApiUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/latest?per_page=1&channel=stable";

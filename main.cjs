@@ -9,7 +9,7 @@ const DiscordRPC = require("discord-rpc");
 const { autoUpdater } = require("electron-updater");
 const { TranslationDatabase } = require("./database.cjs");
 const { discoverSteamGames } = require("./installed-games.cjs");
-const { searchGameArtwork, trustedImageUrl } = require("./image-search.cjs");
+const { trustedImageUrl } = require("./image-search.cjs");
 const {
   downloadToFile,
   extractZip,
@@ -47,31 +47,6 @@ let updateDownloaded = false;
 let downloadedUpdateVersion = "";
 let updateCheckInProgress = false;
 let installerLocale = null;
-
-try {
-  process.loadEnvFile(path.join(__dirname, ".env"));
-} catch (error) {
-  if (error?.code !== "ENOENT") {
-    console.error("Unable to load local image-search environment settings:", error?.code || error?.name || "UNKNOWN");
-  }
-}
-
-function imageSearchEnvironmentCredentials() {
-  return {
-    igdbClientId: process.env.IGDB_CLIENT_ID || "",
-    igdbClientSecret: process.env.IGDB_CLIENT_SECRET || "",
-    theGamesDbApiKey: process.env.THEGAMESDB_API_KEY || "",
-    steamGridDbApiKey: process.env.STEAMGRIDDB_API_KEY || ""
-  };
-}
-
-function getImageSearchCredentialStatus(credentials) {
-  return {
-    igdb: Boolean(credentials.igdbClientId && credentials.igdbClientSecret),
-    thegamesdb: Boolean(credentials.theGamesDbApiKey),
-    steamgriddb: Boolean(credentials.steamGridDbApiKey)
-  };
-}
 
 function detectArtworkExtension(contents) {
   if (contents.length >= 8 &&
@@ -200,7 +175,7 @@ if (!gotSingleInstanceLock) {
     return [...roots].filter((root) => fsSync.existsSync(root));
   }
 
-  async function requestDiscordService(route, options = {}) {
+  async function requestDiscordService(route, options = {}, timeoutMs = 12000) {
     if (!discordServerOrigin) return { ok: false, code: "AUTH_SERVER_NOT_CONFIGURED" };
     try {
       const response = await fetch(new URL(route, `${discordServerOrigin}/`), {
@@ -209,7 +184,7 @@ if (!gotSingleInstanceLock) {
           Accept: "application/json",
           ...(options.headers || {})
         },
-        signal: AbortSignal.timeout(12000)
+        signal: AbortSignal.timeout(timeoutMs)
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
@@ -951,22 +926,33 @@ if (!gotSingleInstanceLock) {
       }
     });
 
-    ipcMain.handle("admin:image-search-config", async (event) => {
+    ipcMain.handle("admin:image-search-config", async (event, idToken) => {
       assertTrustedWindow(event);
-      return { ok: true, data: getImageSearchCredentialStatus(imageSearchEnvironmentCredentials()) };
+      if (typeof idToken !== "string" || idToken.length > 16000) {
+        return { ok: false, code: "INVALID_FIREBASE_TOKEN" };
+      }
+      const result = await requestDiscordService("/v1/desktop/image-search/config", {
+        headers: { Authorization: `Bearer ${idToken}` }
+      });
+      return result.ok ? result.data : result;
     });
 
-    ipcMain.handle("admin:search-game-artwork", async (event, query) => {
+    ipcMain.handle("admin:search-game-artwork", async (event, value) => {
       assertTrustedWindow(event);
-      if (typeof query !== "string" || query.trim().length < 1 || query.trim().length > 100) {
+      if (!value || typeof value.query !== "string" ||
+          value.query.trim().length < 1 || value.query.trim().length > 100 ||
+          typeof value.idToken !== "string" || value.idToken.length > 16000) {
         return { ok: false, code: "INVALID_SEARCH_QUERY" };
       }
-      try {
-        return await searchGameArtwork(query, imageSearchEnvironmentCredentials());
-      } catch (error) {
-        console.error("Unable to search game artwork:", error?.message || error?.name || "UNKNOWN");
-        return { ok: false, code: "IMAGE_SEARCH_PROVIDERS_UNAVAILABLE" };
-      }
+      const result = await requestDiscordService("/v1/desktop/image-search/search", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${value.idToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ query: value.query })
+      }, 60000);
+      return result.ok ? result.data : result;
     });
 
     ipcMain.handle("admin:download-game-artwork", async (event, value) => {
