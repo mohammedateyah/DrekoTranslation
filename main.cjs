@@ -42,6 +42,7 @@ let pendingAlreadyRunningNotice = false;
 let mainPageUrl;
 let discordServerOrigin = "";
 let discordInviteUrl = "";
+let updateFeedUrl = "";
 let updateDownloaded = false;
 let downloadedUpdateVersion = "";
 let updateCheckInProgress = false;
@@ -379,6 +380,9 @@ if (!gotSingleInstanceLock) {
   }
 
   function configureAutoUpdater() {
+    if (updateFeedUrl) {
+      autoUpdater.setFeedURL({ provider: "generic", url: updateFeedUrl });
+    }
     autoUpdater.autoDownload = true;
     autoUpdater.autoInstallOnAppQuit = false;
     autoUpdater.autoRunAppAfterInstall = true;
@@ -415,6 +419,7 @@ if (!gotSingleInstanceLock) {
     ipcMain.handle("updates:check", (event) => {
       assertTrustedWindow(event);
       if (!app.isPackaged) return { ok: false, code: "UPDATES_REQUIRE_INSTALLED_APP" };
+      if (!updateFeedUrl) return { ok: false, code: "UPDATE_FEED_NOT_CONFIGURED" };
       if (updateDownloaded) {
         sendUpdateStatus({ type: "downloaded", version: downloadedUpdateVersion });
         return { ok: true, code: "UPDATE_ALREADY_DOWNLOADED" };
@@ -468,6 +473,10 @@ if (!gotSingleInstanceLock) {
           (candidate.protocol === "https:" ||
             (allowLocalDevelopmentServer && candidate.protocol === "http:" && localDevelopmentHost))) {
         discordServerOrigin = candidate.origin;
+        if (candidate.protocol === "https:" ||
+            (allowLocalDevelopmentServer && localDevelopmentHost)) {
+          updateFeedUrl = new URL("/updates/", candidate.origin).href;
+        }
       } else {
         console.error("Discord auth server URL must be an HTTPS origin (localhost is allowed during development).");
       }

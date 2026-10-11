@@ -9,8 +9,8 @@ const FIREBASE_KEYS = createRemoteJWKSet(
   new URL("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com")
 );
 const FIREBASE_UID_PATTERN = /^discord_\d{17,20}$/;
-const GITHUB_RELEASE_DOWNLOAD_URL =
-  "https://github.com/mohammedateyah/DrekoTranslation/releases/latest/download/";
+const GITHUB_RELEASE_API_URL =
+  "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/latest";
 const UPDATE_ASSET_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._ -]*\.(?:exe|blockmap)$/;
 
 function response(body, status = 200, headers = {}) {
@@ -39,38 +39,68 @@ export async function serveUpdateRequest(request, fetcher = fetch) {
     return response(null, 404);
   }
 
-  if (fileName === "latest.yml") {
-    try {
-      const upstream = await fetcher(`${GITHUB_RELEASE_DOWNLOAD_URL}latest.yml`, {
-        headers: { "User-Agent": "Dreko-Translation-Updater" }
-      });
-      if (!upstream.ok) return response(null, upstream.status === 404 ? 404 : 502);
+  if (fileName !== "latest.yml" && !UPDATE_ASSET_PATTERN.test(fileName)) {
+    return response(null, 404);
+  }
 
-      const releaseBase = upstream.url
-        ? new URL(".", upstream.url)
-        : new URL(GITHUB_RELEASE_DOWNLOAD_URL);
-      const manifest = (await upstream.text()).replace(
+  try {
+    const releaseResponse = await fetcher(GITHUB_RELEASE_API_URL, {
+      headers: {
+        Accept: "application/vnd.github+json",
+        "User-Agent": "Dreko-Translation-Updater"
+      },
+      cf: { cacheEverything: true, cacheTtl: 300 }
+    });
+    if (!releaseResponse.ok) return response(null, releaseResponse.status === 404 ? 404 : 502);
+
+    const release = await releaseResponse.json();
+    const asset = release.assets?.find((item) => item.name === fileName);
+    if (!asset || typeof asset.url !== "string" ||
+        !asset.url.startsWith("https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/assets/")) {
+      return response(null, 404);
+    }
+
+    const assetResponse = await fetcher(asset.url, {
+      headers: {
+        Accept: "application/octet-stream",
+        "User-Agent": "Dreko-Translation-Updater",
+        ...(request.headers.has("range") ? { Range: request.headers.get("range") } : {})
+      },
+      redirect: "follow"
+    });
+    if (!assetResponse.ok) return response(null, assetResponse.status === 404 ? 404 : 502);
+
+    if (fileName === "latest.yml") {
+      const updateManifest = (await assetResponse.text()).replace(
         /^(\s*(?:-\s*)?(?:url|path):\s*)(?:"([^"]*)"|'([^']*)'|([^\r\n]+))\s*$/gm,
         (_line, prefix, doubleQuoted, singleQuoted, unquoted) => {
-          const assetUrl = new URL(
-            doubleQuoted ?? singleQuoted ?? unquoted.trim(),
-            releaseBase
+          const assetName = doubleQuoted ?? singleQuoted ?? unquoted.trim();
+          const workerAssetUrl = new URL(
+            `/updates/${encodeURIComponent(assetName)}`,
+            url.origin
           );
-          return `${prefix}${JSON.stringify(assetUrl.href)}`;
+          return `${prefix}${JSON.stringify(workerAssetUrl.href)}`;
         }
       );
-      return response(manifest, 200, {
+      return response(updateManifest, 200, {
         "Cache-Control": "no-store",
         "Content-Type": "text/yaml; charset=utf-8"
       });
-    } catch {
-      return response(null, 502);
     }
-  }
 
-  if (!UPDATE_ASSET_PATTERN.test(fileName)) return response(null, 404);
-  const assetUrl = new URL(encodeURIComponent(fileName), GITHUB_RELEASE_DOWNLOAD_URL);
-  return response(null, 302, { Location: assetUrl.href });
+    if (assetResponse.status !== 200 && assetResponse.status !== 206) return response(null, 502);
+    const downloadHeaders = {
+      "Cache-Control": "no-store",
+      "Content-Type": asset.content_type || "application/octet-stream"
+    };
+    for (const header of ["accept-ranges", "content-length", "content-range", "etag", "last-modified"]) {
+      const value = assetResponse.headers.get(header);
+      if (value) downloadHeaders[header] = value;
+    }
+    return response(assetResponse.body, assetResponse.status, downloadHeaders);
+  } catch {
+    return response(null, 502);
+  }
 }
 
 function json(body, status = 200) {

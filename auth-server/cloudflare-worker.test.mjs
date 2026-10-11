@@ -4,46 +4,74 @@ import test from "node:test";
 import { importSPKI, jwtVerify } from "jose";
 import { createFirebaseAuth, serveUpdateRequest } from "./cloudflare-worker.mjs";
 
-test("legacy update clients receive absolute GitHub release asset URLs", async () => {
+test("update manifests route release assets through the Worker", async () => {
+  const releaseApiUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/latest";
+  const manifestAssetUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/assets/123";
+  const requestedUrls = [];
   const response = await serveUpdateRequest(
     new Request("https://dreko-discord-auth.example/updates/latest.yml"),
-    async (url) => {
-      assert.equal(
-        url,
-        "https://github.com/mohammedateyah/DrekoTranslation/releases/latest/download/latest.yml"
-      );
-      return {
-        ok: true,
-        url: "https://github.com/mohammedateyah/DrekoTranslation/releases/download/v1.0.1/latest.yml",
-        text: async () => [
+    async (url, options) => {
+      requestedUrls.push(url);
+      if (url === releaseApiUrl) {
+        assert.equal(options.cf.cacheTtl, 300);
+        return new Response(JSON.stringify({
+          assets: [{ name: "latest.yml", url: manifestAssetUrl }]
+        }), { headers: { "Content-Type": "application/json" } });
+      }
+      assert.equal(url, manifestAssetUrl);
+      assert.equal(options.redirect, "follow");
+      return new Response([
           "version: 1.0.1",
           "files:",
-          "  - url: Dreko Translation Setup 1.0.1.exe",
+          "  - url: Dreko-Translation-Setup-1.0.1.exe",
           "    sha512: example",
-          "path: Dreko Translation Setup 1.0.1.exe"
-        ].join("\n")
-      };
+          "path: Dreko-Translation-Setup-1.0.1.exe"
+        ].join("\n"));
     }
   );
 
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type"), /text\/yaml/);
+  assert.deepEqual(requestedUrls, [releaseApiUrl, manifestAssetUrl]);
   assert.match(
     await response.text(),
-    /"https:\/\/github\.com\/mohammedateyah\/DrekoTranslation\/releases\/download\/v1\.0\.1\/Dreko%20Translation%20Setup%201\.0\.1\.exe"/g
+    /"https:\/\/dreko-discord-auth\.example\/updates\/Dreko-Translation-Setup-1\.0\.1\.exe"/g
   );
 });
 
-test("legacy update clients are redirected only to installer and blockmap assets", async () => {
+test("installer downloads stream through GitHub's asset API and preserve ranges", async () => {
+  const releaseApiUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/latest";
+  const installerAssetUrl = "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/assets/456";
   const response = await serveUpdateRequest(
-    new Request("https://dreko-discord-auth.example/updates/Dreko%20Translation%20Setup%201.0.1.exe")
+    new Request("https://dreko-discord-auth.example/updates/Dreko-Translation-Setup-1.0.2.exe", {
+      headers: { Range: "bytes=0-6" }
+    }),
+    async (url, options) => {
+      if (url === releaseApiUrl) {
+        return new Response(JSON.stringify({
+          assets: [{
+            name: "Dreko-Translation-Setup-1.0.2.exe",
+            url: installerAssetUrl
+          }]
+        }), { headers: { "Content-Type": "application/json" } });
+      }
+      assert.equal(url, installerAssetUrl);
+      assert.equal(options.redirect, "follow");
+      assert.equal(options.headers.Range, "bytes=0-6");
+      return new Response("partial", {
+        status: 206,
+        headers: {
+          "Content-Length": "7",
+          "Content-Range": "bytes 0-6/100",
+          "Content-Type": "application/octet-stream"
+        }
+      });
+    }
   );
 
-  assert.equal(response.status, 302);
-  assert.equal(
-    response.headers.get("location"),
-    "https://github.com/mohammedateyah/DrekoTranslation/releases/latest/download/Dreko%20Translation%20Setup%201.0.1.exe"
-  );
+  assert.equal(response.status, 206);
+  assert.equal(response.headers.get("content-range"), "bytes 0-6/100");
+  assert.equal(await response.text(), "partial");
 });
 
 test("the legacy update feed rejects unsupported files", async () => {
