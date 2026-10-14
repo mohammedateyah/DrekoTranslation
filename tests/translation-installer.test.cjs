@@ -8,10 +8,56 @@ const {
   extractZip,
   getInstallRecord,
   installExtractedFiles,
+  recordExternalInstallerInstallation,
   removeInstalledTranslation,
   safeArchivePath,
   validateDownloadUrl
 } = require("../translation-installer.cjs");
+
+test("external installer completion is recorded and removal requires explicit confirmation", async (t) => {
+  const workspace = await createWorkspace(t);
+  await fs.mkdir(workspace.game, { recursive: true });
+
+  const recorded = await recordExternalInstallerInstallation({
+    translationId: "translation-installer-only",
+    gameFolder: workspace.game,
+    stateFile: workspace.stateFile
+  });
+  assert.equal(recorded.kind, "external-installer");
+
+  const installRecord = await getInstallRecord({
+    translationId: "translation-installer-only",
+    gameFolder: workspace.game,
+    stateFile: workspace.stateFile
+  });
+  assert.equal(installRecord.kind, "external-installer");
+  assert.deepEqual(installRecord.files, []);
+
+  const refused = await removeInstalledTranslation({
+    translationId: "translation-installer-only",
+    gameFolder: workspace.game,
+    stateFile: workspace.stateFile
+  });
+  assert.deepEqual(refused, { removed: false, requiresExternalUninstall: true });
+  assert.ok(await getInstallRecord({
+    translationId: "translation-installer-only",
+    gameFolder: workspace.game,
+    stateFile: workspace.stateFile
+  }));
+
+  const confirmed = await removeInstalledTranslation({
+    translationId: "translation-installer-only",
+    gameFolder: workspace.game,
+    stateFile: workspace.stateFile,
+    confirmExternalUninstall: true
+  });
+  assert.deepEqual(confirmed, { removed: true, externalInstaller: true });
+  assert.equal(await getInstallRecord({
+    translationId: "translation-installer-only",
+    gameFolder: workspace.game,
+    stateFile: workspace.stateFile
+  }), null);
+});
 
 const crcTable = Array.from({ length: 256 }, (_, index) => {
   let value = index;

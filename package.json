@@ -1,6 +1,6 @@
 {
   "name": "dreko-translation",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "private": true,
   "description": "Arabic-first desktop translation library",
   "author": "Dreko",
@@ -50,6 +50,12 @@
       "index.html",
       "main.cjs",
       "preload.cjs",
+      "ai-localization-jobs.cjs",
+      "gemini-translation.cjs",
+      "localization-adapters.cjs",
+      "localization-safety.cjs",
+      "localization-scanner.cjs",
+      "localization-zip.cjs",
       "translation-installer.cjs",
       "styles.css",
       "assets/**/*",
@@ -83,6 +89,7 @@
   "dependencies": {
     "discord-rpc": "^4.0.1",
     "electron-updater": "^6.8.9",
-    "yauzl": "^3.2.0"
+    "yauzl": "^3.2.0",
+    "yazl": "^3.3.1"
   }
 }

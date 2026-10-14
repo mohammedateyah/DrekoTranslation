@@ -1,10 +1,12 @@
 import { createRemoteJWKSet, importPKCS8, jwtVerify, SignJWT } from "jose";
 import discordAuthModule from "./discord-auth.cjs";
 import imageSearchModule from "../image-search.cjs";
+import geminiTranslationModule from "../gemini-translation.cjs";
 import { D1SessionStore } from "./cloudflare-session-store.mjs";
 
 const { DiscordMembershipService } = discordAuthModule;
 const { searchGameArtwork } = imageSearchModule;
+const { requestBatch } = geminiTranslationModule;
 const OAUTH_AUDIENCE =
   "https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit";
 const FIREBASE_KEYS = createRemoteJWKSet(
@@ -12,6 +14,17 @@ const FIREBASE_KEYS = createRemoteJWKSet(
 );
 const FIREBASE_UID_PATTERN = /^discord_\d{17,20}$/;
 const IMAGE_SEARCH_REQUEST_LIMIT = 4096;
+const GEMINI_REQUEST_LIMIT = 128 * 1024;
+const GEMINI_BATCH_ENTRY_LIMIT = 20;
+const GEMINI_BATCH_CHARACTER_LIMIT = 18000;
+const GEMINI_BATCH_ENTRY_CHARACTER_LIMIT = 16000;
+const GEMINI_MODEL_PATTERN = /^[A-Za-z0-9.-]{1,80}$/;
+const GEMINI_SOURCE_LANGUAGES = new Set([
+  "auto", "en", "ja", "ko", "zh", "fr", "de", "es", "it", "pt", "ru", "tr", "pl", "other"
+]);
+const GEMINI_CATEGORIES = new Set([
+  "dialogue", "subtitle", "ui", "quest", "item", "lore", "general"
+]);
 const GITHUB_RELEASE_API_URL =
   "https://api.github.com/repos/mohammedateyah/DrekoTranslation/releases/latest?per_page=1&channel=stable";
 const UPDATE_ASSET_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._ -]*\.(?:exe|blockmap)$/;
@@ -162,6 +175,114 @@ export async function isEnabledImageSearchAdministrator(idToken, firebaseAuth, p
   if (!adminResponse.ok) throw new Error("IMAGE_SEARCH_ADMIN_CHECK_FAILED");
   const adminDocument = await adminResponse.json();
   return adminDocument.fields?.enabled?.booleanValue === true;
+}
+
+export async function translateGeminiRequest({
+  request,
+  env,
+  firebaseAuth,
+  database,
+  fetchImpl = fetch
+}) {
+  if (!await allowRequest(database, request, "gemini-translation", 60 * 1000, 12)) {
+    return json({ code: "API_RATE_LIMITED" }, 429);
+  }
+  if (typeof env.GEMINI_API_KEY !== "string" || env.GEMINI_API_KEY.length < 20) {
+    return json({ code: "GEMINI_SERVICE_NOT_CONFIGURED" }, 503);
+  }
+  const idToken = bearerToken(request);
+  if (idToken.length < 100 || idToken.length > 16000) {
+    return json({ code: "AUTH_REQUIRED" }, 401);
+  }
+
+  let decoded;
+  try {
+    decoded = await firebaseAuth.verifyIdToken(idToken);
+  } catch {
+    return json({ code: "AUTH_REQUIRED" }, 401);
+  }
+  const discordUserId = decoded?.claims?.discordUserId;
+  if (!FIREBASE_UID_PATTERN.test(decoded?.uid || "") ||
+      typeof discordUserId !== "string" ||
+      decoded.uid !== `discord_${discordUserId}` ||
+      decoded.claims?.discordGuildMember !== true ||
+      decoded.claims?.discordGuildId !== env.DISCORD_GUILD_ID) {
+    return json({ code: "GUILD_MEMBERSHIP_REQUIRED" }, 403);
+  }
+
+  const contentLength = Number(request.headers.get("Content-Length") || 0);
+  if (contentLength > GEMINI_REQUEST_LIMIT) return json({ code: "INVALID_TRANSLATION_REQUEST" }, 413);
+  let body;
+  try {
+    const rawBody = await request.text();
+    if (new TextEncoder().encode(rawBody).byteLength > GEMINI_REQUEST_LIMIT) {
+      return json({ code: "INVALID_TRANSLATION_REQUEST" }, 413);
+    }
+    body = JSON.parse(rawBody);
+  } catch {
+    return json({ code: "INVALID_TRANSLATION_REQUEST" }, 400);
+  }
+  const { model, sourceLanguage, category, glossary, gameTitle, gameDescription, entries } = body || {};
+  if (!GEMINI_MODEL_PATTERN.test(model || "") ||
+      !GEMINI_SOURCE_LANGUAGES.has(sourceLanguage) ||
+      !GEMINI_CATEGORIES.has(category) ||
+      typeof gameTitle !== "string" || gameTitle.length > 120 ||
+      typeof gameDescription !== "string" || gameDescription.length > 1000 ||
+      typeof glossary !== "string" || glossary.length > 10000 ||
+      !Array.isArray(entries) || entries.length < 1 ||
+      entries.length > GEMINI_BATCH_ENTRY_LIMIT) {
+    return json({ code: "INVALID_TRANSLATION_REQUEST" }, 400);
+  }
+
+  let totalCharacters = glossary.length;
+  const identifiers = new Set();
+  for (const entry of entries) {
+    if (!entry || typeof entry.id !== "string" || !entry.id.length ||
+        entry.id.length > 256 || identifiers.has(entry.id) ||
+        typeof entry.text !== "string" || !entry.text.length ||
+        entry.text.length > GEMINI_BATCH_ENTRY_CHARACTER_LIMIT ||
+        typeof entry.previous !== "string" || entry.previous.length > 16000 ||
+        typeof entry.following !== "string" || entry.following.length > 16000) {
+      return json({ code: "INVALID_TRANSLATION_REQUEST" }, 400);
+    }
+    identifiers.add(entry.id);
+    totalCharacters += entry.id.length + entry.text.length +
+      entry.previous.length + entry.following.length;
+  }
+  if (totalCharacters > 60000 + glossary.length) {
+    return json({ code: "INVALID_TRANSLATION_REQUEST" }, 413);
+  }
+
+  try {
+    const result = await requestBatch({
+      apiKey: env.GEMINI_API_KEY,
+      model,
+      entries,
+      options: { sourceLanguage, category, glossary, gameTitle, gameDescription },
+      signal: AbortSignal.timeout(55000),
+      fetchImpl
+    });
+    return json(result);
+  } catch (error) {
+    const safeCodes = new Set([
+      "API_KEY_NOT_CONFIGURED",
+      "INVALID_API_KEY",
+      "API_QUOTA_EXHAUSTED",
+      "API_RATE_LIMITED",
+      "MODEL_UNAVAILABLE",
+      "INVALID_API_REQUEST",
+      "GEMINI_SERVICE_UNAVAILABLE",
+      "GEMINI_REQUEST_FAILED",
+      "GEMINI_NETWORK_ERROR",
+      "TRANSLATION_CANCELLED",
+      "INVALID_GEMINI_RESPONSE"
+    ]);
+    const code = safeCodes.has(error?.code) ? error.code : "GEMINI_REQUEST_FAILED";
+    const status = code === "API_QUOTA_EXHAUSTED" || code === "API_RATE_LIMITED" ? 429 :
+      code === "INVALID_API_KEY" ? 502 :
+        code === "MODEL_UNAVAILABLE" || code === "INVALID_API_REQUEST" ? 400 : 502;
+    return json({ code }, status);
+  }
 }
 
 function bearerToken(request) {
@@ -351,6 +472,14 @@ export default {
 
       const imageSearchConfigPath = path === "/v1/desktop/image-search/config";
       const imageSearchRequestPath = path === "/v1/desktop/image-search/search";
+      if (request.method === "POST" && path === "/v1/desktop/ai/translate") {
+        return translateGeminiRequest({
+          request,
+          env,
+          firebaseAuth,
+          database: env.OAUTH_DB
+        });
+      }
       if ((request.method === "GET" && imageSearchConfigPath) ||
           (request.method === "POST" && imageSearchRequestPath)) {
         const maximumRequests = imageSearchConfigPath ? 60 : 20;

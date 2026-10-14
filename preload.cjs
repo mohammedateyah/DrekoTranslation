@@ -3,6 +3,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 contextBridge.exposeInMainWorld("drekoDesktop", Object.freeze({
   bootstrap: () => ipcRenderer.invoke("dreko:bootstrap"),
   listInstalledGames: () => ipcRenderer.invoke("games:list-installed"),
+  findInstalledGame: (gameTitle) => ipcRenderer.invoke("games:find-installed", gameTitle),
   chooseGameFolder: () => ipcRenderer.invoke("games:choose-folder"),
   installTranslationPackage: (request) => ipcRenderer.invoke("games:translation-install", request),
   confirmTranslationInstaller: (jobId, run) =>
@@ -10,8 +11,22 @@ contextBridge.exposeInMainWorld("drekoDesktop", Object.freeze({
   cancelTranslationInstall: (jobId) => ipcRenderer.invoke("games:cancel-translation-install", jobId),
   getTranslationInstallStatus: (translationId, gameFolder) =>
     ipcRenderer.invoke("games:translation-install-status", { translationId, gameFolder }),
-  removeInstalledTranslation: (translationId, gameFolder) =>
-    ipcRenderer.invoke("games:remove-translation", { translationId, gameFolder }),
+  recordExternalTranslationInstalled: (translationId, gameFolder) =>
+    ipcRenderer.invoke("games:record-external-translation-installed", { translationId, gameFolder }),
+  scanGameFolderForLocalization: (gameFolder, gameTitle) =>
+    ipcRenderer.invoke("ai-localization:scan-game-folder", { gameFolder, gameTitle }),
+  startAiLocalization: (request) => ipcRenderer.invoke("ai-localization:start", request),
+  listAiLocalizationJobs: (gameId) => ipcRenderer.invoke("ai-localization:list-jobs", gameId),
+  resumeAiLocalizationJob: (jobId, idToken) =>
+    ipcRenderer.invoke("ai-localization:resume", { jobId, idToken }),
+  cancelAiLocalizationJob: (jobId) => ipcRenderer.invoke("ai-localization:cancel", jobId),
+  exportAiLocalizationJob: (jobId) => ipcRenderer.invoke("ai-localization:export", jobId),
+  removeInstalledTranslation: (translationId, gameFolder, confirmExternalUninstall = false) =>
+    ipcRenderer.invoke("games:remove-translation", {
+      translationId,
+      gameFolder,
+      confirmExternalUninstall
+    }),
   launchInstalledGame: (gameFolder) => ipcRenderer.invoke("games:launch-installed", gameFolder),
   chooseCover: () => ipcRenderer.invoke("admin:choose-cover"),
   getImageSearchConfig: (idToken) => ipcRenderer.invoke("admin:image-search-config", idToken),
@@ -37,5 +52,11 @@ contextBridge.exposeInMainWorld("drekoDesktop", Object.freeze({
     const listener = (_event, progress) => callback(progress);
     ipcRenderer.on("games:translation-install-progress", listener);
     return () => ipcRenderer.removeListener("games:translation-install-progress", listener);
+  },
+  onAiLocalizationProgress: (callback) => {
+    if (typeof callback !== "function") throw new TypeError("AI localization callback must be a function.");
+    const listener = (_event, progress) => callback(progress);
+    ipcRenderer.on("ai-localization:progress", listener);
+    return () => ipcRenderer.removeListener("ai-localization:progress", listener);
   }
 }));

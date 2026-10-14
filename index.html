@@ -457,8 +457,8 @@
             <input id="translation-title-en" name="titleEn" maxlength="100" dir="ltr" required />
           </div>
           <div class="editor-field">
-            <label for="translation-developer" data-i18n="developerLabel">المطور / فريق التعريب</label>
-            <input id="translation-developer" name="developer" maxlength="80" required />
+            <label for="translation-developer" data-i18n="developerLabel">فريق التعريب</label>
+            <input id="translation-developer" name="developer" maxlength="80" value="Dreko Studio" readonly required />
           </div>
           <div class="editor-field">
             <label for="translation-genre" data-i18n="genreLabel">تصنيف اللعبة</label>
@@ -471,13 +471,6 @@
               <option value="puzzle" data-i18n="genrePuzzle">ألغاز</option>
               <option value="strategy" data-i18n="genreStrategy">استراتيجية</option>
               <option value="other" data-i18n="genreOther">أخرى</option>
-            </select>
-          </div>
-          <div class="editor-field">
-            <label for="translation-category" data-i18n="categoryLabel">نطاق التعريب</label>
-            <select id="translation-category" name="category" required>
-              <option value="full" data-i18n="categoryFull">ترجمة كاملة</option>
-              <option value="interface" data-i18n="categoryInterface">واجهة وقوائم</option>
             </select>
           </div>
           <div class="editor-field">
@@ -523,22 +516,23 @@
             </div>
           </div>
           <div class="editor-field editor-field-full">
-            <label for="translation-download-url" data-i18n="translationUrlLabel">رابط التعريب</label>
-            <input id="translation-download-url" name="translationUrl" type="url" maxlength="2048" placeholder="https://..." data-i18n-placeholder="translationUrlPlaceholder" />
-            <small class="editor-field-help" data-i18n="translationUrlHelp">ارفع ملف ZIP يحتوي الملفات كما ستُنسخ إلى مجلد اللعبة؛ لا تضعها داخل مجلد إضافي.</small>
+            <label for="translation-description" data-i18n="gameDescriptionLabel">وصف اللعبة وسياق الترجمة</label>
+            <textarea id="translation-description" name="description" rows="3" maxlength="1000"></textarea>
+            <small class="editor-field-help" data-i18n="gameDescriptionHelp">اكتب ملخصًا واضحًا عن عالم اللعبة وشخصياتها ومصطلحاتها. يُستخدم الاسم والوصف لفهم النصوص عند ترجمتها.</small>
+          </div>
+          <div class="editor-field editor-field-full">
+            <label for="translation-package-url" data-i18n="translationUrlLabel">رابط مباشر لحزمة التعريب (ZIP)</label>
+            <input id="translation-package-url" name="translationUrl" type="url" maxlength="2048" inputmode="url" dir="ltr" autocomplete="url" data-i18n-placeholder="translationUrlPlaceholder" placeholder="https://example.com/translation.zip" />
+            <small class="editor-field-help" data-i18n="translationUrlHelp">ضع رابط HTTPS مباشرًا لتنزيل حزمة ZIP موثوقة. لن يعمل رابط صفحة ويب أو ملف تنفيذي.</small>
+          </div>
+          <div class="editor-field editor-field-full">
+            <label for="translation-installer-url" data-i18n="installerProgramUrlLabel">رابط مباشر لبرنامج التثبيت (EXE، اختياري)</label>
+            <input id="translation-installer-url" name="installerProgramUrl" type="url" maxlength="2048" inputmode="url" dir="ltr" autocomplete="url" data-i18n-placeholder="installerProgramUrlPlaceholder" placeholder="https://example.com/translation-installer.exe" />
+            <small class="editor-field-help" data-i18n="installerProgramUrlHelp">إذا احتاج التعريب إلى مُثبّت، أضف رابطه هنا. سيُطلب من اللاعب تأكيد فتحه، وسيُلغى تثبيت الحزمة إذا اختار الإلغاء.</small>
           </div>
           <div class="editor-field">
             <label for="translation-package-version" data-i18n="packageVersionLabel">إصدار حزمة التعريب</label>
-            <input id="translation-package-version" name="packageVersion" type="text" maxlength="32" placeholder="V1.0.0" data-i18n-placeholder="packageVersionPlaceholder" />
-          </div>
-          <div class="editor-field editor-field-full">
-            <label for="translation-installer-url" data-i18n="installerProgramUrlLabel">رابط برنامج التثبيت (اختياري)</label>
-            <input id="translation-installer-url" name="installerProgramUrl" type="url" maxlength="2048" placeholder="https://..." data-i18n-placeholder="translationUrlPlaceholder" />
-            <small class="editor-field-help" data-i18n="installerProgramUrlHelp">سيُطلب من اللاعب تأكيد تشغيل البرنامج بعد التنزيل.</small>
-          </div>
-          <div class="editor-field editor-field-full">
-            <label for="translation-description" data-i18n="descriptionLabel">نبذة عن الترجمة</label>
-            <textarea id="translation-description" name="description" rows="3" maxlength="1000"></textarea>
+            <input id="translation-package-version" name="packageVersion" maxlength="32" data-i18n-placeholder="packageVersionPlaceholder" placeholder="V1.0.0" />
           </div>
           <label class="publish-choice editor-field-full" for="translation-published">
             <input id="translation-published" type="checkbox" checked />

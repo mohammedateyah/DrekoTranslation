@@ -166,21 +166,92 @@ const translations = {
     platformAll: "ألعابك",
     platformBackToTranslations: "التعريبات",
     installedGamesCount: "لعبة مثبّتة",
+    aiLocalizationOpen: "ترجمة ملفات اللعبة",
+    aiLocalizationEyebrow: "ترجمة ملفات الألعاب",
+    aiLocalizationTitle: "ترجمة ملفات اللعبة",
+    aiLocalizationIntro: "اختر ملف JSON أو CSV متوافقًا من ملفات اللعبة. لا نعدّل ملفات اللعبة الأصلية.",
+    aiModelLabel: "نموذج الترجمة",
+    aiSourceLanguageLabel: "لغة المصدر",
+    aiTargetArabic: "العربية",
+    aiCategoryLabel: "نطاق الترجمة",
+    aiCategoryGeneral: "كل النصوص",
+    aiGlossaryLabel: "مسرد اختياري خاص باللعبة",
+    aiGlossaryPlaceholder: "مثال: Firekeeper = حارسة النار",
+    aiChooseFile: "اختيار ملف JSON أو CSV",
+    aiStart: "بدء الترجمة",
+    aiInitialStatus: "اختر مجلد اللعبة ليُفحص بحثًا عن ملف نصوص متوافق.",
+    aiCancel: "إلغاء",
+    aiResume: "استئناف",
+    aiExport: "تصدير الملف المترجم",
+    aiRecentJobs: "الترجمات المحفوظة",
+    aiLimitNote: "تُرسل النصوص ووصف اللعبة إلى خدمة ترجمة عبر الإنترنت. يدعم موارد JSON المسطحة وCSV سواء كانت مباشرة أو داخل ZIP؛ لا يقرأ أرشيفات Unreal PAK أو IoStore (UTOC/UCAS) أو RPF ولا يغيّر ملفات اللعبة الأصلية.",
+    aiFileSelected: "تم فحص {file} — {count} نصًا جاهزًا للترجمة.",
+    aiFolderScanning: "جارٍ فحص مجلد اللعبة بحثًا عن ملفات نصوص مدعومة...",
+    aiFolderStarting: "عُثر على {file} — جارٍ بدء التعريب...",
+    aiFolderSelected: "عُثر على {file} ويحتوي {count} نصًا (من بين {files} ملفات متوافقة).",
+    aiNoFolderSource: "لم يُعثر على ملف توطين JSON أو CSV متوافق. لا يدعم هذا الإصدار ملفات اللعبة الثنائية.",
+    aiFolderScanLimit: "المجلد كبير جدًا لفحص آمن. اختر مجلد اللعبة الصحيح أو مجلد موارد النصوص إن كان معروفًا.",
+    aiFolderGameMismatch: "يبدو أن هذا مجلد لعبة مختلفة. اختر مجلد ملفات اللعبة المطابق للعبة المحددة.",
+    aiProtectedGame: "هذه اللعبة غير مدعومة للتعريب الآلي حفاظًا على سلامة ملفاتها واللعب عبر الإنترنت.",
+    aiArabicAlreadyAvailable: "عُثر على مؤشرات لوجود ملفات أو إعدادات عربية لهذه اللعبة. لن نبدأ ترجمة مكررة.",
+    aiSottrArabicAlreadyAvailable: "عُثر على ملفات نصوص عربية أصلية للعبة Shadow of the Tomb Raider داخل أرشيفات TIGER. لذلك أوقفنا الترجمة المكررة. التطبيق يتعرف على هذه الأرشيفات لكنه لا يفكها أو يعدّلها حاليًا.",
+    aiUnsupportedGameFiles: "لم نعتبر اللعبة غير قابلة للتعريب أو نحظرها. لم نجد ملف JSON أو CSV مدعومًا، وعثرنا على ملفات لعبة خاصة مثل PAK أو TIGER أو RPF. لم نغيّر أي ملف؛ يلزم محوّل آمن ومختبر للصيغة.",
+    aiUnsupportedUnrealFiles: "عثرنا على ملفات Unreal Engine من نوع PAK أو IoStore (UTOC/UCAS)، ولا يوجد مورد نصوص JSON/CSV مكشوف ومدعوم. قد تكون بعض الحاويات مشفرة؛ لم نحاول فكها أو تجاوز أي حماية. يلزم مسار استخراج/تعديل رسمي أو محوّل موثوق ومختبر للعبة، لذلك لم تتغير ملفاتها.",
+    aiJobRunning: "جارٍ ترجمة {completed} من {total} نصًا. يمكنك الإلغاء والاستئناف لاحقًا.",
+    aiJobCompleted: "اكتملت ترجمة {completed} نصًا. صدّر الملف لمراجعته.",
+    aiJobInterrupted: "توقفت العملية. استأنفها لمتابعة النصوص غير المكتملة.",
+    aiJobCancelled: "أُلغيت العملية. يمكنك استئنافها لاحقًا.",
+    aiJobFailed: "تعذرت ترجمة بعض النصوص ({code}). النصوص المكتملة محفوظة ويمكن استئناف العملية.",
+    aiJobHistoryEmpty: "ستظهر الترجمات المحفوظة هنا.",
+    aiResumeJob: "استئناف",
+    aiExportJob: "تصدير",
+    aiJobLabel: "{file} — {completed} — {status}",
+    aiPreviewTitle: "معاينة النصوص",
+    aiAuthRequired: "سجّل الدخول مجددًا، وتأكد من الانضمام إلى مجتمع Dreko لاستخدام الترجمة.",
+    aiServiceNotConfigured: "خدمة الترجمة غير مهيأة حاليًا. يرجى إبلاغ فريق Dreko.",
+    gameAiHeading: "ترجمة نصوص هذه اللعبة",
+    gameAiIntro: "اختر مجلد اللعبة فقط. سيفحص التطبيق ملفات JSON وCSV النصية، حتى داخل ZIP، ويبدأ ترجمة المورد الأنسب إلى العربية.",
+    gameAiOpen: "فتح ترجمة اللعبة",
+    gameAiFileLabel: "ملف نصوص اللعبة",
+    gameAiFilePlaceholder: "اختر ملف JSON أو CSV",
+    aiQuotaExhausted: "وصلت خدمة الترجمة إلى حد الاستخدام الحالي. انتظر قليلًا ثم استأنف العملية.",
+    aiRateLimited: "الخدمة مشغولة مؤقتًا. انتظر قليلًا ثم استأنف العملية.",
+    aiModelUnavailable: "نموذج الترجمة غير متاح حاليًا.",
+    aiNetworkError: "تعذر الاتصال بخدمة الترجمة. تحقق من الإنترنت ثم استأنف.",
+    aiResponseInvalid: "تعذرت معالجة بعض النتائج. النصوص المكتملة محفوظة؛ أعد المحاولة.",
+    aiTokensChanged: "اكتشفنا تغييرًا في عناصر التنسيق أو الرموز المحمية؛ لم نحفظ هذه الدفعة.",
+    aiSourceFormatUnsupported: "الصيغة أو بنية الملف غير مدعومة. استخدم JSON مسطحًا أو CSV بأعمدة معرّف ونص.",
+    aiFailedEntryIds: "العناصر التي تحتاج مراجعة: {ids}",
+    aiSourceTooLarge: "الملف فارغ أو يتجاوز حد 5 ميغابايت.",
+    aiEntryTooLarge: "يوجد نص طويل جدًا لطلب واحد. قسّم الملف يدويًا ثم أعد المحاولة.",
+    aiStorageFailed: "تعذر حفظ تقدم الترجمة على هذا الجهاز. تحقّق من مساحة القرص والأذونات.",
+    aiExportSuccess: "تم تصدير ملف الترجمة. راجعه وثبّته يدويًا فقط إذا كانت اللعبة تدعم هذه الصيغة.",
+    aiSourceOverwrite: "تم منع التصدير فوق الملف الأصلي. اختر مسارًا آخر.",
+    aiArchiveChanged: "تغير الأرشيف الأصلي بعد فحصه. أعد فحص المجلد وابدأ مهمة جديدة.",
+    aiArchiveExportFailed: "تعذر إنشاء نسخة الأرشيف المترجمة بأمان. بقي الأرشيف الأصلي دون تغيير.",
+    aiUnknownError: "تعذرت العملية. راجع الإعدادات والملف ثم حاول مجددًا.",
     closeDialog: "إغلاق",
-    detectGameFolder: "اكتشف مجلد اللعبة تلقائياً",
-    detectingGameFolder: "جارٍ البحث عن مجلد اللعبة...",
-    gameFolderNotFound: "ما قدرنا نلقاها تلقائياً — أدخل المسار بالأسفل.",
-    gameFolderFound: "تم العثور على مجلد اللعبة.",
-    gameFolderDetectionFailed: "تعذر فحص مجلدات الألعاب. اختر المجلد يدوياً.",
+    gameFolderNotFound: "مسار مجلد اللعبة غير صالح أو غير موجود.",
     gameFolderPickerFailed: "تعذر فتح نافذة اختيار المجلد.",
-    gameFolderDivider: "أو أدخل المسار يدوياً",
     gameInstallPath: "مسار تثبيت اللعبة",
     gameFolderPlaceholder: "C:\\Program Files (x86)\\Steam\\steamapps\\common\\",
     gameFolderHelp: "ملاحظة: أدخل المجلد الجذر الذي يحتوي ملف تشغيل اللعبة.",
-    gameFolderContinue: "المتابعة للاختيار",
+    gameFolderAutoDetect: "اكتشف مجلد اللعبة تلقائيًا",
+    gameFolderDetecting: "جارٍ البحث عن اللعبة في متاجر الألعاب والمجلدات المحلية...",
+    gameFolderDetected: "تم العثور على {game} واختيار مجلدها تلقائيًا.",
+    gameFolderNotDetected: "لم نجد مجلدًا مطابقًا. اختره يدويًا أو تأكد من ظهور اللعبة في سجل المشغّل.",
+    gameFolderDetectionAmbiguous: "وجدنا أكثر من لعبة محتملة بهذا الاسم. اختر مجلد اللعبة يدويًا.",
+    gameFolderSearchLimited: "البحث المحلي محدود لتجنب إبطاء الجهاز. اختر مجلد اللعبة يدويًا.",
+    gameFolderContinue: "فحص المجلد وبدء التعريب",
     translatedByLabel: "تم التعريب من قبل:",
     translationOptionsHeading: "اختر التعريب الذي تريد تثبيته",
     installTranslationAction: "تثبيت التعريب",
+    installReadyPackage: "تنزيل وتثبيت التعريب الجاهز",
+    installReadyInstaller: "تنزيل وفتح المثبّت",
+    registerExistingExternalTranslation: "هل ثبّت التعريب من قبل؟ سجّل حالته",
+    confirmRegisterExistingExternalTranslation: "إذا كان تعريب هذا المثبّت مثبتًا بالفعل في مجلد اللعبة المحدد، سجّل حالته لمنع إعادة التثبيت. هل تريد المتابعة؟",
+    externalTranslationStatusRecorded: "تم تسجيل التعريب كمثبّت.",
+    readyPackageVersion: "إصدار الحزمة: {version}",
     backToGameFolder: "رجوع",
     packageDescriptionUnavailable: "تفاصيل التعريب غير متوفرة.",
     myGamesEyebrow: "مكتبة جهازك",
@@ -215,9 +286,9 @@ const translations = {
     communityTitle: "اللعب أجمل <span>بلغة العربية</span>",
     communityDescription: "مساحة تمكن الاعبين العرب من لعب العابهم بلغة العربية بكل سهولة",
     communityCta: "اكتشف المجتمع",
-    footerNote: "منصة Dreko Translation مستقلة، وجميع حقوق الألعاب والتعريبات محفوظة لأصحابها. لا ندّعي ملكية أي تعريب أو لعبة، ونجمع التعريبات المتاحة من مصادرها العامة لتسهيل الوصول إليها فقط.",
+    footerNote: "جميع الحقوق محفوظة © Dreko Studio. جميع حقوق الملكية الفكرية والعلامات التجارية والمحتويات الخاصة بالمنصة محفوظة لـ Dreko Studio.",
     footerStatus: "منصة مستقلة لتعريب الألعاب",
-    footerCopyright: "© 2026 DREKO TRANSLATION — جميع الحقوق محفوظة لأصحابها.",
+    footerCopyright: "© 2026 DREKO TRANSLATION — جميع الحقوق محفوظة.",
     genreAdventure: "مغامرة",
     genreAction: "أكشن",
     genreRpg: "أدوار",
@@ -324,17 +395,17 @@ const translations = {
     editEditorTitle: "تعديل بيانات الترجمة",
     arabicTitleLabel: "اسم اللعبة بالعربية",
     englishTitleLabel: "اسم اللعبة بالإنجليزية",
-    developerLabel: "المطور أو فريق التعريب",
+    developerLabel: "فريق التعريب",
     genreLabel: "تصنيف اللعبة",
     categoryLabel: "نطاق التعريب",
     progressLabel: "حالة الترجمة",
     yearLabel: "سنة الإصدار",
     translationUrlLabel: "رابط مباشر لحزمة التعريب (ZIP)",
-    translationUrlHelp: "ارفع ملف ZIP يحتوي الملفات كما ستُنسخ إلى مجلد اللعبة؛ لا تضعها داخل مجلد إضافي.",
+    translationUrlHelp: "ضع رابط HTTPS مباشرًا لتنزيل حزمة ZIP موثوقة. لن يعمل رابط صفحة ويب أو ملف تنفيذي.",
     packageVersionLabel: "إصدار حزمة التعريب",
     packageVersionPlaceholder: "V1.0.0",
     installerProgramUrlLabel: "رابط مباشر لبرنامج التثبيت (EXE، اختياري)",
-    installerProgramUrlHelp: "سيُطلب من اللاعب تأكيد تشغيل البرنامج بعد التنزيل.",
+    installerProgramUrlHelp: "إذا احتاج التعريب إلى مُثبّت، أضف رابطه هنا. يمكن استخدامه وحده أو مع حزمة ZIP، وسيُطلب من اللاعب تأكيد فتحه.",
     installDownloading: "جارٍ تحميل التعريب",
     installDownloadingProgram: "جارٍ تحميل برنامج التثبيت",
     installExtracting: "جارٍ فك ملفات التعريب",
@@ -342,10 +413,11 @@ const translations = {
     installExtractProgress: "تم فك {files} ملف",
     installCopyingFiles: "جارٍ تثبيت الملفات في مجلد اللعبة",
     installRunningProgram: "برنامج التثبيت قيد التشغيل",
-    installAwaitingProgramTitle: "تشغيل برنامج التعريب",
-    installAwaitingProgramDescription: "هذا التعريب يحتاج إلى تشغيل برنامج على جهازك لإكمال التثبيت.",
-    installTrustWarning: "لا تشغّل البرنامج إلا إذا كنت تثق بمصدر هذا التعريب.",
-    installProgramRun: "تشغيل",
+    installAwaitingProgramTitle: "هذا التعريب يستخدم برنامج تثبيت",
+    installAwaitingProgramDescription: "نزّل التطبيق برنامج التثبيت. افتحه لإكمال خطوات التعريب، أو ألغِ العملية؛ ستُستعاد ملفات الحزمة إن وُجدت.",
+    installTrustWarning: "لا تفتح البرنامج إلا إذا كنت تثق بمصدر هذا التعريب.",
+    installProgramRun: "فتح المثبّت",
+    installProgramCancel: "إلغاء التعريب",
     installCancel: "إلغاء",
     installFailedTitle: "فشل التثبيت",
     installFailedDescription: "تعذر تثبيت التعريب. تحقق من مسار اللعبة والاتصال ثم حاول مرة أخرى.",
@@ -356,8 +428,11 @@ const translations = {
     installOpenGameFolder: "فتح مجلد اللعبة",
     installRemoveTranslation: "إزالة التعريب",
     installRemoveConfirm: "هل تريد إزالة ملفات التعريب وإرجاع الملفات الأصلية؟",
+    installExternalRemoveConfirm: "لا يستطيع Dreko حذف الملفات التي ثبّتها المثبّت الخارجي بأمان. استخدم أداة إزالة التعريب الخاصة به أولًا. إذا أزلت التعريب بالفعل، اضغط موافق لمسح حالة التثبيت من Dreko.",
     installRemoveSuccess: "تمت إزالة التعريب وإرجاع الملفات الأصلية.",
+    installExternalStatusCleared: "تم مسح حالة التثبيت من Dreko. أزل الملفات من أداة المثبّت الخارجي إذا لم تفعل ذلك بعد.",
     installFilesChanged: "تغيّرت بعض ملفات اللعبة بعد التثبيت؛ لم نزلها حفاظاً على تعديلاتك.",
+    installStatusUnavailable: "تعذر التحقق من حالة التعريب. حاول مرة أخرى.",
     installCancelDuringInstall: "إلغاء التثبيت",
     installDownloadProgress: "تم تنزيل {downloaded} من {total}",
     installDownloadUnknown: "تم تنزيل {downloaded}",
@@ -375,6 +450,7 @@ const translations = {
     installFailureProgram: "أغلق برنامج التثبيت مع الإبلاغ عن فشل؛ لم يكتمل تثبيت التعريب.",
     installFailureGeneric: "حدث خطأ أثناء التثبيت. لم يتمكن التطبيق من إكمال العملية.",
     translationUrlPlaceholder: "https://...",
+    installerProgramUrlPlaceholder: "https://example.com/translation-installer.exe",
     coverPreviewTitle: "غلاف اللعبة",
     coverPreviewDescription: "الغلاف الذي سيظهر للاعبين في المكتبة.",
     coverSearchPlaceholder: "اكتب اسم اللعبة للبحث عن صورها...",
@@ -403,7 +479,9 @@ const translations = {
     coverUrlHelp: "استخدم رابط HTTPS مباشرًا لصورة JPG أو PNG أو WebP.",
     coverUrlInvalid: "الرابط غير صالح أو لا يشير إلى صورة عامة آمنة.",
     chooseCover: "اختيار صورة",
-    descriptionLabel: "نبذة عن الترجمة",
+    gameDescriptionLabel: "وصف اللعبة وسياق الترجمة",
+    gameDescriptionHelp: "اكتب ملخصًا واضحًا عن عالم اللعبة وشخصياتها ومصطلحاتها. يُستخدم الاسم والوصف لفهم النصوص عند ترجمتها.",
+    duplicateGame: "هذه اللعبة موجودة بالفعل في المكتبة. افتح سجلها الحالي لتعديل الاسم والوصف.",
     publishTitle: "إظهار الترجمة في المكتبة العامة",
     publishDescription: "إذا ألغيت الاختيار، تحفظ الترجمة كمسودة خاصة لا يراها الزوار.",
     cancel: "إلغاء",
@@ -595,21 +673,92 @@ const translations = {
     platformAll: "My games",
     platformBackToTranslations: "Translations",
     installedGamesCount: "installed games",
+    aiLocalizationOpen: "Game file translation",
+    aiLocalizationEyebrow: "GAME FILE TRANSLATION",
+    aiLocalizationTitle: "Translate a game file",
+    aiLocalizationIntro: "Choose a compatible JSON or CSV file from the game's files. Original game files are never modified.",
+    aiModelLabel: "Translation model",
+    aiSourceLanguageLabel: "Source language",
+    aiTargetArabic: "Arabic",
+    aiCategoryLabel: "Translation scope",
+    aiCategoryGeneral: "All text",
+    aiGlossaryLabel: "Optional game glossary",
+    aiGlossaryPlaceholder: "Example: Firekeeper = approved Arabic spelling",
+    aiChooseFile: "Choose JSON or CSV file",
+    aiStart: "Start translation",
+    aiInitialStatus: "Choose the game folder to scan for a compatible text file.",
+    aiCancel: "Cancel",
+    aiResume: "Resume",
+    aiExport: "Export translated file",
+    aiRecentJobs: "Saved translations",
+    aiLimitNote: "Text and the game description are sent to an online translation service. Flat JSON and CSV resources are supported directly or inside ZIP archives; Unreal PAK/IoStore (UTOC/UCAS) and RPF archives are not read, and original game files are never modified.",
+    aiFileSelected: "Inspected {file} — {count} strings ready to translate.",
+    aiFolderScanning: "Scanning the game folder for supported text files...",
+    aiFolderStarting: "Found {file} — starting localization...",
+    aiFolderSelected: "Found {file} with {count} strings ({files} compatible files found).",
+    aiNoFolderSource: "No compatible JSON or CSV localization file was found. Binary game files are not supported.",
+    aiFolderScanLimit: "This folder is too large to scan safely. Choose the correct game folder or a known text-resource folder.",
+    aiFolderGameMismatch: "This appears to be a different game's folder. Choose the folder matching the selected game.",
+    aiProtectedGame: "This game is not enabled for automatic localization, to protect its files and online play.",
+    aiArabicAlreadyAvailable: "Arabic localization files or language settings were detected. A duplicate translation was not started.",
+    aiSottrArabicAlreadyAvailable: "Native Arabic text archives for Shadow of the Tomb Raider were found (TIGER format). Duplicate translation was stopped. The app recognizes these archives but cannot unpack or modify them yet.",
+    aiUnsupportedGameFiles: "The game has not been marked impossible to localize or blocked. No supported JSON or CSV source was found; the folder contains game-specific files such as PAK, TIGER, or RPF. No files were changed; a safe, tested adapter for that format is required.",
+    aiUnsupportedUnrealFiles: "Unreal Engine PAK or IoStore (UTOC/UCAS) files were found, but no supported loose JSON/CSV text resource is available. Some containers may be encrypted; the app did not try to decrypt them or bypass protections. Use an official extraction/modding route or a trusted, tested game-specific adapter. No game files were changed.",
+    aiJobRunning: "Translating {completed} of {total} strings. You can cancel and resume later.",
+    aiJobCompleted: "Translated {completed} strings. Export the file to review it.",
+    aiJobInterrupted: "The job stopped. Resume it to continue unfinished entries.",
+    aiJobCancelled: "The job was cancelled. You can resume it later.",
+    aiJobFailed: "Some strings could not be translated ({code}). Completed strings are saved; resume to retry.",
+    aiJobHistoryEmpty: "Saved translations will appear here.",
+    aiResumeJob: "Resume",
+    aiExportJob: "Export",
+    aiJobLabel: "{file} — {completed} — {status}",
+    aiPreviewTitle: "Text preview",
+    aiAuthRequired: "Sign in again and make sure you have joined the Dreko community to translate game files.",
+    aiServiceNotConfigured: "The translation service is not configured yet. Please contact the Dreko team.",
+    gameAiHeading: "Translate this game's text",
+    gameAiIntro: "Choose only the game folder. The app scans JSON and CSV text files, including inside ZIP archives, then translates the best match into Arabic.",
+    gameAiOpen: "Translate game files",
+    gameAiFileLabel: "Game text file",
+    gameAiFilePlaceholder: "Choose a JSON or CSV file",
+    aiQuotaExhausted: "The translation service has reached its current usage limit. Wait, then resume.",
+    aiRateLimited: "The service is temporarily busy. Wait, then resume.",
+    aiModelUnavailable: "The translation model is currently unavailable.",
+    aiNetworkError: "Could not reach the translation service. Check your connection and resume.",
+    aiResponseInvalid: "Some results could not be processed. Completed strings are saved; retry the job.",
+    aiTokensChanged: "Protected formatting tokens changed; this batch was not saved.",
+    aiSourceFormatUnsupported: "This file format or schema is unsupported. Use a flat JSON map or CSV with identifier and text columns.",
+    aiFailedEntryIds: "Entries needing review: {ids}",
+    aiSourceTooLarge: "The file is empty or exceeds the 5 MB limit.",
+    aiEntryTooLarge: "A single text entry is too large for a safe request. Split the file and try again.",
+    aiStorageFailed: "Translation progress could not be saved on this device. Check disk space and permissions.",
+    aiExportSuccess: "Localization exported. Review it and install manually only if the game supports this format.",
+    aiSourceOverwrite: "Export over the original file was prevented. Choose another destination.",
+    aiArchiveChanged: "The original archive changed after it was scanned. Scan the folder again and start a new job.",
+    aiArchiveExportFailed: "The translated archive could not be safely created. The original archive is unchanged.",
+    aiUnknownError: "The operation failed. Check settings and the file, then try again.",
     closeDialog: "Close",
-    detectGameFolder: "Detect the game folder automatically",
-    detectingGameFolder: "Looking for the game folder...",
-    gameFolderNotFound: "We couldn't find it automatically — enter the path below.",
-    gameFolderFound: "Game folder found.",
-    gameFolderDetectionFailed: "Unable to scan game folders. Choose the folder manually.",
+    gameFolderNotFound: "The game folder path is invalid or does not exist.",
     gameFolderPickerFailed: "Unable to open the folder picker.",
-    gameFolderDivider: "Or enter the path manually",
     gameInstallPath: "GAME INSTALLATION PATH",
     gameFolderPlaceholder: "C:\\Program Files (x86)\\Steam\\steamapps\\common\\",
     gameFolderHelp: "Note: Select the root folder containing the game's executable.",
-    gameFolderContinue: "Continue",
+    gameFolderAutoDetect: "Find game folder automatically",
+    gameFolderDetecting: "Searching game launchers and local folders...",
+    gameFolderDetected: "Found {game} and selected its folder.",
+    gameFolderNotDetected: "No matching folder was found. Select it manually or check that the launcher has registered the game.",
+    gameFolderDetectionAmbiguous: "More than one game may match this name. Select the game folder manually.",
+    gameFolderSearchLimited: "The local search is limited to avoid slowing down your PC. Select the game folder manually.",
+    gameFolderContinue: "Scan folder and start localization",
     translatedByLabel: "Translated by:",
     translationOptionsHeading: "Choose the translation to install",
     installTranslationAction: "Install translation",
+    installReadyPackage: "Download and install ready translation",
+    installReadyInstaller: "Download and open installer",
+    registerExistingExternalTranslation: "Already installed this translation? Register it",
+    confirmRegisterExistingExternalTranslation: "If this installer's translation is already installed in the selected game folder, register its status to prevent reinstalling. Continue?",
+    externalTranslationStatusRecorded: "Translation marked as installed.",
+    readyPackageVersion: "Package version: {version}",
     backToGameFolder: "Back",
     packageDescriptionUnavailable: "Translation details are unavailable.",
     myGamesEyebrow: "YOUR PC LIBRARY",
@@ -753,17 +902,17 @@ const translations = {
     editEditorTitle: "Edit translation details",
     arabicTitleLabel: "Game title in Arabic",
     englishTitleLabel: "Game title in English",
-    developerLabel: "Developer or localization team",
+    developerLabel: "Translation team",
     genreLabel: "Game genre",
     categoryLabel: "Translation coverage",
     progressLabel: "Translation status",
     yearLabel: "Release year",
     translationUrlLabel: "Direct translation package link (ZIP)",
-    translationUrlHelp: "Upload a ZIP whose files map directly to the game folder; do not wrap them in an extra folder.",
+    translationUrlHelp: "Enter a direct HTTPS download link to a trusted ZIP package. Web pages and executable files are not accepted.",
     packageVersionLabel: "Translation package version",
     packageVersionPlaceholder: "V1.0.0",
     installerProgramUrlLabel: "Direct installer program link (EXE, optional)",
-    installerProgramUrlHelp: "Players will be asked to confirm before the downloaded program is run.",
+    installerProgramUrlHelp: "If this translation requires an installer, add its link here. It can be used by itself or with a ZIP package; players must confirm before opening it.",
     installDownloading: "Downloading translation",
     installDownloadingProgram: "Downloading installer program",
     installExtracting: "Extracting translation files",
@@ -771,10 +920,11 @@ const translations = {
     installExtractProgress: "Extracted {files} files",
     installCopyingFiles: "Installing files into the game folder",
     installRunningProgram: "Installer program is running",
-    installAwaitingProgramTitle: "Run translation installer",
-    installAwaitingProgramDescription: "This translation needs a program to run on your PC to complete installation.",
-    installTrustWarning: "Run this program only if you trust the translation source.",
-    installProgramRun: "Run",
+    installAwaitingProgramTitle: "This translation uses an installer",
+    installAwaitingProgramDescription: "The installer has been downloaded. Open it to complete the translation, or cancel; any package files will be restored if applicable.",
+    installTrustWarning: "Open this program only if you trust the translation source.",
+    installProgramRun: "Open installer",
+    installProgramCancel: "Cancel translation",
     installCancel: "Cancel",
     installFailedTitle: "Installation failed",
     installFailedDescription: "The translation could not be installed. Check the game folder and connection, then try again.",
@@ -785,8 +935,11 @@ const translations = {
     installOpenGameFolder: "Open game folder",
     installRemoveTranslation: "Remove translation",
     installRemoveConfirm: "Remove the translation files and restore the original files?",
+    installExternalRemoveConfirm: "Dreko cannot safely delete files installed by the external installer. First use its uninstaller. If you have already removed the translation, choose OK to clear its installed status in Dreko.",
     installRemoveSuccess: "The translation was removed and original files restored.",
+    installExternalStatusCleared: "The installed status was cleared in Dreko. Remove files using the external installer if you have not already done so.",
     installFilesChanged: "Some game files have changed since installation; they were left untouched to preserve your changes.",
+    installStatusUnavailable: "Could not check the translation status. Try again.",
     installCancelDuringInstall: "Cancel installation",
     installDownloadProgress: "Downloaded {downloaded} of {total}",
     installDownloadUnknown: "Downloaded {downloaded}",
@@ -804,6 +957,7 @@ const translations = {
     installFailureProgram: "The installer program reported failure; translation installation did not complete.",
     installFailureGeneric: "An error occurred during installation. The app could not complete the operation.",
     translationUrlPlaceholder: "https://...",
+    installerProgramUrlPlaceholder: "https://example.com/translation-installer.exe",
     coverPreviewTitle: "Game artwork",
     coverPreviewDescription: "The cover players will see in the library.",
     coverSearchPlaceholder: "Search for game artwork...",
@@ -832,7 +986,9 @@ const translations = {
     coverUrlHelp: "Use a direct HTTPS link to a JPG, PNG, or WebP image.",
     coverUrlInvalid: "The link is invalid or does not point to a safe public image.",
     chooseCover: "Choose artwork",
-    descriptionLabel: "About this translation",
+    gameDescriptionLabel: "Game description and translation context",
+    gameDescriptionHelp: "Describe the game's setting, characters, and terminology. The title and description help interpret its text.",
+    duplicateGame: "This game is already in the library. Edit its existing entry instead.",
     publishTitle: "Publish to the public library",
     publishDescription: "Turn this off to save a private draft that visitors can't see.",
     cancel: "Cancel",
@@ -919,6 +1075,8 @@ const state = {
 };
 
 const api = window.drekoDesktop;
+let activeGameAiId = "";
+let activeGameAiRefresh = null;
 let discordServerReady = false;
 let discordLoginEnabled = false;
 let publicCatalogUnsubscribe = null;
@@ -993,6 +1151,13 @@ function text(key) {
   return translations[state.locale][key] || key;
 }
 
+function interpolateText(key, values = {}) {
+  return Object.entries(values).reduce(
+    (message, [name, value]) => message.replaceAll(`{${name}}`, String(value)),
+    text(key)
+  );
+}
+
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (character) => ({
     "&": "&amp;",
@@ -1047,6 +1212,15 @@ function canAccessPremiumTranslations() {
 
 function isPremiumTranslationLocked(item) {
   return item?.premium === true && !canAccessPremiumTranslations();
+}
+
+function normalizedGameIdentity(value) {
+  return String(value || "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/gu, "")
+    .toLocaleLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim();
 }
 
 function syncPremiumSubscriptionState() {
@@ -1649,6 +1823,7 @@ function renderFeaturedCarousel() {
     const timestamp = new Date(dateValue || 0).getTime();
     return Number.isFinite(timestamp) ? timestamp : 0;
   };
+  const seenGames = new Set();
   const latest = [...state.catalog]
     .sort((left, right) => {
       if (Number.isFinite(left.sortOrder) && Number.isFinite(right.sortOrder)) {
@@ -1657,6 +1832,12 @@ function renderFeaturedCarousel() {
       return timestampValue(right.createdAt || right.updatedAt) - timestampValue(left.createdAt || left.updatedAt) ||
         timestampValue(right.updatedAt) - timestampValue(left.updatedAt) ||
         left.id.localeCompare(right.id);
+    })
+    .filter((item) => {
+      const identity = normalizedGameIdentity(item.titleEn || item.title);
+      if (!identity || seenGames.has(identity)) return false;
+      seenGames.add(identity);
+      return true;
     })
     .slice(0, 10);
   featuredItemCount = latest.length;
@@ -1753,6 +1934,7 @@ function renderCatalog() {
     searchInput.setAttribute("aria-label", text("searchLabel"));
   }
   const query = state.query.trim().toLocaleLowerCase(state.locale);
+  const seenGames = new Set();
   const filtered = state.catalog
     .filter((item) => {
       const fields = [
@@ -1775,6 +1957,12 @@ function renderCatalog() {
         return left.sortOrder - right.sortOrder || left.id.localeCompare(right.id);
       }
       return new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime();
+    })
+    .filter((item) => {
+      const identity = normalizedGameIdentity(item.titleEn || item.title);
+      if (!identity || seenGames.has(identity)) return false;
+      seenGames.add(identity);
+      return true;
     });
 
   grid.innerHTML = filtered.map((item) => {
@@ -2301,18 +2489,267 @@ function openTranslation(item) {
       </div>
     </div>
   `;
-  const normalizedGameTitle = (value) => String(value || "")
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLocaleLowerCase()
-    .replace(/[^\p{L}\p{N}]+/gu, " ")
-    .trim();
-  const gameTitleKey = normalizedGameTitle(item.titleEn || item.title);
-  const relatedTranslations = state.catalog.filter((entry) =>
-    normalizedGameTitle(entry.titleEn || entry.title) === gameTitleKey
-  );
-  let selectedTranslationId = null;
   let selectedGameFolder = "";
+  let selectedAiSourceToken = "";
+  let selectedAiJobId = "";
+  let installedPackageForGame = false;
+  let externalInstallerForGame = false;
+  const gameIdentifier = normalizedGameIdentity(item.titleEn || item.title) || String(item.id);
+  const gameDisplayTitle = item.titleEn || item.title;
+
+  const renderGameAiJob = (job) => {
+    selectedAiJobId = job.id;
+    const container = dialogContent.querySelector(".game-ai-job");
+    if (!container) return;
+    container.hidden = false;
+    container.querySelector(".game-ai-progress").max = Math.max(1, job.total);
+    container.querySelector(".game-ai-progress").value = job.completed;
+    const stateKey = {
+      running: "aiJobRunning",
+      completed: "aiJobCompleted",
+      interrupted: "aiJobInterrupted",
+      cancelled: "aiJobCancelled"
+    }[job.status];
+    container.querySelector(".game-ai-progress-label").textContent = stateKey
+      ? interpolateText(stateKey, { completed: job.completed, total: job.total })
+      : interpolateText("aiJobFailed", { code: job.errors?.[0]?.code || "TRANSLATION_FAILED" });
+    const failedEntries = job.errors?.[0]?.remainingEntries || [];
+    container.querySelector(".game-ai-errors").textContent = job.errors?.length
+      ? `${aiErrorMessage(job.errors[0].code)}${failedEntries.length
+        ? ` ${interpolateText("aiFailedEntryIds", {
+          ids: `${failedEntries.slice(0, 8).join(", ")}${failedEntries.length > 8 ? ", …" : ""}`
+        })}`
+        : ""}`
+      : "";
+    container.querySelector(".game-ai-cancel").hidden = job.status !== "running";
+    container.querySelector(".game-ai-resume").hidden =
+      !["failed", "cancelled", "interrupted"].includes(job.status);
+    container.querySelector(".game-ai-export").hidden = job.status !== "completed";
+    const scanButton = dialogContent.querySelector(".install-continue-button");
+    if (scanButton) scanButton.disabled = job.status === "running" || !selectedGameFolder;
+  };
+
+  const renderGameAiHistory = (jobs) => {
+    const list = dialogContent.querySelector(".game-ai-history-list");
+    list.replaceChildren();
+    if (!jobs.length) {
+      const empty = document.createElement("p");
+      empty.textContent = text("aiJobHistoryEmpty");
+      list.append(empty);
+      return;
+    }
+    for (const job of jobs) {
+      const row = document.createElement("div");
+      row.className = "ai-job-history-row";
+      const label = document.createElement("span");
+      const statusKey = {
+        completed: "aiJobCompleted",
+        running: "aiJobRunning",
+        interrupted: "aiJobInterrupted",
+        cancelled: "aiJobCancelled"
+      }[job.status];
+      const status = statusKey
+        ? interpolateText(statusKey, { completed: job.completed, total: job.total })
+        : interpolateText("aiJobFailed", { code: job.errors?.[0]?.code || "TRANSLATION_FAILED" });
+      label.textContent = interpolateText("aiJobLabel", {
+        file: job.fileName,
+        completed: `${job.completed}/${job.total}`,
+        status
+      });
+      row.append(label);
+      if (["failed", "cancelled", "interrupted"].includes(job.status)) {
+        const resume = document.createElement("button");
+        resume.type = "button";
+        resume.className = "outline-button";
+        resume.dataset.aiResume = job.id;
+        resume.textContent = text("aiResumeJob");
+        row.append(resume);
+      }
+      if (job.status === "completed") {
+        const exportButton = document.createElement("button");
+        exportButton.type = "button";
+        exportButton.className = "outline-button";
+        exportButton.dataset.aiExport = job.id;
+        exportButton.textContent = text("aiExportJob");
+        row.append(exportButton);
+      }
+      list.append(row);
+    }
+  };
+
+  const refreshGameAiJobs = async () => {
+    const result = await api.listAiLocalizationJobs(gameIdentifier);
+    if (!result?.ok) {
+      const status = dialogContent.querySelector(".game-ai-status");
+      if (status) status.textContent = aiErrorMessage(result?.code);
+      return;
+    }
+    const jobs = result.data?.jobs || [];
+    renderGameAiHistory(jobs);
+    const active = jobs.find((job) => job.id === selectedAiJobId) ||
+      jobs.find((job) => job.status === "running");
+    if (active) renderGameAiJob(active);
+  };
+
+  const getCurrentIdToken = async () => {
+    if (!state.firebaseUser) throw Object.assign(new Error("AUTH_REQUIRED"), { code: "AUTH_REQUIRED" });
+    return state.firebaseUser.getIdToken();
+  };
+
+  const wireGameAiLocalization = () => {
+    const status = dialogContent.querySelector(".game-ai-status");
+    const setStatus = (code) => {
+      status.textContent = aiErrorMessage(code);
+      status.hidden = false;
+    };
+    const scanButton = dialogContent.querySelector(".install-continue-button");
+    const registerExistingButton = dialogContent.querySelector(".register-existing-external-translation");
+    registerExistingButton?.addEventListener("click", async () => {
+      if (!window.confirm(text("confirmRegisterExistingExternalTranslation"))) return;
+      registerExistingButton.disabled = true;
+      try {
+        const result = await api.recordExternalTranslationInstalled(item.id, selectedGameFolder);
+        if (!result?.ok) {
+          showToast(text("installFailureGeneric"));
+          return;
+        }
+        installedPackageForGame = true;
+        externalInstallerForGame = true;
+        showToast("externalTranslationStatusRecorded");
+        renderFolderStep();
+      } catch (error) {
+        console.error("Unable to record existing external translation:", error?.code || error?.name || "UNKNOWN");
+        showToast(text("installFailureGeneric"));
+      } finally {
+        registerExistingButton.disabled = false;
+      }
+    });
+    scanButton.addEventListener("click", async () => {
+      if (installedPackageForGame) {
+        const removingExternalInstaller = externalInstallerForGame;
+        if (!window.confirm(text(removingExternalInstaller
+          ? "installExternalRemoveConfirm"
+          : "installRemoveConfirm"))) return;
+        scanButton.disabled = true;
+        try {
+          const result = await api.removeInstalledTranslation(
+            item.id,
+            selectedGameFolder,
+            removingExternalInstaller
+          );
+          if (!result?.ok) {
+            showToast(result?.code === "INSTALLED_FILE_CHANGED"
+              ? text("installFilesChanged")
+              : text("installFailureGeneric"));
+            return;
+          }
+          installedPackageForGame = false;
+          externalInstallerForGame = false;
+          showToast(result.data?.externalInstaller
+            ? "installExternalStatusCleared"
+            : "installRemoveSuccess");
+          renderFolderStep();
+        } catch (error) {
+          console.error("Unable to remove installed translation:", error?.code || error?.name || "UNKNOWN");
+          showToast(text("installFailureGeneric"));
+        } finally {
+          scanButton.disabled = !selectedGameFolder;
+        }
+        return;
+      }
+      if (item.translationUrl || item.installerProgramUrl) {
+        void startTranslationInstall(item);
+        return;
+      }
+      if (!selectedGameFolder) return;
+      let localizationStarted = false;
+      scanButton.disabled = true;
+      status.hidden = false;
+      status.textContent = text("aiFolderScanning");
+      try {
+        const sourceResult = await api.scanGameFolderForLocalization(selectedGameFolder, gameDisplayTitle);
+        if (!sourceResult?.ok) {
+          setStatus(sourceResult?.code);
+          return;
+        }
+        selectedAiSourceToken = sourceResult.data.sourceToken;
+        status.textContent = interpolateText("aiFolderSelected", {
+          file: sourceResult.data.fileName,
+          count: sourceResult.data.entryCount,
+          files: sourceResult.data.candidateCount
+        });
+        const idToken = await getCurrentIdToken();
+        status.textContent = interpolateText("aiFolderStarting", {
+          file: sourceResult.data.fileName
+        });
+        const result = await api.startAiLocalization({
+          sourceToken: selectedAiSourceToken,
+          idToken,
+          gameId: gameIdentifier,
+          gameTitle: gameDisplayTitle,
+          gameDescription: item.description || "",
+          glossary: ""
+        });
+        if (!result?.ok) {
+          setStatus(result?.code);
+          selectedAiSourceToken = "";
+          return;
+        }
+        selectedAiJobId = result.data.id;
+        selectedAiSourceToken = "";
+        localizationStarted = true;
+        await refreshGameAiJobs();
+      } catch (error) {
+        console.error("Unable to scan and translate the game's localization:", error?.code || error?.name || "UNKNOWN");
+        setStatus(error?.code || "TRANSLATION_JOB_START_FAILED");
+      } finally {
+        if (!localizationStarted) scanButton.disabled = !selectedGameFolder;
+      }
+    });
+    dialogContent.querySelector(".game-ai-cancel").addEventListener("click", async () => {
+      const result = await api.cancelAiLocalizationJob(selectedAiJobId);
+      if (!result?.ok) setStatus(result.code);
+    });
+    const resumeJob = async (jobId) => {
+      try {
+        const result = await api.resumeAiLocalizationJob(jobId, await getCurrentIdToken());
+        if (!result?.ok) {
+          setStatus(result.code);
+          return;
+        }
+        selectedAiJobId = result.data.id;
+        renderGameAiJob(result.data);
+        await refreshGameAiJobs();
+      } catch (error) {
+        setStatus(error?.code || "AUTH_REQUIRED");
+      }
+    };
+    dialogContent.querySelector(".game-ai-resume").addEventListener("click", () => {
+      void resumeJob(selectedAiJobId);
+    });
+    dialogContent.querySelector(".game-ai-export").addEventListener("click", async () => {
+      const result = await api.exportAiLocalizationJob(selectedAiJobId);
+      status.textContent = result?.ok
+        ? result.data?.canceled ? text("aiJobCompleted") : text("aiExportSuccess")
+        : aiErrorMessage(result?.code);
+    });
+    dialogContent.querySelector(".game-ai-history-list").addEventListener("click", async (event) => {
+      const resume = event.target.closest("[data-ai-resume]");
+      const exportButton = event.target.closest("[data-ai-export]");
+      if (resume) {
+        await resumeJob(resume.dataset.aiResume);
+      } else if (exportButton) {
+        selectedAiJobId = exportButton.dataset.aiExport;
+        const result = await api.exportAiLocalizationJob(selectedAiJobId);
+        status.textContent = result?.ok
+          ? result.data?.canceled ? text("aiJobCompleted") : text("aiExportSuccess")
+          : aiErrorMessage(result?.code);
+      }
+    });
+    activeGameAiRefresh = refreshGameAiJobs;
+    activeGameAiId = gameIdentifier;
+    void refreshGameAiJobs();
+  };
 
   const renderFolderStep = () => {
     dialog.classList.remove("translation-package-stage", "translation-install-progress-stage");
@@ -2321,12 +2758,11 @@ function openTranslation(item) {
       <div class="install-dialog-body" dir="rtl">
         <h2>${escapeHtml(title)}</h2>
         <p class="install-translation-credit"><span>${escapeHtml(text("translatedByLabel"))}</span> ${escapeHtml(item.developer)}</p>
-        <button class="install-detect-button" type="button">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4m0 10v4M3 12h4m10 0h4M5.64 5.64l2.83 2.83m7.06 7.06 2.83 2.83m0-12.72-2.83 2.83m-7.06 7.06-2.83 2.83"/><path d="m14.5 9.5 1-1a2.12 2.12 0 0 1 3 3l-5.8 5.8a2.12 2.12 0 0 1-3-3l1-1"/></svg>
-          <span>${escapeHtml(text("detectGameFolder"))}</span>
+        <button class="outline-button game-folder-auto-detect" type="button">
+          <span>${escapeHtml(text("gameFolderAutoDetect"))}</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11a9 9 0 0 1 15.4-6.4L21 7M21 3v4h-4M21 13a9 9 0 0 1-15.4 6.4L3 17m0 4v-4h4"/><path d="M8 12h8"/></svg>
         </button>
-        <p class="install-folder-status" role="status">${escapeHtml(text("gameFolderNotFound"))}</p>
-        <div class="install-folder-divider"><span>${escapeHtml(text("gameFolderDivider"))}</span></div>
+        <p class="game-folder-detect-status" role="status" aria-live="polite" hidden></p>
         <label class="install-path-label" for="${installPathInputId}">
           <span>${escapeHtml(text("gameInstallPath"))}</span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H10l2 2h7.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/><path d="m13 15 5-5"/></svg>
@@ -2339,153 +2775,185 @@ function openTranslation(item) {
         </div>
         <p class="install-path-help">${escapeHtml(text("gameFolderHelp"))}</p>
         <button class="dialog-action install-continue-button" type="button" disabled>
-          <span>${escapeHtml(text("gameFolderContinue"))}</span>
+          <span>${escapeHtml(text(item.translationUrl
+            ? "installReadyPackage"
+            : item.installerProgramUrl ? "installReadyInstaller" : "gameFolderContinue"))}</span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m7 7-7-7 7-7"/></svg>
         </button>
+        ${item.installerProgramUrl && !item.translationUrl ? `
+          <button class="outline-button register-existing-external-translation" type="button" hidden>
+            ${escapeHtml(text("registerExistingExternalTranslation"))}
+          </button>
+        ` : ""}
+        ${item.translationUrl && item.packageVersion ? `
+          <section class="ready-translation-package" aria-label="${escapeHtml(text("installReadyPackage"))}">
+            <p>${escapeHtml(interpolateText("readyPackageVersion", { version: item.packageVersion }))}</p>
+          </section>
+        ` : ""}
+        <section class="game-ai-localization">
+          <h3>${escapeHtml(text("gameAiHeading"))}</h3>
+          <p class="game-ai-intro">${escapeHtml(text("gameAiIntro"))}</p>
+          <div class="game-ai-panel">
+            <p class="ai-localization-status game-ai-status" role="status" aria-live="polite" hidden>${escapeHtml(text("aiInitialStatus"))}</p>
+            <div class="ai-localization-job game-ai-job" hidden>
+              <progress class="game-ai-progress" max="1" value="0"></progress>
+              <p class="game-ai-progress-label"></p>
+              <div class="ai-localization-actions">
+                <button class="outline-button game-ai-cancel" type="button" hidden>${escapeHtml(text("aiCancel"))}</button>
+                <button class="outline-button game-ai-resume" type="button" hidden>${escapeHtml(text("aiResume"))}</button>
+                <button class="primary-action game-ai-export" type="button" hidden>${escapeHtml(text("aiExport"))}</button>
+              </div>
+              <p class="ai-localization-errors game-ai-errors" role="alert"></p>
+            </div>
+            <section class="ai-localization-history game-ai-history">
+              <h3>${escapeHtml(text("aiRecentJobs"))}</h3>
+              <div class="game-ai-history-list"></div>
+            </section>
+            <p class="ai-localization-limit">${escapeHtml(text("aiLimitNote"))}</p>
+          </div>
+        </section>
       </div>
     `;
     const pathInput = dialogContent.querySelector(".install-path-input");
-    const status = dialogContent.querySelector(".install-folder-status");
+    const localizationStatus = dialogContent.querySelector(".game-ai-status");
+    const folderDetectionStatus = dialogContent.querySelector(".game-folder-detect-status");
+    const autoDetectButton = dialogContent.querySelector(".game-folder-auto-detect");
     const continueButton = dialogContent.querySelector(".install-continue-button");
+    const registerExistingButton = dialogContent.querySelector(".register-existing-external-translation");
+    const packageDetails = dialogContent.querySelector(".ready-translation-package");
     pathInput.value = selectedGameFolder;
+    let userChangedGameFolder = Boolean(pathInput.value.trim());
+    let installStatusRequest = 0;
+    let installStatusTimer = null;
+    let installStatusLoading = false;
     const updateContinueButton = () => {
       selectedGameFolder = pathInput.value.trim();
-      continueButton.disabled = !selectedGameFolder;
+      continueButton.disabled = !selectedGameFolder || installStatusLoading || Boolean(installStatusTimer);
+      continueButton.querySelector("span").textContent = text(
+        installedPackageForGame
+          ? "installRemoveTranslation"
+          : item.translationUrl
+            ? "installReadyPackage"
+            : item.installerProgramUrl ? "installReadyInstaller" : "gameFolderContinue"
+      );
+      continueButton.classList.toggle("install-remove-active", installedPackageForGame);
+      if (packageDetails) packageDetails.hidden = installedPackageForGame;
+      if (registerExistingButton) {
+        registerExistingButton.hidden = installedPackageForGame;
+        registerExistingButton.disabled = !selectedGameFolder || installedPackageForGame;
+      }
     };
-    const setFolderStatus = (message, tone = "") => {
-      status.textContent = message;
-      status.dataset.tone = tone;
+    const refreshInstalledPackageStatus = async () => {
+      const request = ++installStatusRequest;
+      clearTimeout(installStatusTimer);
+      installStatusTimer = null;
+      installStatusLoading = Boolean(selectedGameFolder);
+      installedPackageForGame = false;
+      externalInstallerForGame = false;
+      updateContinueButton();
+      if (!selectedGameFolder || !api?.getTranslationInstallStatus) {
+        installStatusLoading = false;
+        updateContinueButton();
+        return;
+      }
+      updateContinueButton();
+      try {
+        const result = await api.getTranslationInstallStatus(item.id, selectedGameFolder);
+        if (request !== installStatusRequest) return;
+        if (!result?.ok) {
+          localizationStatus.textContent = text("installStatusUnavailable");
+          localizationStatus.hidden = false;
+          return;
+        }
+        installedPackageForGame = result.data?.installed === true;
+        externalInstallerForGame = result.data?.externalInstaller === true;
+      } catch (error) {
+        if (request === installStatusRequest) {
+          console.error("Unable to check translation installation status:", error?.code || error?.name || "UNKNOWN");
+          localizationStatus.textContent = text("installStatusUnavailable");
+          localizationStatus.hidden = false;
+        }
+      } finally {
+        if (request === installStatusRequest) {
+          installStatusLoading = false;
+          updateContinueButton();
+        }
+      }
     };
-    pathInput.addEventListener("input", updateContinueButton);
+    const autoDetectGameFolder = async (force = false) => {
+      if (!force && userChangedGameFolder && selectedGameFolder) return;
+      if (!api?.findInstalledGame) {
+        folderDetectionStatus.textContent = text("gameFolderNotDetected");
+        folderDetectionStatus.hidden = false;
+        return;
+      }
+      autoDetectButton.disabled = true;
+      folderDetectionStatus.hidden = false;
+      folderDetectionStatus.textContent = text("gameFolderDetecting");
+      try {
+        const result = await api.findInstalledGame(gameDisplayTitle);
+        if (result?.ok && typeof result.data?.installPath === "string") {
+          if (force || !userChangedGameFolder || !selectedGameFolder) {
+            pathInput.value = result.data.installPath;
+            updateContinueButton();
+          }
+          folderDetectionStatus.textContent = interpolateText("gameFolderDetected", {
+            game: result.data.title || gameDisplayTitle
+          });
+          userChangedGameFolder = false;
+          await refreshInstalledPackageStatus();
+          return;
+        }
+        const statusKey = result?.code === "INSTALLED_GAME_MATCH_AMBIGUOUS"
+          ? "gameFolderDetectionAmbiguous"
+          : result?.code === "GAME_SEARCH_LIMIT_REACHED"
+            ? "gameFolderSearchLimited"
+            : "gameFolderNotDetected";
+        folderDetectionStatus.textContent = text(statusKey);
+      } catch (error) {
+        console.error("Unable to detect the installed game folder:", error?.code || error?.name || "UNKNOWN");
+        folderDetectionStatus.textContent = text("gameFolderNotDetected");
+      } finally {
+        autoDetectButton.disabled = false;
+      }
+    };
+    autoDetectButton.addEventListener("click", () => void autoDetectGameFolder(true));
+    pathInput.addEventListener("input", () => {
+      userChangedGameFolder = true;
+      installStatusRequest += 1;
+      installStatusLoading = false;
+      installedPackageForGame = false;
+      externalInstallerForGame = false;
+      clearTimeout(installStatusTimer);
+      installStatusTimer = setTimeout(() => {
+        installStatusTimer = null;
+        void refreshInstalledPackageStatus();
+      }, 500);
+      updateContinueButton();
+    });
     dialogContent.querySelector(".install-path-browse").addEventListener("click", async () => {
       try {
         const result = await api.chooseGameFolder();
         if (!result?.ok) {
-          setFolderStatus(text("gameFolderPickerFailed"), "error");
+          localizationStatus.textContent = text("gameFolderPickerFailed");
           return;
         }
         if (result.data?.canceled) return;
+        userChangedGameFolder = true;
         pathInput.value = result.data?.folderPath || "";
+        installStatusRequest += 1;
+        installStatusLoading = false;
+        installedPackageForGame = false;
+        externalInstallerForGame = false;
         updateContinueButton();
-        if (pathInput.value) setFolderStatus(text("gameFolderFound"), "success");
+        await refreshInstalledPackageStatus();
       } catch (error) {
         console.error("Unable to choose a game installation folder:", error?.message || error?.name || "UNKNOWN");
-        setFolderStatus(text("gameFolderPickerFailed"), "error");
+        localizationStatus.textContent = text("gameFolderPickerFailed");
       }
     });
-    dialogContent.querySelector(".install-detect-button").addEventListener("click", async (event) => {
-      const button = event.currentTarget;
-      button.disabled = true;
-      setFolderStatus(text("detectingGameFolder"));
-      try {
-        const result = await api.listInstalledGames();
-        if (!result?.ok) {
-          setFolderStatus(text("gameFolderDetectionFailed"), "error");
-          return;
-        }
-        const targetTitles = new Set([normalizedGameTitle(item.titleEn), normalizedGameTitle(item.title)].filter(Boolean));
-        const match = result.data?.games?.find((game) => targetTitles.has(normalizedGameTitle(game.title)) && game.installPath);
-        if (!match) {
-          setFolderStatus(text("gameFolderNotFound"), "warning");
-          return;
-        }
-        pathInput.value = match.installPath;
-        updateContinueButton();
-        setFolderStatus(text("gameFolderFound"), "success");
-      } catch (error) {
-        console.error("Unable to detect the game installation folder:", error?.message || error?.name || "UNKNOWN");
-        setFolderStatus(text("gameFolderDetectionFailed"), "error");
-      } finally {
-        button.disabled = false;
-      }
-    });
-    continueButton.addEventListener("click", () => {
-      if (!selectedGameFolder) return;
-      renderPackageSelection();
-    });
-  };
-
-  const renderPackageSelection = () => {
-    selectedTranslationId = null;
-    dialog.classList.remove("translation-install-progress-stage");
-    dialog.classList.add("translation-package-stage");
-    const packageOptions = relatedTranslations.map((translation) => {
-      const isLocked = isPremiumTranslationLocked(translation);
-      const packageName = categoryName(translation.category);
-      return `
-        <button class="install-package-option${translation.premium === true ? " premium-package-option" : ""}" type="button" data-translation-id="${escapeHtml(translation.id)}" aria-pressed="false" aria-disabled="${isLocked}">
-          <span class="install-package-copy">
-            <span class="install-package-title">${escapeHtml(packageName)}${translation.premium === true ? `<span class="install-package-premium">${escapeHtml(text("premiumTranslationBadge"))}</span>` : ""}</span>
-            <span class="install-package-version">${escapeHtml(translation.packageVersion || "")}</span>
-            <span class="install-package-description">${escapeHtml(translation.description || text("packageDescriptionUnavailable"))}</span>
-            <span class="install-package-team">${escapeHtml(translation.developer)}</span>
-          </span>
-          <span class="install-package-icon" aria-hidden="true">
-            ${translation.premium === true
-              ? `<svg viewBox="0 0 24 24"><path d="m3 7 4.5 4L12 4l4.5 7L21 7l-2 12H5L3 7Z"/><path d="M5 22h14"/></svg>`
-              : `<svg viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5"/><path d="M5 17v3h14v-3"/></svg>`}
-          </span>
-        </button>
-      `;
-    }).join("");
-    dialogContent.innerHTML = `
-      ${headerMarkup}
-      <div class="install-dialog-body install-package-body" dir="rtl">
-        <h2>${escapeHtml(text("translationOptionsHeading"))}</h2>
-        <div class="install-package-list">${packageOptions}</div>
-        <div class="install-package-actions">
-          <button class="dialog-action install-package-confirm" type="button" disabled>
-            <span>${escapeHtml(text("installTranslationAction"))}</span>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5"/><path d="M5 17v3h14v-3"/></svg>
-          </button>
-          <button class="install-package-back" type="button">${escapeHtml(text("backToGameFolder"))}</button>
-        </div>
-      </div>
-    `;
-    const confirmButton = dialogContent.querySelector(".install-package-confirm");
-    dialogContent.querySelectorAll(".install-package-option").forEach((option) => {
-      option.addEventListener("click", async () => {
-        const translation = relatedTranslations.find((entry) => entry.id === option.dataset.translationId);
-        if (!translation) return;
-        if (isPremiumTranslationLocked(translation)) {
-          showToast("premiumAccessRequired");
-          return;
-        }
-        selectedTranslationId = translation.id;
-        dialogContent.querySelectorAll(".install-package-option").forEach((candidate) => {
-          const selected = candidate.dataset.translationId === selectedTranslationId;
-          candidate.classList.toggle("selected", selected);
-          candidate.setAttribute("aria-pressed", String(selected));
-        });
-        confirmButton.disabled = true;
-        try {
-          const statusResult = await api.getTranslationInstallStatus(translation.id, selectedGameFolder);
-          if (!statusResult?.ok) {
-            showToast(text("installFailureGeneric"));
-            confirmButton.disabled = !translation.translationUrl;
-            return;
-          }
-          if (statusResult.data?.installed) {
-            renderInstallCompleted(translation, 0);
-            return;
-          }
-          confirmButton.disabled = !translation.translationUrl;
-        } catch (error) {
-          console.error("Unable to check installed translation status:", error?.code || error?.name || "UNKNOWN");
-          showToast(text("installFailureGeneric"));
-          confirmButton.disabled = !translation.translationUrl;
-        }
-      });
-    });
-    dialogContent.querySelector(".install-package-back").addEventListener("click", renderFolderStep);
-    confirmButton.addEventListener("click", async () => {
-      const selectedTranslation = relatedTranslations.find((entry) => entry.id === selectedTranslationId);
-      if (!selectedTranslation || !selectedTranslation.translationUrl) {
-        showToast("detailSoon");
-        return;
-      }
-      void startTranslationInstall(selectedTranslation);
-    });
+    wireGameAiLocalization();
+    void autoDetectGameFolder();
   };
 
   const formatInstallBytes = (value) => {
@@ -2627,7 +3095,7 @@ function openTranslation(item) {
           <code>${escapeHtml(progress.installerName || "Translation installer.exe")}</code>
           <p class="install-program-warning">${escapeHtml(text("installTrustWarning"))}</p>
           <div class="install-program-actions">
-            <button class="install-program-cancel" type="button">${escapeHtml(text("installCancel"))}</button>
+            <button class="install-program-cancel" type="button">${escapeHtml(text("installProgramCancel"))}</button>
             <button class="install-program-run" type="button">${escapeHtml(text("installProgramRun"))}</button>
           </div>
         `;
@@ -2668,7 +3136,7 @@ function openTranslation(item) {
       </section>
     `;
     dialogContent.querySelector(".install-retry-button").addEventListener("click", () => {
-      renderPackageSelection();
+      renderFolderStep();
     });
     dialogContent.querySelector(".install-state-cancel").addEventListener("click", () => {
       dialog.close();
@@ -2689,10 +3157,12 @@ function openTranslation(item) {
           <span><strong>${escapeHtml(text("installCompletedTitle"))}</strong><small>${escapeHtml(text("installCompletedDescription"))}</small></span>
         </div>
         <button class="dialog-action install-launch-button" type="button">${escapeHtml(text("installLaunchGame"))}</button>
-        <button class="install-remove-button" type="button">
-          <span>${escapeHtml(text("installRemoveTranslation"))}</span>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16m-10 4v6m4-6v6M6 7l1 14h10l1-14M9 7V4h6v3"/></svg>
-        </button>
+        ${translation.translationUrl || translation.installerProgramUrl ? `
+          <button class="install-remove-button" type="button">
+            <span>${escapeHtml(text("installRemoveTranslation"))}</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16m-10 4v6m4-6v6M6 7l1 14h10l1-14M9 7V4h6v3"/></svg>
+          </button>
+        ` : ""}
       </section>
     `;
     if (installedFiles > 0) {
@@ -2711,18 +3181,31 @@ function openTranslation(item) {
         showToast(text("installFailureGeneric"));
       }
     });
-    dialogContent.querySelector(".install-remove-button").addEventListener("click", async () => {
-      if (!window.confirm(text("installRemoveConfirm"))) return;
+    const removeButton = dialogContent.querySelector(".install-remove-button");
+    removeButton?.addEventListener("click", async () => {
+      const removingExternalInstaller = !translation.translationUrl &&
+        Boolean(translation.installerProgramUrl);
+      if (!window.confirm(text(removingExternalInstaller
+        ? "installExternalRemoveConfirm"
+        : "installRemoveConfirm"))) return;
       try {
-        const result = await api.removeInstalledTranslation(translation.id, selectedGameFolder);
+        const result = await api.removeInstalledTranslation(
+          translation.id,
+          selectedGameFolder,
+          removingExternalInstaller
+        );
         if (!result?.ok) {
           showToast(result?.code === "INSTALLED_FILE_CHANGED"
             ? text("installFilesChanged")
             : text("installFailureGeneric"));
           return;
         }
-        showToast("installRemoveSuccess");
-        renderPackageSelection();
+        externalInstallerForGame = false;
+        installedPackageForGame = false;
+        showToast(result.data?.externalInstaller
+          ? "installExternalStatusCleared"
+          : "installRemoveSuccess");
+        renderFolderStep();
       } catch (error) {
         console.error("Unable to remove installed translation:", error?.code || error?.name || "UNKNOWN");
         showToast(text("installFailureGeneric"));
@@ -2733,12 +3216,18 @@ function openTranslation(item) {
   const startTranslationInstall = async (translation) => {
     if (activeTranslationInstall) return;
     const jobId = crypto.randomUUID();
+    const cancellationCodes = new Set([
+      "INSTALL_CANCELLED",
+      "INSTALLER_CANCELLED",
+      "INSTALLER_PROGRAM_CANCELLED"
+    ]);
     activeTranslationInstall = { jobId, cancelRequested: false };
     document.querySelector("#dialog-close").disabled = true;
     const unsubscribeProgress = api.onTranslationInstallProgress((progress) => {
       if (progress.jobId !== jobId) return;
-      if (progress.stage === "failed") renderInstallFailure(progress.code);
-      else if (progress.stage === "completed") renderInstallCompleted(translation, progress.installedFiles);
+      if (progress.stage === "failed") {
+        if (!cancellationCodes.has(progress.code)) renderInstallFailure(progress.code);
+      } else if (progress.stage === "completed") renderInstallCompleted(translation, progress.installedFiles);
       else {
         if (progress.stage !== "cancelling" && activeTranslationInstall) {
           activeTranslationInstall.lastProgress = progress;
@@ -2755,11 +3244,26 @@ function openTranslation(item) {
         installerProgramUrl: translation.installerProgramUrl || "",
         gameFolder: selectedGameFolder
       });
-      if (!result?.ok) renderInstallFailure(result?.code || "TRANSLATION_INSTALL_FAILED");
-      else renderInstallCompleted(translation, result.data?.installedFiles || 0);
+      if (!result?.ok) {
+        if (cancellationCodes.has(result?.code)) {
+          renderFolderStep();
+          showToast(text("installFailureCancelled"));
+        } else {
+          renderInstallFailure(result?.code || "TRANSLATION_INSTALL_FAILED");
+        }
+      } else {
+        externalInstallerForGame = !translation.translationUrl && Boolean(translation.installerProgramUrl);
+        installedPackageForGame = Boolean(translation.translationUrl);
+        renderInstallCompleted(translation, result.data?.installedFiles || 0);
+      }
     } catch (error) {
       console.error("Translation install request failed:", error?.code || error?.name || "UNKNOWN");
-      renderInstallFailure(error?.code || "TRANSLATION_INSTALL_FAILED");
+      if (cancellationCodes.has(error?.code)) {
+        renderFolderStep();
+        showToast(text("installFailureCancelled"));
+      } else {
+        renderInstallFailure(error?.code || "TRANSLATION_INSTALL_FAILED");
+      }
     } finally {
       unsubscribeProgress();
       activeTranslationInstall = null;
@@ -3554,15 +4058,14 @@ function createNewTranslation() {
   document.querySelector("#translation-id").value = "";
   document.querySelector("#translation-title").value = "";
   document.querySelector("#translation-title-en").value = "";
-  document.querySelector("#translation-developer").value = "";
+  document.querySelector("#translation-developer").value = "Dreko Studio";
   document.querySelector("#translation-genre").value = "adventure";
-  document.querySelector("#translation-category").value = "full";
   document.querySelector("#translation-status").value = "ready";
   document.querySelector("#translation-year").value = String(new Date().getFullYear());
-  document.querySelector("#translation-download-url").value = "";
-  document.querySelector("#translation-package-version").value = "";
-  document.querySelector("#translation-installer-url").value = "";
   document.querySelector("#translation-description").value = "";
+  document.querySelector("#translation-package-url").value = "";
+  document.querySelector("#translation-installer-url").value = "";
+  document.querySelector("#translation-package-version").value = "";
   document.querySelector("#translation-published").checked = true;
   document.querySelector("#translation-premium").checked = false;
   document.querySelector("#cover-url-input").value = "";
@@ -3590,15 +4093,14 @@ function editTranslation(id) {
   document.querySelector("#translation-id").value = item.id;
   document.querySelector("#translation-title").value = item.title;
   document.querySelector("#translation-title-en").value = item.titleEn;
-  document.querySelector("#translation-developer").value = item.developer;
+  document.querySelector("#translation-developer").value = "Dreko Studio";
   document.querySelector("#translation-genre").value = item.genre;
-  document.querySelector("#translation-category").value = item.category;
   document.querySelector("#translation-status").value = item.status;
   document.querySelector("#translation-year").value = String(item.year);
-  document.querySelector("#translation-download-url").value = item.translationUrl || "";
-  document.querySelector("#translation-package-version").value = item.packageVersion || "";
-  document.querySelector("#translation-installer-url").value = item.installerProgramUrl || "";
   document.querySelector("#translation-description").value = item.description;
+  document.querySelector("#translation-package-url").value = item.translationUrl || "";
+  document.querySelector("#translation-installer-url").value = item.installerProgramUrl || "";
+  document.querySelector("#translation-package-version").value = item.packageVersion || "";
   document.querySelector("#translation-published").checked = item.visibility === "published";
   document.querySelector("#translation-premium").checked = item.premium === true;
   document.querySelector("#translation-title").dir = "auto";
@@ -3714,6 +4216,16 @@ async function saveTranslation(event) {
   submit.disabled = true;
   const translationId = document.querySelector("#translation-id").value;
   const existingTranslation = state.adminTranslations.find((item) => item.id === translationId);
+  const enteredGameName = normalizedGameIdentity(document.querySelector("#translation-title-en").value);
+  const duplicateGame = state.adminTranslations.find((item) =>
+    item.id !== translationId &&
+    normalizedGameIdentity(item.titleEn || item.title) === enteredGameName
+  );
+  if (duplicateGame) {
+    updateMessage(editorMessage, text("duplicateGame"));
+    submit.disabled = false;
+    return;
+  }
   const currentSortOrders = state.adminTranslations.map((item) => item.sortOrder);
   const nextSortOrder = !translationId && currentSortOrders.length > 0 &&
     currentSortOrders.every(Number.isSafeInteger)
@@ -3723,20 +4235,20 @@ async function saveTranslation(event) {
     id: translationId || undefined,
     title: document.querySelector("#translation-title").value,
     titleEn: document.querySelector("#translation-title-en").value,
-    developer: document.querySelector("#translation-developer").value,
+    developer: "Dreko Studio",
     genre: document.querySelector("#translation-genre").value,
-    category: document.querySelector("#translation-category").value,
+    category: "full",
     status: document.querySelector("#translation-status").value,
     year: Number(document.querySelector("#translation-year").value),
     popularity: Number.isSafeInteger(Number(existingTranslation?.popularity))
       ? Number(existingTranslation.popularity)
       : 0,
     premium: document.querySelector("#translation-premium").checked,
-    translationUrl: document.querySelector("#translation-download-url").value.trim(),
-    packageVersion: document.querySelector("#translation-package-version").value.trim(),
-    installerProgramUrl: document.querySelector("#translation-installer-url").value.trim(),
     cover: document.querySelector("#translation-cover").value,
     description: document.querySelector("#translation-description").value,
+    translationUrl: document.querySelector("#translation-package-url").value,
+    installerProgramUrl: document.querySelector("#translation-installer-url").value,
+    packageVersion: document.querySelector("#translation-package-version").value,
     sortOrder: Number.isFinite(existingTranslation?.sortOrder)
       ? existingTranslation.sortOrder
       : nextSortOrder,
@@ -3942,6 +4454,356 @@ installedGamesContent.addEventListener("click", (event) => {
     installedGamesDialog.close();
   }
 });
+
+let selectedAiSourceToken = "";
+let currentAiJobId = "";
+let aiApiKeyConfigured = false;
+
+function aiErrorMessage(code) {
+  const keys = {
+    AUTH_REQUIRED: "aiAuthRequired",
+    INVALID_GAME_FOLDER: "gameFolderNotFound",
+    LOCALIZATION_SCAN_LIMIT: "aiFolderScanLimit",
+    LOCALIZATION_SOURCE_NOT_FOUND: "aiNoFolderSource",
+    LOCALIZATION_GAME_MISMATCH: "aiFolderGameMismatch",
+    UNSUPPORTED_PROTECTED_GAME: "aiProtectedGame",
+    ARABIC_LOCALIZATION_PRESENT: "aiArabicAlreadyAvailable",
+    SOTTR_ARABIC_LOCALIZATION_PRESENT: "aiSottrArabicAlreadyAvailable",
+    UNSUPPORTED_UNREAL_RESOURCE_FORMAT: "aiUnsupportedUnrealFiles",
+    UNSUPPORTED_GAME_RESOURCE_FORMAT: "aiUnsupportedGameFiles",
+    GUILD_MEMBERSHIP_REQUIRED: "aiAuthRequired",
+    GEMINI_SERVICE_NOT_CONFIGURED: "aiServiceNotConfigured",
+    AUTH_SERVER_NOT_CONFIGURED: "aiServiceNotConfigured",
+    INVALID_TRANSLATION_OPTIONS: "aiSourceFormatUnsupported",
+    INVALID_TRANSLATION_REQUEST: "aiSourceFormatUnsupported",
+    API_QUOTA_EXHAUSTED: "aiQuotaExhausted",
+    API_RATE_LIMITED: "aiRateLimited",
+    MODEL_UNAVAILABLE: "aiModelUnavailable",
+    GEMINI_NETWORK_ERROR: "aiNetworkError",
+    GEMINI_SERVICE_UNAVAILABLE: "aiNetworkError",
+    INVALID_GEMINI_RESPONSE: "aiResponseInvalid",
+    INCOMPLETE_GEMINI_RESPONSE: "aiResponseInvalid",
+    PROTECTED_TOKEN_MISMATCH: "aiTokensChanged",
+    UNSUPPORTED_FILE_FORMAT: "aiSourceFormatUnsupported",
+    INVALID_JSON: "aiSourceFormatUnsupported",
+    UNSUPPORTED_JSON_SCHEMA: "aiSourceFormatUnsupported",
+    DUPLICATE_LOCALIZATION_KEY: "aiSourceFormatUnsupported",
+    INVALID_TEXT_ENCODING: "aiSourceFormatUnsupported",
+    UNSUPPORTED_CSV_SCHEMA: "aiSourceFormatUnsupported",
+    AMBIGUOUS_CSV_HEADER: "aiSourceFormatUnsupported",
+    DUPLICATE_OR_EMPTY_LOCALIZATION_KEY: "aiSourceFormatUnsupported",
+    NO_TRANSLATABLE_ENTRIES: "aiSourceFormatUnsupported",
+    LOCALIZATION_ENTRY_LIMIT: "aiSourceTooLarge",
+    LOCALIZATION_FILE_NOT_FOUND: "aiUnknownError",
+    LOCALIZATION_FILE_READ_FAILED: "aiUnknownError",
+    SOURCE_SIZE_LIMIT: "aiSourceTooLarge",
+    LOCALIZATION_ENTRY_TOO_LARGE: "aiEntryTooLarge",
+    AI_JOB_STORAGE_FAILED: "aiStorageFailed",
+    CANNOT_OVERWRITE_SOURCE_FILE: "aiSourceOverwrite",
+    LOCALIZATION_ARCHIVE_SOURCE_CHANGED: "aiArchiveChanged",
+    LOCALIZATION_ARCHIVE_LIMIT: "aiSourceTooLarge",
+    LOCALIZATION_ARCHIVE_LINK_NOT_SUPPORTED: "aiArchiveExportFailed",
+    LOCALIZATION_ARCHIVE_SOURCE_MISSING: "aiArchiveExportFailed",
+    INVALID_LOCALIZATION_ARCHIVE_PATH: "aiArchiveExportFailed"
+  };
+  return text(keys[code] || "aiUnknownError");
+}
+
+function renderAiSourcePreview(source) {
+  const preview = document.querySelector("#ai-localization-preview");
+  preview.replaceChildren();
+  if (!source) {
+    preview.hidden = true;
+    return;
+  }
+  const heading = document.createElement("h3");
+  heading.textContent = interpolateText("aiPreviewTitle");
+  const file = document.createElement("p");
+  file.textContent = interpolateText("aiFileSelected", {
+    file: source.fileName,
+    count: source.entryCount
+  });
+  const list = document.createElement("ul");
+  for (const entry of source.preview) {
+    const item = document.createElement("li");
+    const identifier = document.createElement("code");
+    identifier.textContent = entry.id;
+    const value = document.createElement("span");
+    value.dir = "auto";
+    value.textContent = entry.text;
+    item.append(identifier, value);
+    list.append(item);
+  }
+  preview.append(heading, file, list);
+  preview.hidden = false;
+}
+
+function renderAiJob(job) {
+  if (!job) return;
+  currentAiJobId = job.id;
+  const container = document.querySelector("#ai-localization-job");
+  const progress = document.querySelector("#ai-localization-progress");
+  const progressLabel = document.querySelector("#ai-localization-progress-label");
+  const errors = document.querySelector("#ai-localization-errors");
+  const cancel = document.querySelector("#ai-cancel-job");
+  const resume = document.querySelector("#ai-resume-job");
+  const exportButton = document.querySelector("#ai-export-job");
+  const statusKey = {
+    running: "aiJobRunning",
+    completed: "aiJobCompleted",
+    interrupted: "aiJobInterrupted",
+    cancelled: "aiJobCancelled"
+  }[job.status];
+  container.hidden = false;
+  progress.max = Math.max(1, job.total);
+  progress.value = job.completed;
+  progressLabel.textContent = statusKey
+    ? interpolateText(statusKey, { completed: job.completed, total: job.total })
+    : interpolateText("aiJobFailed", { code: job.errors?.[0]?.code || "TRANSLATION_FAILED" });
+  const failedEntries = job.errors?.[0]?.remainingEntries || [];
+  errors.textContent = job.errors?.length
+    ? `${aiErrorMessage(job.errors[0].code)}${failedEntries.length
+      ? ` ${interpolateText("aiFailedEntryIds", {
+        ids: `${failedEntries.slice(0, 8).join(", ")}${failedEntries.length > 8 ? ", …" : ""}`
+      })}`
+      : ""}`
+    : "";
+  cancel.hidden = job.status !== "running";
+  resume.hidden = !["failed", "cancelled", "interrupted"].includes(job.status);
+  exportButton.hidden = job.status !== "completed";
+}
+
+function renderAiJobHistory(jobs) {
+  const list = document.querySelector("#ai-localization-history-list");
+  list.replaceChildren();
+  if (!jobs.length) {
+    const empty = document.createElement("p");
+    empty.textContent = text("aiJobHistoryEmpty");
+    list.append(empty);
+    return;
+  }
+  for (const job of jobs) {
+    const row = document.createElement("div");
+    row.className = "ai-job-history-row";
+    const label = document.createElement("span");
+    const stateText = job.status === "completed"
+      ? text("aiJobCompleted").replace("{completed}", job.completed).replace("{total}", job.total)
+      : job.status === "running"
+        ? text("aiJobRunning").replace("{completed}", job.completed).replace("{total}", job.total)
+        : job.status === "interrupted"
+          ? text("aiJobInterrupted")
+          : job.status === "cancelled"
+            ? text("aiJobCancelled")
+            : text("aiJobFailed").replace("{code}", job.errors?.[0]?.code || "TRANSLATION_FAILED");
+    label.textContent = interpolateText("aiJobLabel", {
+      file: job.fileName,
+      completed: `${job.completed}/${job.total}`,
+      status: stateText
+    });
+    row.append(label);
+    if (["failed", "cancelled", "interrupted"].includes(job.status)) {
+      const resume = document.createElement("button");
+      resume.type = "button";
+      resume.className = "outline-button";
+      resume.dataset.aiResume = job.id;
+      resume.textContent = text("aiResumeJob");
+      row.append(resume);
+    }
+    if (job.status === "completed") {
+      const exportButton = document.createElement("button");
+      exportButton.type = "button";
+      exportButton.className = "outline-button";
+      exportButton.dataset.aiExport = job.id;
+      exportButton.textContent = text("aiExportJob");
+      row.append(exportButton);
+    }
+    list.append(row);
+  }
+}
+
+async function refreshAiLocalizationJobs() {
+  const result = await api.listAiLocalizationJobs();
+  if (!result?.ok) {
+    document.querySelector("#ai-localization-status").textContent = aiErrorMessage(result?.code);
+    return;
+  }
+  const jobs = result.data?.jobs || [];
+  renderAiJobHistory(jobs);
+  const current = jobs.find((job) => job.id === currentAiJobId) ||
+    jobs.find((job) => job.status === "running");
+  if (current) renderAiJob(current);
+}
+
+async function loadAiLocalizationSettings() {
+  const status = document.querySelector("#ai-localization-status");
+  try {
+    const result = await api.getAiLocalizationConfig();
+    if (!result?.ok) {
+      status.textContent = aiErrorMessage(result?.code);
+      return;
+    }
+    const config = result.data;
+    aiApiKeyConfigured = config.apiKeyConfigured === true;
+    document.querySelector("#ai-model").value = config.model;
+    status.textContent = config.code
+      ? aiErrorMessage(config.code)
+      : aiApiKeyConfigured ? text("aiKeyConfigured") : text("aiKeyNotConfigured");
+    if (!config.secureStorageAvailable && !aiApiKeyConfigured) {
+      status.textContent = text("aiSecureStorageUnavailable");
+    }
+    document.querySelector("#ai-start-job").disabled = !aiApiKeyConfigured || !selectedAiSourceToken;
+  } catch (error) {
+    console.error("Unable to load AI localization settings:", error);
+    status.textContent = aiErrorMessage("AI_CONFIG_UNAVAILABLE");
+  }
+}
+
+if (document.querySelector("#ai-localization-open")) {
+document.querySelector("#ai-localization-open").addEventListener("click", () => {
+  document.querySelector("#ai-localization-dialog").showModal();
+  void loadAiLocalizationSettings();
+  void refreshAiLocalizationJobs();
+});
+document.querySelector("#ai-localization-close").addEventListener("click", () => {
+  document.querySelector("#ai-localization-dialog").close();
+});
+document.querySelector("#ai-save-settings").addEventListener("click", async (event) => {
+  const button = event.currentTarget;
+  button.disabled = true;
+  try {
+    const result = await api.saveAiLocalizationConfig({
+      apiKey: document.querySelector("#ai-api-key").value,
+      model: document.querySelector("#ai-model").value.trim(),
+      clearApiKey: false
+    });
+    if (!result?.ok) {
+      document.querySelector("#ai-localization-status").textContent = aiErrorMessage(result?.code);
+      return;
+    }
+    document.querySelector("#ai-api-key").value = "";
+    aiApiKeyConfigured = result.data.apiKeyConfigured;
+    document.querySelector("#ai-localization-status").textContent = aiApiKeyConfigured
+      ? text("aiSettingsSaved")
+      : text("aiKeyNotConfigured");
+    document.querySelector("#ai-start-job").disabled = !aiApiKeyConfigured || !selectedAiSourceToken;
+  } catch (error) {
+    console.error("Unable to save AI localization settings:", error);
+    document.querySelector("#ai-localization-status").textContent = aiErrorMessage("AI_CONFIG_SAVE_FAILED");
+  } finally {
+    button.disabled = false;
+  }
+});
+document.querySelector("#ai-choose-source").addEventListener("click", async (event) => {
+  const button = event.currentTarget;
+  button.disabled = true;
+  try {
+    const result = await api.chooseAiLocalizationSource();
+    if (!result?.ok) {
+      document.querySelector("#ai-localization-status").textContent = aiErrorMessage(result?.code);
+      return;
+    }
+    if (result.data.canceled) return;
+    selectedAiSourceToken = result.data.sourceToken;
+    renderAiSourcePreview(result.data);
+    document.querySelector("#ai-localization-status").textContent = interpolateText("aiFileSelected", {
+      file: result.data.fileName,
+      count: result.data.entryCount
+    });
+    document.querySelector("#ai-start-job").disabled = !aiApiKeyConfigured;
+  } catch (error) {
+    console.error("Unable to inspect localization source:", error);
+    document.querySelector("#ai-localization-status").textContent = aiErrorMessage("LOCALIZATION_FILE_READ_FAILED");
+  } finally {
+    button.disabled = false;
+  }
+});
+document.querySelector("#ai-start-job").addEventListener("click", async (event) => {
+  const button = event.currentTarget;
+  if (!aiApiKeyConfigured) {
+    document.querySelector("#ai-localization-status").textContent = text("aiKeyRequired");
+    return;
+  }
+  button.disabled = true;
+  try {
+    const result = await api.startAiLocalization({
+      sourceToken: selectedAiSourceToken,
+      sourceLanguage: document.querySelector("#ai-source-language").value,
+      category: document.querySelector("#ai-category").value,
+      glossary: document.querySelector("#ai-glossary").value
+    });
+    if (!result?.ok) {
+      document.querySelector("#ai-localization-status").textContent = aiErrorMessage(result?.code);
+      button.disabled = !aiApiKeyConfigured || !selectedAiSourceToken;
+      return;
+    }
+    currentAiJobId = result.data.id;
+    selectedAiSourceToken = "";
+    document.querySelector("#ai-localization-preview").hidden = true;
+    await refreshAiLocalizationJobs();
+  } catch (error) {
+    console.error("Unable to start AI localization:", error);
+    document.querySelector("#ai-localization-status").textContent = aiErrorMessage("TRANSLATION_JOB_START_FAILED");
+    button.disabled = !aiApiKeyConfigured || !selectedAiSourceToken;
+  }
+});
+document.querySelector("#ai-cancel-job").addEventListener("click", async () => {
+  if (!currentAiJobId) return;
+  const result = await api.cancelAiLocalizationJob(currentAiJobId);
+  if (!result?.ok) {
+    document.querySelector("#ai-localization-errors").textContent = aiErrorMessage(result?.code);
+  }
+});
+document.querySelector("#ai-resume-job").addEventListener("click", async () => {
+  if (!currentAiJobId) return;
+  const result = await api.resumeAiLocalizationJob(currentAiJobId);
+  if (!result?.ok) {
+    document.querySelector("#ai-localization-errors").textContent = aiErrorMessage(result?.code);
+    return;
+  }
+  renderAiJob(result.data);
+  await refreshAiLocalizationJobs();
+});
+document.querySelector("#ai-export-job").addEventListener("click", async () => {
+  if (!currentAiJobId) return;
+  const result = await api.exportAiLocalizationJob(currentAiJobId);
+  document.querySelector("#ai-localization-status").textContent = result?.ok
+    ? result.data?.canceled ? text("aiJobCompleted") : text("aiExportSuccess")
+    : aiErrorMessage(result?.code);
+});
+document.querySelector("#ai-localization-history-list").addEventListener("click", async (event) => {
+  const resume = event.target.closest("[data-ai-resume]");
+  const exportButton = event.target.closest("[data-ai-export]");
+  if (resume) {
+    currentAiJobId = resume.dataset.aiResume;
+    const result = await api.resumeAiLocalizationJob(currentAiJobId);
+    if (!result?.ok) {
+      document.querySelector("#ai-localization-status").textContent = aiErrorMessage(result?.code);
+      return;
+    }
+    renderAiJob(result.data);
+    await refreshAiLocalizationJobs();
+  } else if (exportButton) {
+    currentAiJobId = exportButton.dataset.aiExport;
+    const result = await api.exportAiLocalizationJob(currentAiJobId);
+    document.querySelector("#ai-localization-status").textContent = result?.ok
+      ? result.data?.canceled ? text("aiJobCompleted") : text("aiExportSuccess")
+      : aiErrorMessage(result?.code);
+  }
+});
+if (api?.onAiLocalizationProgress) {
+  api.onAiLocalizationProgress((progress) => {
+    if (progress.id === currentAiJobId || !currentAiJobId) renderAiJob(progress);
+    void refreshAiLocalizationJobs();
+  });
+}
+}
+
+if (api?.onAiLocalizationProgress) {
+  api.onAiLocalizationProgress((progress) => {
+    if (progress?.gameId !== activeGameAiId || typeof activeGameAiRefresh !== "function") return;
+    void activeGameAiRefresh();
+  });
+}
 
 categoryMenu.addEventListener("click", (event) => {
   const button = event.target.closest("[data-category-option]");

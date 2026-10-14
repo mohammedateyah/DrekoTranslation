@@ -6,8 +6,56 @@ import {
   createFirebaseAuth,
   imageSearchProviderStatus,
   isEnabledImageSearchAdministrator,
-  serveUpdateRequest
+  serveUpdateRequest,
+  translateGeminiRequest
 } from "./cloudflare-worker.mjs";
+
+const translationToken = "firebase-test-token".padEnd(120, "x");
+const translationBody = {
+  model: "gemini-2.5-flash",
+  sourceLanguage: "en",
+  category: "dialogue",
+  gameTitle: "Example Game",
+  gameDescription: "An adventurer searches for a lost city.",
+  glossary: "Firekeeper = حارسة النار",
+  entries: [{ id: "quest.start", text: "Begin {player}", previous: "", following: "Good luck." }]
+};
+
+function translationDatabase(count = 1) {
+  return {
+    prepare: () => ({
+      bind: () => ({ first: async () => ({ count }) })
+    })
+  };
+}
+
+function translationRequest(body = translationBody, token = translationToken) {
+  return new Request("https://dreko.example/v1/desktop/ai/translate", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      "CF-Connecting-IP": "192.0.2.1"
+    },
+    body: JSON.stringify(body)
+  });
+}
+
+function translationAuth({ member = true } = {}) {
+  return {
+    async verifyIdToken(token) {
+      assert.equal(token, translationToken);
+      return {
+        uid: "discord_12345678901234567",
+        claims: {
+          discordUserId: "12345678901234567",
+          discordGuildMember: member,
+          discordGuildId: "guild-test"
+        }
+      };
+    }
+  };
+}
 
 test("image search provider status reports availability without exposing Cloudflare secrets", () => {
   const status = imageSearchProviderStatus({
@@ -205,4 +253,127 @@ test("Firebase service-account credentials must match the configured project", a
     auth.createCustomToken("discord_12345678901234567"),
     /do not match the configured project/
   );
+});
+
+test("Gemini translation proxy validates membership and keeps the API secret in Cloudflare", async () => {
+  let upstreamOptions;
+  const result = await translateGeminiRequest({
+    request: translationRequest(),
+    env: { GEMINI_API_KEY: "server-only-test-gemini-key", DISCORD_GUILD_ID: "guild-test" },
+    firebaseAuth: translationAuth(),
+    database: translationDatabase(),
+    fetchImpl: async (_url, options) => {
+      upstreamOptions = options;
+      return new Response(JSON.stringify({
+        candidates: [{
+          content: {
+            parts: [{
+              text: JSON.stringify({
+                translations: [{ id: "quest.start", text: "ابدأ {player}" }]
+              })
+            }]
+          }
+        }]
+      }), { headers: { "Content-Type": "application/json" } });
+    }
+  });
+
+  assert.equal(result.status, 200);
+  assert.deepEqual(await result.json(), {
+    translations: { "quest.start": "ابدأ {player}" },
+    errors: []
+  });
+  assert.equal(upstreamOptions.headers["x-goog-api-key"], "server-only-test-gemini-key");
+});
+
+test("Gemini translation proxy rejects missing secrets, non-members, and oversized contexts", async () => {
+  const missingSecret = await translateGeminiRequest({
+    request: translationRequest(),
+    env: { DISCORD_GUILD_ID: "guild-test" },
+    firebaseAuth: translationAuth(),
+    database: translationDatabase(),
+    fetchImpl: async () => assert.fail("Gemini must not be called without the server secret")
+  });
+  assert.equal(missingSecret.status, 503);
+  assert.equal((await missingSecret.json()).code, "GEMINI_SERVICE_NOT_CONFIGURED");
+
+  const nonMember = await translateGeminiRequest({
+    request: translationRequest(),
+    env: { GEMINI_API_KEY: "server-only-test-gemini-key", DISCORD_GUILD_ID: "guild-test" },
+    firebaseAuth: translationAuth({ member: false }),
+    database: translationDatabase(),
+    fetchImpl: async () => assert.fail("Gemini must not be called for non-members")
+  });
+  assert.equal(nonMember.status, 403);
+  assert.equal((await nonMember.json()).code, "GUILD_MEMBERSHIP_REQUIRED");
+
+  const oversizedContext = await translateGeminiRequest({
+    request: translationRequest({
+      ...translationBody,
+      entries: [{
+        ...translationBody.entries[0],
+        previous: "x".repeat(17000)
+      }]
+    }),
+    env: { GEMINI_API_KEY: "server-only-test-gemini-key", DISCORD_GUILD_ID: "guild-test" },
+    firebaseAuth: translationAuth(),
+    database: translationDatabase(),
+    fetchImpl: async () => assert.fail("Invalid context must not be sent to Gemini")
+  });
+  assert.equal(oversizedContext.status, 400);
+  assert.equal((await oversizedContext.json()).code, "INVALID_TRANSLATION_REQUEST");
+
+  const oversizedDescription = await translateGeminiRequest({
+    request: translationRequest({
+      ...translationBody,
+      gameDescription: "x".repeat(1001)
+    }),
+    env: { GEMINI_API_KEY: "server-only-test-gemini-key", DISCORD_GUILD_ID: "guild-test" },
+    firebaseAuth: translationAuth(),
+    database: translationDatabase(),
+    fetchImpl: async () => assert.fail("Oversized game context must not be sent to Gemini")
+  });
+  assert.equal(oversizedDescription.status, 400);
+  assert.equal((await oversizedDescription.json()).code, "INVALID_TRANSLATION_REQUEST");
+});
+
+test("Gemini translation proxy enforces its per-IP request limit", async () => {
+  const limited = await translateGeminiRequest({
+    request: translationRequest(),
+    env: { GEMINI_API_KEY: "server-only-test-gemini-key", DISCORD_GUILD_ID: "guild-test" },
+    firebaseAuth: translationAuth(),
+    database: translationDatabase(13),
+    fetchImpl: async () => assert.fail("Rate-limited request must not reach Gemini")
+  });
+  assert.equal(limited.status, 429);
+  assert.equal((await limited.json()).code, "API_RATE_LIMITED");
+});
+
+test("Gemini translation proxy allows the configured batch size with dialogue context", async () => {
+  const entries = ["first", "second"].map((id) => ({
+    id: id.padEnd(256, "_"),
+    text: "x".repeat(9000),
+    previous: "p".repeat(9000),
+    following: "f".repeat(9000)
+  }));
+  const result = await translateGeminiRequest({
+    request: translationRequest({ ...translationBody, entries }),
+    env: { GEMINI_API_KEY: "server-only-test-gemini-key", DISCORD_GUILD_ID: "guild-test" },
+    firebaseAuth: translationAuth(),
+    database: translationDatabase(),
+    fetchImpl: async () => new Response(JSON.stringify({
+      candidates: [{
+        content: {
+          parts: [{
+            text: JSON.stringify({
+              translations: entries.map((entry) => ({ id: entry.id, text: "ع" }))
+            })
+          }]
+        }
+      }]
+    }), { headers: { "Content-Type": "application/json" } })
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(Object.keys((await result.json()).translations).length, 2);
 });

@@ -111,7 +111,15 @@ function openZipEntry(zipFile, entry) {
   });
 }
 
-async function extractZip(archivePath, destination, onProgress = () => {}, { signal } = {}) {
+async function extractZip(archivePath, destination, onProgress = () => {}, {
+  signal,
+  maxExtractedBytes = EXTRACTED_LIMIT,
+  maxFileCount = FILE_COUNT_LIMIT
+} = {}) {
+  if (!Number.isSafeInteger(maxExtractedBytes) || maxExtractedBytes < 1 ||
+      !Number.isSafeInteger(maxFileCount) || maxFileCount < 1) {
+    throw Object.assign(new Error("INVALID_ARCHIVE_LIMITS"), { code: "INVALID_ARCHIVE_LIMITS" });
+  }
   const rootDirectory = path.resolve(destination);
   await fs.mkdir(rootDirectory, { recursive: true });
   const zipFile = await openZip(archivePath);
@@ -145,7 +153,7 @@ async function extractZip(archivePath, destination, onProgress = () => {}, { sig
           } else {
             fileCount += 1;
             totalBytes += entry.uncompressedSize;
-            if (fileCount > FILE_COUNT_LIMIT || totalBytes > EXTRACTED_LIMIT) {
+            if (fileCount > maxFileCount || totalBytes > maxExtractedBytes) {
               throw Object.assign(new Error("ARCHIVE_SIZE_LIMIT"), { code: "ARCHIVE_SIZE_LIMIT" });
             }
             await fs.mkdir(path.dirname(safePath.destination), { recursive: true });
@@ -440,13 +448,44 @@ async function getInstallRecord({ translationId, gameFolder, stateFile }) {
   return state[installKey(translationId, gameFolder)] || null;
 }
 
+async function recordExternalInstallerInstallation({ translationId, gameFolder, stateFile }) {
+  if (typeof translationId !== "string" || !/^[A-Za-z0-9-]{1,64}$/.test(translationId)) {
+    throw Object.assign(new Error("INVALID_TRANSLATION_ID"), { code: "INVALID_TRANSLATION_ID" });
+  }
+  const gameRoot = await fs.realpath(gameFolder);
+  const key = installKey(translationId, gameRoot);
+  let state = {};
+  try {
+    state = JSON.parse(await fs.readFile(stateFile, "utf8"));
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+  }
+  if (state[key]) {
+    throw Object.assign(new Error("TRANSLATION_ALREADY_INSTALLED"), { code: "TRANSLATION_ALREADY_INSTALLED" });
+  }
+  state[key] = {
+    translationId,
+    gameFolder: gameRoot,
+    kind: "external-installer",
+    files: [],
+    installedAt: new Date().toISOString()
+  };
+  await writeJsonAtomically(stateFile, state);
+  return state[key];
+}
+
 async function hashFile(filePath) {
   const hash = crypto.createHash("sha256");
   for await (const chunk of require("node:fs").createReadStream(filePath)) hash.update(chunk);
   return hash.digest("hex");
 }
 
-async function removeInstalledTranslation({ translationId, gameFolder, stateFile }) {
+async function removeInstalledTranslation({
+  translationId,
+  gameFolder,
+  stateFile,
+  confirmExternalUninstall = false
+}) {
   let state;
   try {
     state = JSON.parse(await fs.readFile(stateFile, "utf8"));
@@ -460,6 +499,14 @@ async function removeInstalledTranslation({ translationId, gameFolder, stateFile
   const rootDirectory = await fs.realpath(record.gameFolder);
   if (path.resolve(gameFolder).toLowerCase() !== rootDirectory.toLowerCase()) {
     throw Object.assign(new Error("INSTALL_FOLDER_CHANGED"), { code: "INSTALL_FOLDER_CHANGED" });
+  }
+  if (record.kind === "external-installer") {
+    if (!confirmExternalUninstall) {
+      return { removed: false, requiresExternalUninstall: true };
+    }
+    delete state[key];
+    await writeJsonAtomically(stateFile, state);
+    return { removed: true, externalInstaller: true };
   }
   const backupRoot = path.resolve(path.dirname(stateFile), "translation-backups");
   const backupDirectory = path.resolve(record.backupDirectory || "");
@@ -514,6 +561,7 @@ module.exports = {
   installExtractedFiles,
   isExecutableFile,
   isZipFile,
+  recordExternalInstallerInstallation,
   removeInstalledTranslation,
   safeArchivePath,
   validateDownloadUrl

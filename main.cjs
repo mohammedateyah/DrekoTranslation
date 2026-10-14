@@ -1,5 +1,6 @@
 const fs = require("node:fs/promises");
 const fsSync = require("node:fs");
+const crypto = require("node:crypto");
 const { execFileSync, spawn } = require("node:child_process");
 const dns = require("node:dns/promises");
 const { isIP } = require("node:net");
@@ -10,8 +11,19 @@ const { app, BrowserWindow, dialog, ipcMain, Menu, shell, Tray } = require("elec
 const DiscordRPC = require("discord-rpc");
 const { autoUpdater } = require("electron-updater");
 const { TranslationDatabase } = require("./database.cjs");
-const { discoverSteamGames } = require("./installed-games.cjs");
+const {
+  discoverEpicGameFolders,
+  discoverSteamGameFolders,
+  discoverSteamGames,
+  deduplicateInstalledGames,
+  findMatchingGameFolders,
+  matchInstalledGame
+} = require("./installed-games.cjs");
 const { trustedImageUrl } = require("./image-search.cjs");
+const { AiLocalizationJobs } = require("./ai-localization-jobs.cjs");
+const { DEFAULT_MODEL, requestBatchViaService } = require("./gemini-translation.cjs");
+const { scanLocalizationDirectory } = require("./localization-scanner.cjs");
+const { createTranslatedZipArchive } = require("./localization-zip.cjs");
 const {
   downloadToFile,
   extractZip,
@@ -19,6 +31,7 @@ const {
   installExtractedFiles,
   isExecutableFile,
   isZipFile,
+  recordExternalInstallerInstallation,
   removeInstalledTranslation,
   validateDownloadUrl
 } = require("./translation-installer.cjs");
@@ -39,6 +52,8 @@ let discordPresenceRetry;
 let discordPresenceConnecting = false;
 let discordApplicationId = "";
 let database;
+let aiLocalizationJobs;
+let aiSessionIdToken = "";
 let isQuitting = false;
 let pendingAlreadyRunningNotice = false;
 let mainPageUrl;
@@ -274,6 +289,24 @@ if (!gotSingleInstanceLock) {
       }
     }
     return [...roots].filter((root) => fsSync.existsSync(root));
+  }
+
+  function findEpicManifestRoots() {
+    const programData = process.env.ProgramData || "C:\\ProgramData";
+    const localAppData = process.env.LOCALAPPDATA;
+    return [
+      path.join(programData, "Epic", "EpicGamesLauncher", "Data", "Manifests"),
+      localAppData && path.join(localAppData, "EpicGamesLauncher", "Data", "Manifests")
+    ].filter((root) => root && fsSync.existsSync(root));
+  }
+
+  function findLocalGameSearchRoots() {
+    const roots = new Set();
+    for (const drive of "CDEFGHIJKLMNOPQRSTUVWXYZ") {
+      const driveRoot = `${drive}:\\`;
+      if (fsSync.existsSync(driveRoot)) roots.add(driveRoot);
+    }
+    return [...roots];
   }
 
   async function requestDiscordService(route, options = {}, timeoutMs = 12000) {
@@ -561,6 +594,27 @@ if (!gotSingleInstanceLock) {
     }
     const dataDirectory = app.getPath("userData");
     database = new TranslationDatabase(path.join(dataDirectory, "dreko.sqlite"));
+    aiLocalizationJobs = new AiLocalizationJobs({
+      stateFile: path.join(dataDirectory, "ai-localization-jobs.json"),
+      getSessionToken: () => aiSessionIdToken,
+      translateBatch: (request) => {
+        if (!discordServerOrigin) {
+          throw Object.assign(new Error("The AI translation service is not configured."), {
+            code: "GEMINI_SERVICE_NOT_CONFIGURED"
+          });
+        }
+        return requestBatchViaService({
+          ...request,
+          endpoint: new URL("/v1/desktop/ai/translate", `${discordServerOrigin}/`).href
+        });
+      },
+      onProgress: (progress) => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send("ai-localization:progress", progress);
+        }
+      }
+    });
+    await aiLocalizationJobs.initialize();
     configureAutoUpdater();
 
     ipcMain.handle("dreko:bootstrap", (event) => {
@@ -570,6 +624,190 @@ if (!gotSingleInstanceLock) {
         installerLocale,
         packaged: app.isPackaged
       };
+    });
+
+    const selectedAiSources = new Map();
+    ipcMain.handle("ai-localization:scan-game-folder", async (event, value) => {
+      assertTrustedWindow(event);
+      try {
+        if (!value || typeof value !== "object" ||
+            typeof value.gameFolder !== "string" || value.gameFolder.length > 2048 ||
+            typeof value.gameTitle !== "string" || !value.gameTitle.trim() || value.gameTitle.length > 120) {
+          return { ok: false, code: "INVALID_GAME_FOLDER" };
+        }
+        const { sourcePath, adapter, candidateCount } =
+          await scanLocalizationDirectory(value.gameFolder, value.gameTitle, {
+            archiveWorkspace: path.join(dataDirectory, "ai-localization-archives")
+          });
+        const sourceToken = crypto.randomUUID();
+        selectedAiSources.set(sourceToken, { sourcePath, adapter });
+        while (selectedAiSources.size > 5) {
+          selectedAiSources.delete(selectedAiSources.keys().next().value);
+        }
+        return {
+          ok: true,
+          data: {
+            sourceToken,
+            fileName: adapter.fileName,
+            format: adapter.format,
+            entryCount: adapter.entries.length,
+            candidateCount
+          }
+        };
+      } catch (error) {
+        const code = error?.code || error?.message;
+        if (code === "INVALID_GAME_FOLDER" || code === "LOCALIZATION_SCAN_LIMIT" ||
+            code === "LOCALIZATION_GAME_MISMATCH" ||
+            code === "UNSUPPORTED_PROTECTED_GAME" || code === "ARABIC_LOCALIZATION_PRESENT" ||
+            code === "UNSUPPORTED_UNREAL_RESOURCE_FORMAT" ||
+            code === "UNSUPPORTED_GAME_RESOURCE_FORMAT" ||
+            code === "LOCALIZATION_SOURCE_NOT_FOUND") {
+          return { ok: false, code };
+        }
+        console.error("Unable to scan selected game folder:", error?.code || error?.name || "UNKNOWN");
+        return { ok: false, code: "LOCALIZATION_FILE_READ_FAILED" };
+      }
+    });
+
+    ipcMain.handle("ai-localization:start", async (event, value) => {
+      assertTrustedWindow(event);
+      if (!value || typeof value !== "object" ||
+          typeof value.sourceToken !== "string" || !/^[a-f0-9-]{36}$/iu.test(value.sourceToken) ||
+          typeof value.idToken !== "string" || value.idToken.length < 100 || value.idToken.length > 16000 ||
+          typeof value.gameId !== "string" || value.gameId.length < 1 || value.gameId.length > 128 ||
+          typeof value.gameTitle !== "string" || value.gameTitle.trim().length < 1 || value.gameTitle.length > 120 ||
+          typeof value.gameDescription !== "string" || value.gameDescription.length > 1000 ||
+          typeof value.glossary !== "string" || value.glossary.length > 10000) {
+        return { ok: false, code: "INVALID_TRANSLATION_OPTIONS" };
+      }
+      const source = selectedAiSources.get(value.sourceToken);
+      if (!source) return { ok: false, code: "LOCALIZATION_SOURCE_EXPIRED" };
+      try {
+        aiSessionIdToken = value.idToken;
+        const job = await aiLocalizationJobs.create({
+          ...source,
+          gameId: value.gameId,
+          gameTitle: value.gameTitle.trim(),
+          gameDescription: value.gameDescription.trim(),
+          model: DEFAULT_MODEL,
+          sourceLanguage: "auto",
+          category: "general",
+          glossary: value.glossary
+        });
+        selectedAiSources.delete(value.sourceToken);
+        return { ok: true, data: job };
+      } catch (error) {
+        return { ok: false, code: error?.code || "TRANSLATION_JOB_START_FAILED" };
+      }
+    });
+
+    ipcMain.handle("ai-localization:list-jobs", (event, gameId) => {
+      assertTrustedWindow(event);
+      if (typeof gameId !== "string" || gameId.length < 1 || gameId.length > 128) {
+        return { ok: false, code: "INVALID_GAME_ID" };
+      }
+      return { ok: true, data: { jobs: aiLocalizationJobs.listForGame(gameId) } };
+    });
+
+    ipcMain.handle("ai-localization:resume", async (event, jobId) => {
+      assertTrustedWindow(event);
+      if (!jobId || typeof jobId !== "object" ||
+          typeof jobId.jobId !== "string" || !/^[a-f0-9-]{36}$/iu.test(jobId.jobId) ||
+          typeof jobId.idToken !== "string" || jobId.idToken.length < 100 || jobId.idToken.length > 16000) {
+        return { ok: false, code: "INVALID_TRANSLATION_JOB" };
+      }
+      try {
+        aiSessionIdToken = jobId.idToken;
+        return { ok: true, data: await aiLocalizationJobs.resume(jobId.jobId) };
+      } catch (error) {
+        return { ok: false, code: error?.code || "TRANSLATION_JOB_RESUME_FAILED" };
+      }
+    });
+
+    ipcMain.handle("ai-localization:cancel", (event, jobId) => {
+      assertTrustedWindow(event);
+      if (typeof jobId !== "string" || !/^[a-f0-9-]{36}$/iu.test(jobId)) {
+        return { ok: false, code: "INVALID_TRANSLATION_JOB" };
+      }
+      return aiLocalizationJobs.cancel(jobId)
+        ? { ok: true }
+        : { ok: false, code: "TRANSLATION_JOB_NOT_RUNNING" };
+    });
+
+    ipcMain.handle("ai-localization:export", async (event, jobId) => {
+      assertTrustedWindow(event);
+      if (typeof jobId !== "string" || !/^[a-f0-9-]{36}$/iu.test(jobId)) {
+        return { ok: false, code: "INVALID_TRANSLATION_JOB" };
+      }
+      let exported;
+      try {
+        exported = aiLocalizationJobs.export(jobId);
+      } catch (error) {
+        return { ok: false, code: error?.code || "LOCALIZATION_EXPORT_FAILED" };
+      }
+      const extension = exported.archive ? ".zip" : path.extname(exported.fileName).toLowerCase();
+      const parsedName = path.basename(exported.fileName, extension);
+      const result = await dialog.showSaveDialog(mainWindow, {
+        title: "Export Arabic localization",
+        defaultPath: path.join(app.getPath("downloads"), `${parsedName}.ar${extension}`),
+        buttonLabel: "Export localization",
+        filters: [{
+          name: `${extension.slice(1).toUpperCase()} localization file`,
+          extensions: [extension.slice(1)]
+        }]
+      });
+      if (result.canceled || !result.filePath) return { ok: true, data: { canceled: true } };
+      try {
+        const destination = path.resolve(result.filePath);
+        if (destination.toLowerCase() === path.resolve(exported.sourcePath).toLowerCase()) {
+          return { ok: false, code: "CANNOT_OVERWRITE_SOURCE_FILE" };
+        }
+        try {
+          const realDestination = await fs.realpath(destination);
+          const realSource = await fs.realpath(exported.sourcePath);
+          if (realDestination.toLowerCase() === realSource.toLowerCase()) {
+            return { ok: false, code: "CANNOT_OVERWRITE_SOURCE_FILE" };
+          }
+        } catch (error) {
+          if (error?.code !== "ENOENT") throw error;
+        }
+        const temporaryFile = path.join(
+          path.dirname(destination),
+          `.dreko-localization-${crypto.randomUUID()}.tmp`
+        );
+        try {
+          if (exported.archive) {
+            const currentArchiveStat = await fs.stat(exported.archive.sourceArchivePath);
+            if (currentArchiveStat.size !== exported.archive.sourceSize ||
+                currentArchiveStat.mtimeMs !== exported.archive.sourceModifiedAt) {
+              return { ok: false, code: "LOCALIZATION_ARCHIVE_SOURCE_CHANGED" };
+            }
+            await createTranslatedZipArchive({
+              extractedRoot: exported.archive.extractedRoot,
+              translatedRelativePath: exported.archive.memberPath,
+              translatedContents: exported.contents,
+              destination: temporaryFile
+            });
+          } else {
+            await fs.writeFile(temporaryFile, exported.contents, { flag: "wx", mode: 0o600 });
+          }
+          await fs.rename(temporaryFile, destination);
+        } catch (error) {
+          await fs.rm(temporaryFile, { force: true }).catch((cleanupError) => {
+            console.error("Unable to clean up a temporary localization export:", cleanupError?.code || cleanupError?.name || "UNKNOWN");
+          });
+          throw error;
+        }
+        return { ok: true, data: { filePath: destination } };
+      } catch (error) {
+        console.error("Unable to export AI localization:", error?.code || error?.name || "UNKNOWN");
+        return {
+          ok: false,
+          code: error?.code && /^[A-Z0-9_]+$/u.test(error.code)
+            ? error.code
+            : "LOCALIZATION_EXPORT_FAILED"
+        };
+      }
     });
 
     ipcMain.handle("games:list-installed", (event) => {
@@ -585,6 +823,68 @@ if (!gotSingleInstanceLock) {
         };
       } catch (error) {
         console.error("Unable to scan installed Steam games:", error?.code || error?.name || "UNKNOWN");
+        return { ok: false, code: "GAME_SCAN_FAILED" };
+      }
+    });
+
+    ipcMain.handle("games:find-installed", async (event, gameTitle) => {
+      assertTrustedWindow(event);
+      if (typeof gameTitle !== "string" || !gameTitle.trim() || gameTitle.length > 120) {
+        return { ok: false, code: "INVALID_GAME_TITLE" };
+      }
+      try {
+        const steamRoots = findSteamInstallRoots();
+        const epicGames = discoverEpicGameFolders(findEpicManifestRoots());
+        const games = deduplicateInstalledGames([
+          ...discoverSteamGames(steamRoots),
+          ...discoverSteamGameFolders(steamRoots),
+          ...epicGames
+        ]);
+        let match = matchInstalledGame(games, gameTitle);
+        if (match.ambiguous) return { ok: false, code: "INSTALLED_GAME_MATCH_AMBIGUOUS" };
+        let installPath = "";
+        if (match.game?.installPath) {
+          try {
+            installPath = await fs.realpath(match.game.installPath);
+            const folderStat = await fs.stat(installPath);
+            if (!folderStat.isDirectory()) installPath = "";
+          } catch (error) {
+            if (error?.code !== "ENOENT" && error?.code !== "ENOTDIR") throw error;
+          }
+        }
+        if (!installPath) {
+          const localSearch = await findMatchingGameFolders(findLocalGameSearchRoots(), gameTitle);
+          if (localSearch.searchLimited && localSearch.games.length) {
+            return { ok: false, code: "GAME_SEARCH_LIMIT_REACHED" };
+          }
+          match = matchInstalledGame(
+            deduplicateInstalledGames([...games, ...localSearch.games]),
+            gameTitle
+          );
+          if (match.ambiguous) return { ok: false, code: "INSTALLED_GAME_MATCH_AMBIGUOUS" };
+          if (!match.game?.installPath) {
+            return {
+              ok: false,
+              code: localSearch.searchLimited ? "GAME_SEARCH_LIMIT_REACHED" : "INSTALLED_GAME_NOT_FOUND"
+            };
+          }
+          installPath = await fs.realpath(match.game.installPath);
+          const folderStat = await fs.stat(installPath);
+          if (!folderStat.isDirectory()) return { ok: false, code: "INSTALLED_GAME_NOT_FOUND" };
+        }
+        return {
+          ok: true,
+          data: {
+            title: match.game.title,
+            installPath,
+            platform: match.game.platform
+          }
+        };
+      } catch (error) {
+        if (error?.code === "ENOENT" || error?.code === "ENOTDIR") {
+          return { ok: false, code: "INSTALLED_GAME_NOT_FOUND" };
+        }
+        console.error("Unable to detect installed game folder:", error?.code || error?.name || "UNKNOWN");
         return { ok: false, code: "GAME_SCAN_FAILED" };
       }
     });
@@ -619,11 +919,15 @@ if (!gotSingleInstanceLock) {
     ipcMain.handle("games:translation-install", async (event, value) => {
       assertTrustedWindow(event);
       if (!validateInstallRequest(value)) return { ok: false, code: "INVALID_INSTALL_REQUEST" };
-      const packageUrl = validateDownloadUrl(value.translationUrl);
+      const packageUrl = value.translationUrl
+        ? validateDownloadUrl(value.translationUrl)
+        : null;
       const installerProgramUrl = value.installerProgramUrl
         ? validateDownloadUrl(value.installerProgramUrl)
         : null;
-      if (!packageUrl || (value.installerProgramUrl && !installerProgramUrl)) {
+      if ((!packageUrl && !installerProgramUrl) ||
+          (value.translationUrl && !packageUrl) ||
+          (value.installerProgramUrl && !installerProgramUrl)) {
         return { ok: false, code: "INVALID_DOWNLOAD_URL" };
       }
       if (activeTranslationInstalls.has(value.jobId)) {
@@ -644,53 +948,56 @@ if (!gotSingleInstanceLock) {
         const folderStat = await fs.stat(gameFolder);
         if (!folderStat.isDirectory()) return { ok: false, code: "INVALID_GAME_FOLDER" };
         temporaryDirectory = await fs.mkdtemp(path.join(os.tmpdir(), "dreko-translation-"));
-        const archivePath = path.join(temporaryDirectory, "translation-package");
-        sendTranslationInstallProgress(value.jobId, { stage: "downloading", downloadedBytes: 0, totalBytes: null });
-        const download = await downloadToFile(packageUrl.href, archivePath, {
-          signal: job.controller.signal,
-          onProgress: (progress) => {
-            if (!job.cancelRequested) {
-              sendTranslationInstallProgress(value.jobId, { stage: "downloading", ...progress });
+        let download = { downloadedBytes: 0, totalBytes: 0 };
+        if (packageUrl) {
+          const archivePath = path.join(temporaryDirectory, "translation-package");
+          sendTranslationInstallProgress(value.jobId, { stage: "downloading", downloadedBytes: 0, totalBytes: null });
+          download = await downloadToFile(packageUrl.href, archivePath, {
+            signal: job.controller.signal,
+            onProgress: (progress) => {
+              if (!job.cancelRequested) {
+                sendTranslationInstallProgress(value.jobId, { stage: "downloading", ...progress });
+              }
             }
+          });
+          const header = await fs.open(archivePath, "r");
+          let signature;
+          try {
+            signature = Buffer.alloc(8);
+            await header.read(signature, 0, signature.length, 0);
+          } finally {
+            await header.close();
           }
-        });
-        const header = await fs.open(archivePath, "r");
-        let signature;
-        try {
-          signature = Buffer.alloc(8);
-          await header.read(signature, 0, signature.length, 0);
-        } finally {
-          await header.close();
-        }
-        if (isExecutableFile(signature)) {
-          return { ok: false, code: "EXECUTABLE_PACKAGE_NOT_SUPPORTED" };
-        }
-        if (!isZipFile(signature)) {
-          return { ok: false, code: "INVALID_TRANSLATION_PACKAGE" };
-        }
+          if (isExecutableFile(signature)) {
+            return { ok: false, code: "EXECUTABLE_PACKAGE_NOT_SUPPORTED" };
+          }
+          if (!isZipFile(signature)) {
+            return { ok: false, code: "INVALID_TRANSLATION_PACKAGE" };
+          }
 
-        const extractedDirectory = path.join(temporaryDirectory, "extracted");
-        sendTranslationInstallProgress(value.jobId, { stage: "extracting", percent: 0 });
-        const extracted = await extractZip(archivePath, extractedDirectory, (progress) => {
-          if (!job.cancelRequested) {
-            sendTranslationInstallProgress(value.jobId, { stage: "extracting", ...progress });
-          }
-        }, { signal: job.controller.signal });
-        sendTranslationInstallProgress(value.jobId, { stage: "installing-files", completedFiles: 0, totalFiles: extracted.fileCount });
-        await installExtractedFiles({
-          extractedDirectory,
-          gameFolder,
-          translationId: value.translationId,
-          stateFile: translationInstallStateFile,
-          backupRoot: translationBackupRoot,
-          signal: job.controller.signal,
-          onProgress: (progress) => {
+          const extractedDirectory = path.join(temporaryDirectory, "extracted");
+          sendTranslationInstallProgress(value.jobId, { stage: "extracting", percent: 0 });
+          const extracted = await extractZip(archivePath, extractedDirectory, (progress) => {
             if (!job.cancelRequested) {
-              sendTranslationInstallProgress(value.jobId, { stage: "installing-files", ...progress });
+              sendTranslationInstallProgress(value.jobId, { stage: "extracting", ...progress });
             }
-          }
-        });
-        installedPackage = true;
+          }, { signal: job.controller.signal });
+          sendTranslationInstallProgress(value.jobId, { stage: "installing-files", completedFiles: 0, totalFiles: extracted.fileCount });
+          await installExtractedFiles({
+            extractedDirectory,
+            gameFolder,
+            translationId: value.translationId,
+            stateFile: translationInstallStateFile,
+            backupRoot: translationBackupRoot,
+            signal: job.controller.signal,
+            onProgress: (progress) => {
+              if (!job.cancelRequested) {
+                sendTranslationInstallProgress(value.jobId, { stage: "installing-files", ...progress });
+              }
+            }
+          });
+          installedPackage = true;
+        }
 
         if (installerProgramUrl) {
           if (job.controller.signal.aborted) {
@@ -757,6 +1064,13 @@ if (!gotSingleInstanceLock) {
             });
           });
           job.child = null;
+        }
+        if (!packageUrl && installerProgramUrl) {
+          await recordExternalInstallerInstallation({
+            translationId: value.translationId,
+            gameFolder,
+            stateFile: translationInstallStateFile
+          });
         }
         const record = await getInstallRecord({
           translationId: value.translationId,
@@ -851,10 +1165,38 @@ if (!gotSingleInstanceLock) {
           gameFolder: value.gameFolder,
           stateFile: translationInstallStateFile
         });
-        return { ok: true, data: { installed: Boolean(record) } };
+        return {
+          ok: true,
+          data: {
+            installed: Boolean(record),
+            externalInstaller: record?.kind === "external-installer"
+          }
+        };
       } catch (error) {
         console.error("Unable to read translation installation status:", error?.code || error?.name || "UNKNOWN");
         return { ok: false, code: "INSTALL_STATUS_UNAVAILABLE" };
+      }
+    });
+
+    ipcMain.handle("games:record-external-translation-installed", async (event, value) => {
+      assertTrustedWindow(event);
+      if (!value || !/^[A-Za-z0-9-]{1,64}$/.test(value.translationId || "") ||
+          typeof value.gameFolder !== "string" || value.gameFolder.length > 2048) {
+        return { ok: false, code: "INVALID_INSTALL_STATUS_REQUEST" };
+      }
+      try {
+        const gameFolder = await fs.realpath(value.gameFolder);
+        const folderStat = await fs.stat(gameFolder);
+        if (!folderStat.isDirectory()) return { ok: false, code: "INVALID_GAME_FOLDER" };
+        await recordExternalInstallerInstallation({
+          translationId: value.translationId,
+          gameFolder,
+          stateFile: translationInstallStateFile
+        });
+        return { ok: true };
+      } catch (error) {
+        console.error("Unable to record external translation installation:", error?.code || error?.name || "UNKNOWN");
+        return { ok: false, code: error?.code || "INSTALL_STATUS_UNAVAILABLE" };
       }
     });
 
@@ -868,7 +1210,8 @@ if (!gotSingleInstanceLock) {
         const result = await removeInstalledTranslation({
           translationId: value.translationId,
           gameFolder: value.gameFolder,
-          stateFile: translationInstallStateFile
+          stateFile: translationInstallStateFile,
+          confirmExternalUninstall: value.confirmExternalUninstall === true
         });
         return { ok: true, data: result };
       } catch (error) {
