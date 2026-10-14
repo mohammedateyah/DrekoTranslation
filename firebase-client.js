@@ -768,7 +768,9 @@ export async function setAdminAccountType(uid, accountType, durationDays, user =
 
 export async function saveTranslation(input, user = auth.currentUser, artwork = null) {
   await requireAdministrator(user);
-  const record = normalizeTranslation(input);
+  const record = normalizeTranslation(artwork
+    ? { ...input, cover: "astral-observer" }
+    : input);
   const documentId = input.id || crypto.randomUUID();
   if (!/^[A-Za-z0-9-]{1,64}$/.test(documentId)) {
     const error = new Error("INVALID_TRANSLATION_ID");
