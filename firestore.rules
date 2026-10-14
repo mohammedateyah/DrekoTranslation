@@ -51,13 +51,14 @@ service cloud.firestore {
         && data.visibility in ['published', 'draft']
         && data.year is int && data.year >= 1970 && data.year <= 2200
         && data.popularity is int && data.popularity >= 0 && data.popularity <= 100000000
-        && data.cover is string && data.cover.size() <= 300
+        && data.cover is string && data.cover.size() <= 2048
         && (
           data.cover in [
             'astral-observer', 'paper-moon', 'last-orchard', 'velvet-noir',
             'nocturne', 'lantern-keep', 'city-of-glass', 'forgotten-passage',
             'clockwork-cafe', 'midnight-repairs', 'wilds', 'quiet-thunder'
           ]
+          || data.cover.matches('^https?://.+$')
           || data.cover.matches('^storage:covers/[A-Za-z0-9_-]{1,128}/[A-Za-z0-9-]{1,64}/[A-Za-z0-9._-]{1,128}$')
           || data.cover.matches('^firestore:covers/[A-Za-z0-9-]{36}$')
         )
