@@ -3365,6 +3365,10 @@ function discordAuthErrorMessage(code) {
   return "discordGateRejected";
 }
 
+function isDefinitiveDiscordMembershipFailure(code) {
+  return ["GUILD_MEMBERSHIP_REQUIRED", "INVALID_FIREBASE_TOKEN", "INVALID_DISCORD_USER"].includes(code);
+}
+
 function discordSetupMessage(setupIssues) {
   const messages = {
     DISCORD_CLIENT_ID: "discordSetupNeedClientId",
@@ -3460,7 +3464,9 @@ async function reverifyDiscordMembership() {
     if (!response.ok || response.data?.ok !== true) {
       const code = response.data?.code || response.code || "GUILD_MEMBERSHIP_REQUIRED";
       lockDiscordGate(discordAuthErrorMessage(code), "error");
-      await firebaseCloud.signOutCurrentUser();
+      if (isDefinitiveDiscordMembershipFailure(code)) {
+        await firebaseCloud.signOutCurrentUser();
+      }
       return;
     }
     if (typeof response.data.customToken === "string") {
@@ -3484,7 +3490,6 @@ async function reverifyDiscordMembership() {
   } catch (error) {
     console.error("Discord membership re-verification failed:", error);
     lockDiscordGate("discordGateUnavailable", "error");
-    await firebaseCloud.signOutCurrentUser();
   }
 }
 
@@ -3594,10 +3599,12 @@ async function handleDiscordLogin() {
   } catch (error) {
     discordLoginInProgress = false;
     console.error("Discord sign-in failed:", error?.code || error?.name || "UNKNOWN");
-    try {
-      if (firebaseCloud.currentUser()) await firebaseCloud.signOutCurrentUser();
-    } catch (signOutError) {
-      console.error("Unable to clear the failed Discord sign-in:", signOutError?.code || signOutError?.name || "UNKNOWN");
+    if (isDefinitiveDiscordMembershipFailure(error?.code) && firebaseCloud.currentUser()) {
+      try {
+        await firebaseCloud.signOutCurrentUser();
+      } catch (signOutError) {
+        console.error("Unable to clear a rejected Discord sign-in:", signOutError?.code || signOutError?.name || "UNKNOWN");
+      }
     }
     const messageKey = discordAuthErrorMessage(error?.code);
     setDiscordGateStatus(messageKey, "error");
@@ -3636,7 +3643,9 @@ async function initializeDiscordGate() {
         await activateDiscordUser(user);
       } catch (error) {
         console.error("Stored Discord sign-in is no longer valid:", error?.code || error?.name || "UNKNOWN");
-        await firebaseCloud.signOutCurrentUser();
+        if (isDefinitiveDiscordMembershipFailure(error?.code)) {
+          await firebaseCloud.signOutCurrentUser();
+        }
         setDiscordGateStatus(discordAuthErrorMessage(error?.code), "error");
       }
     } else if (discordServerReady) {
@@ -3661,7 +3670,9 @@ async function initializeDiscordGate() {
       void activateDiscordUser(user).catch(async (error) => {
         console.error("Discord membership gate rejected the Firebase session:", error?.code || error?.name || "UNKNOWN");
         lockDiscordGate(discordAuthErrorMessage(error?.code), "error");
-        await firebaseCloud.signOutCurrentUser();
+        if (isDefinitiveDiscordMembershipFailure(error?.code)) {
+          await firebaseCloud.signOutCurrentUser();
+        }
       });
     }, (error) => {
       console.error("Firebase authentication state listener failed:", error);

@@ -1,7 +1,10 @@
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
+  browserLocalPersistence,
+  indexedDBLocalPersistence,
   onAuthStateChanged,
+  setPersistence,
   signInWithCustomToken,
   signOut
 } from "firebase/auth";
@@ -79,6 +82,11 @@ const TEXT_LIMITS = {
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const authPersistenceReady = setPersistence(auth, indexedDBLocalPersistence).catch(async (error) => {
+  if (error?.code !== "auth/unsupported-persistence-type") throw error;
+  console.warn("IndexedDB auth persistence is unavailable; falling back to browser local persistence.");
+  await setPersistence(auth, browserLocalPersistence);
+});
 const storage = getStorage(app);
 const database = getFirestore(app);
 
@@ -344,8 +352,9 @@ export function currentUser() {
   return auth.currentUser;
 }
 
-export function waitForAuthentication() {
-  return auth.authStateReady();
+export async function waitForAuthentication() {
+  await authPersistenceReady;
+  await auth.authStateReady();
 }
 
 export function onUserChanged(callback, onError) {
@@ -364,6 +373,7 @@ export async function isDiscordGuildMember(user) {
 }
 
 export async function signInWithDiscordToken(customToken) {
+  await authPersistenceReady;
   if (typeof customToken !== "string" || customToken.length > 12000) {
     const error = new Error("INVALID_DISCORD_TOKEN");
     error.code = "INVALID_DISCORD_TOKEN";
@@ -519,12 +529,14 @@ export async function submitTranslationRequest(game, user = auth.currentUser) {
   });
 }
 
-export function signOutAdministrator() {
-  return signOut(auth);
+export async function signOutAdministrator() {
+  await authPersistenceReady;
+  await signOut(auth);
 }
 
-export function signOutCurrentUser() {
-  return signOut(auth);
+export async function signOutCurrentUser() {
+  await authPersistenceReady;
+  await signOut(auth);
 }
 
 export async function listPublicTranslations() {
