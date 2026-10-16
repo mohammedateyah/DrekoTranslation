@@ -121,6 +121,8 @@ const translations = {
     whatsNewVersion: "الإصدار {version}",
     whatsNewAutoUpdate: "يبدأ التحقق من التحديثات وتنزيلها تلقائيًا بعد تسجيل الدخول.",
     whatsNewRequiredUpdate: "يمكنك الأن طلب تعريب - قسم طلبات التعريب يستخدم لطلب لعبة غير متوفّر لها تعريب منشور. يعتمد تنفيذ الطلب على المراجعة وعدم توفر التعريب.",
+    whatsNewDisplayImprovements: "تحسين واجهة العرض: تم ضبط أحجام الصفحات والصناديق لتتناسب بشكل أفضل مع الشاشات الكبيرة، مما يوفر تجربة استخدام أكثر راحة وتنظيماً.",
+    whatsNewReports: "إتاحة قسم البلاغات: أصبح بإمكانك الآن الإبلاغ عن أي مشكلة تواجهك أثناء استخدام التعريبات، للمساعدة في تحسين جودتها وتوفير تجربة أفضل للجميع.",
     whatsNewDone: "تمام، فهمت",
     updateUnavailable: "تعذر التحقق من التحديث الآن. تحقق من اتصالك وحاول مجدداً.",
     updateFeedNotConfigured: "خدمة تحديثات التطبيق غير مهيأة حالياً.",
@@ -693,6 +695,8 @@ const translations = {
     whatsNewVersion: "Version {version}",
     whatsNewAutoUpdate: "The app now checks for and downloads updates automatically after sign-in.",
     whatsNewRequiredUpdate: "You can now request a game translation! The Translation Requests section lets you request a game that doesn't have a published translation available. Requests are reviewed before being processed.",
+    whatsNewDisplayImprovements: "Display improvements: Page and card sizes have been adjusted to better fit larger screens, creating a more comfortable and organized experience.",
+    whatsNewReports: "Reports are now available: Report any issue you encounter while using translations to help improve their quality and provide a better experience for everyone.",
     whatsNewDone: "Got it",
     updateUnavailable: "Unable to check for updates right now. Check your connection and try again.",
     updateFeedNotConfigured: "The app update service is not configured yet.",
@@ -1694,7 +1698,12 @@ function showWhatsNewIfNeeded() {
     text("whatsNewVersion").replace("{version}", installedAppVersion);
   const notes = document.querySelector("#whats-new-list");
   notes.replaceChildren();
-  for (const key of ["whatsNewAutoUpdate", "whatsNewRequiredUpdate"]) {
+  for (const key of [
+    "whatsNewAutoUpdate",
+    "whatsNewRequiredUpdate",
+    "whatsNewDisplayImprovements",
+    "whatsNewReports"
+  ]) {
     const item = document.createElement("li");
     item.textContent = text(key);
     notes.append(item);
