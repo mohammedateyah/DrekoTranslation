@@ -495,7 +495,7 @@ if (!gotSingleInstanceLock) {
     setTimeout(() => {
       if (isQuitting) return;
       console.info(`Installing Dreko update ${downloadedUpdateVersion} and restarting.`);
-      autoUpdater.quitAndInstall(false, true);
+      autoUpdater.quitAndInstall(true, true);
     }, 1500);
   }
 
@@ -560,7 +560,7 @@ if (!gotSingleInstanceLock) {
       if (!app.isPackaged || !updateDownloaded) {
         return { ok: false, code: "UPDATE_NOT_READY" };
       }
-      autoUpdater.quitAndInstall(false, true);
+      autoUpdater.quitAndInstall(true, true);
       return { ok: true };
     });
   }
