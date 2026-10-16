@@ -123,6 +123,7 @@ const translations = {
     whatsNewRequiredUpdate: "يمكنك الأن طلب تعريب - قسم طلبات التعريب يستخدم لطلب لعبة غير متوفّر لها تعريب منشور. يعتمد تنفيذ الطلب على المراجعة وعدم توفر التعريب.",
     whatsNewDisplayImprovements: "تحسين واجهة العرض: تم ضبط أحجام الصفحات والصناديق لتتناسب بشكل أفضل مع الشاشات الكبيرة، مما يوفر تجربة استخدام أكثر راحة وتنظيماً.",
     whatsNewReports: "إتاحة قسم البلاغات: أصبح بإمكانك الآن الإبلاغ عن أي مشكلة تواجهك أثناء استخدام التعريبات، للمساعدة في تحسين جودتها وتوفير تجربة أفضل للجميع.",
+    whatsNewKeepLanguage: "يحافظ التحديث التلقائي الآن على لغة الواجهة التي اخترتها.",
     whatsNewDone: "تمام، فهمت",
     updateUnavailable: "تعذر التحقق من التحديث الآن. تحقق من اتصالك وحاول مجدداً.",
     updateFeedNotConfigured: "خدمة تحديثات التطبيق غير مهيأة حالياً.",
@@ -697,6 +698,7 @@ const translations = {
     whatsNewRequiredUpdate: "You can now request a game translation! The Translation Requests section lets you request a game that doesn't have a published translation available. Requests are reviewed before being processed.",
     whatsNewDisplayImprovements: "Display improvements: Page and card sizes have been adjusted to better fit larger screens, creating a more comfortable and organized experience.",
     whatsNewReports: "Reports are now available: Report any issue you encounter while using translations to help improve their quality and provide a better experience for everyone.",
+    whatsNewKeepLanguage: "Automatic updates now preserve your selected interface language.",
     whatsNewDone: "Got it",
     updateUnavailable: "Unable to check for updates right now. Check your connection and try again.",
     updateFeedNotConfigured: "The app update service is not configured yet.",
@@ -1702,7 +1704,8 @@ function showWhatsNewIfNeeded() {
     "whatsNewAutoUpdate",
     "whatsNewRequiredUpdate",
     "whatsNewDisplayImprovements",
-    "whatsNewReports"
+    "whatsNewReports",
+    "whatsNewKeepLanguage"
   ]) {
     const item = document.createElement("li");
     item.textContent = text(key);
