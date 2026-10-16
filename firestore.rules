@@ -303,6 +303,115 @@ service cloud.firestore {
         );
     }
 
+    match /translationReports/{reportId} {
+        allow create: if isDiscordGuildMember()
+          && reportId.matches('^[A-Za-z0-9_-]{20,150}$')
+          && request.resource.data.keys().hasAll([
+            'uid', 'discordUserId', 'username', 'avatar', 'translationId',
+            'gameName', 'latestUpdate', 'issueType', 'details', 'status', 'createdAt'
+          ])
+          && request.resource.data.keys().hasOnly([
+            'uid', 'discordUserId', 'username', 'avatar', 'translationId',
+            'gameName', 'latestUpdate', 'issueType', 'details', 'status', 'createdAt',
+            'resolvedAt', 'resolvedBy'
+          ])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.discordUserId == request.auth.token.discordUserId
+          && request.resource.data.username == request.auth.token.discordUsername
+          && request.resource.data.username is string
+          && request.resource.data.username.size() > 0
+          && request.resource.data.username.size() <= 80
+          && request.resource.data.avatar is string
+          && request.resource.data.avatar.size() <= 128
+          && request.resource.data.avatar == request.auth.token.discordAvatar
+          && request.resource.data.translationId is string
+          && request.resource.data.translationId.matches('^[A-Za-z0-9-]{1,64}$')
+          && exists(/databases/$(database)/documents/translations/$(request.resource.data.translationId))
+          && get(/databases/$(database)/documents/translations/$(request.resource.data.translationId)).data.visibility == 'published'
+          && request.resource.data.gameName is string
+          && request.resource.data.gameName.size() > 0
+          && request.resource.data.gameName.size() <= 100
+          && request.resource.data.gameName == get(
+            /databases/$(database)/documents/translations/$(request.resource.data.translationId)
+          ).data.titleEn
+          && request.resource.data.latestUpdate in ['yes', 'no', 'unsure']
+          && request.resource.data.issueType in [
+            'translation', 'missing', 'display', 'font', 'language', 'crash', 'install', 'other'
+          ]
+          && request.resource.data.details is string
+          && request.resource.data.details.size() <= 500
+          && request.resource.data.status == 'pending'
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.get('resolvedAt', null) == null
+          && request.resource.data.get('resolvedBy', null) == null
+          && existsAfter(/databases/$(database)/documents/translationReportLocks/$(request.auth.uid + '_' + request.resource.data.translationId))
+          && getAfter(/databases/$(database)/documents/translationReportLocks/$(request.auth.uid + '_' + request.resource.data.translationId)).data.uid == request.auth.uid
+          && getAfter(/databases/$(database)/documents/translationReportLocks/$(request.auth.uid + '_' + request.resource.data.translationId)).data.translationId == request.resource.data.translationId
+          && getAfter(/databases/$(database)/documents/translationReportLocks/$(request.auth.uid + '_' + request.resource.data.translationId)).data.reportId == reportId;
+        allow get, list: if isAdministrator();
+        allow update: if isAdministrator()
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['status', 'resolvedAt', 'resolvedBy'])
+          && (
+            (
+              request.resource.data.status == 'resolved'
+              && request.resource.data.resolvedAt == request.time
+              && request.resource.data.resolvedBy == request.auth.uid
+            )
+            || (
+              request.resource.data.status == 'pending'
+              && request.resource.data.resolvedAt == null
+              && request.resource.data.resolvedBy == null
+            )
+          );
+        allow delete: if isAdministrator();
+    }
+
+    match /translationReportLocks/{lockId} {
+      allow get: if (isDiscordGuildMember()
+          && lockId.matches('^' + request.auth.uid + '_[A-Za-z0-9-]{1,64}$'))
+        || isAdministrator();
+      allow list: if false;
+      allow create: if isDiscordGuildMember()
+        && lockId == request.auth.uid + '_' + request.resource.data.translationId
+        && request.resource.data.keys().hasAll(['uid', 'translationId', 'reportId', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['uid', 'translationId', 'reportId', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.translationId is string
+        && request.resource.data.translationId.matches('^[A-Za-z0-9-]{1,64}$')
+        && request.resource.data.reportId is string
+        && request.resource.data.reportId.matches('^[A-Za-z0-9_-]{20,150}$')
+        && request.resource.data.createdAt == request.time
+        && existsAfter(/databases/$(database)/documents/translationReports/$(request.resource.data.reportId))
+        && getAfter(/databases/$(database)/documents/translationReports/$(request.resource.data.reportId)).data.uid == request.auth.uid
+        && getAfter(/databases/$(database)/documents/translationReports/$(request.resource.data.reportId)).data.translationId == request.resource.data.translationId
+        && getAfter(/databases/$(database)/documents/translationReports/$(request.resource.data.reportId)).data.createdAt == request.time;
+      allow update: if isDiscordGuildMember()
+        && lockId == request.auth.uid + '_' + request.resource.data.translationId
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasAll(['uid', 'translationId', 'reportId', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['uid', 'translationId', 'reportId', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.translationId == resource.data.translationId
+        && request.resource.data.reportId is string
+        && request.resource.data.reportId.matches('^[A-Za-z0-9_-]{20,150}$')
+        && request.resource.data.reportId != resource.data.reportId
+        && request.resource.data.createdAt == request.time
+        && (
+          !exists(/databases/$(database)/documents/translationReports/$(resource.data.reportId))
+          || get(/databases/$(database)/documents/translationReports/$(resource.data.reportId)).data.status == 'resolved'
+        )
+        && existsAfter(/databases/$(database)/documents/translationReports/$(request.resource.data.reportId))
+        && getAfter(/databases/$(database)/documents/translationReports/$(request.resource.data.reportId)).data.uid == request.auth.uid
+        && getAfter(/databases/$(database)/documents/translationReports/$(request.resource.data.reportId)).data.translationId == request.resource.data.translationId
+        && getAfter(/databases/$(database)/documents/translationReports/$(request.resource.data.reportId)).data.createdAt == request.time;
+      allow delete: if isAdministrator()
+        && exists(/databases/$(database)/documents/translationReports/$(resource.data.reportId))
+        && get(/databases/$(database)/documents/translationReports/$(resource.data.reportId)).data.uid == resource.data.uid
+        && get(/databases/$(database)/documents/translationReports/$(resource.data.reportId)).data.translationId == resource.data.translationId
+        && !existsAfter(/databases/$(database)/documents/translationReports/$(resource.data.reportId));
+    }
+
     match /translationRequestLocks/{uid} {
       allow get: if isAdministrator() || (isDiscordGuildMember() && request.auth.uid == uid);
       allow list: if false;

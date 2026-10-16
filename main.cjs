@@ -63,6 +63,7 @@ let updateFeedUrl = "";
 let updateDownloaded = false;
 let downloadedUpdateVersion = "";
 let updateCheckInProgress = false;
+let updateInstallScheduled = false;
 let installerLocale = null;
 
 function detectArtworkExtension(contents) {
@@ -423,7 +424,7 @@ if (!gotSingleInstanceLock) {
     tray.setContextMenu(Menu.buildFromTemplate([
       { label: "إظهار Dreko Translation", click: showMainWindow },
       { type: "separator" },
-      { label: "الخروج من Dreko Translation", click: () => app.quit() }
+      { label: "إغلاق Dreko Translation", click: () => app.quit() }
     ]));
     tray.on("click", showMainWindow);
     tray.on("double-click", showMainWindow);
@@ -488,6 +489,16 @@ if (!gotSingleInstanceLock) {
     }
   }
 
+  function scheduleDownloadedUpdateInstall() {
+    if (!app.isPackaged || !updateDownloaded || updateInstallScheduled) return;
+    updateInstallScheduled = true;
+    setTimeout(() => {
+      if (isQuitting) return;
+      console.info(`Installing Dreko update ${downloadedUpdateVersion} and restarting.`);
+      autoUpdater.quitAndInstall(false, true);
+    }, 1500);
+  }
+
   function configureAutoUpdater() {
     if (updateFeedUrl) {
       autoUpdater.setFeedURL({ provider: "generic", url: updateFeedUrl });
@@ -518,6 +529,7 @@ if (!gotSingleInstanceLock) {
       updateDownloaded = true;
       downloadedUpdateVersion = info.version;
       sendUpdateStatus({ type: "downloaded", version: info.version });
+      scheduleDownloadedUpdateInstall();
     });
     autoUpdater.on("error", (error) => {
       updateCheckInProgress = false;
@@ -531,6 +543,7 @@ if (!gotSingleInstanceLock) {
       if (!updateFeedUrl) return { ok: false, code: "UPDATE_FEED_NOT_CONFIGURED" };
       if (updateDownloaded) {
         sendUpdateStatus({ type: "downloaded", version: downloadedUpdateVersion });
+        scheduleDownloadedUpdateInstall();
         return { ok: true, code: "UPDATE_ALREADY_DOWNLOADED" };
       }
       if (updateCheckInProgress) return { ok: true, code: "UPDATE_CHECK_IN_PROGRESS" };

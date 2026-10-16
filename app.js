@@ -31,13 +31,74 @@ const translations = {
     discordJoinServer: "الانضمام إلى سيرفر Dreko",
     discordGateSecurity: "لا نطلب كلمة مرور Discord داخل التطبيق.",
     discordLogoutLabel: "تسجيل الخروج من Discord",
-    language: "العربية",
+    language: "English",
     navLibrary: "المكتبة",
     navCommunity: "المجتمع",
     navOurSite: "موقعنا",
     navPremium: "دريكو بريميوم",
     navUpdates: "التحديثات",
     navSupport: "الدعم",
+    navReport: "إبلاغ",
+    reportGameButton: "إبلاغ عن مشكلة",
+    reportTitle: "الإبلاغ عن مشكلة",
+    reportIntro: "أخبرنا بالمشكلة التي واجهتك في هذا التعريب.",
+    reportStep: "الخطوة {step} من 3",
+    reportChooseGame: "اختر اللعبة",
+    reportSearchGame: "ابحث في المكتبة...",
+    reportNoGames: "لا توجد ألعاب مطابقة.",
+    reportLatestUpdate: "هل لعبتك على آخر تحديث؟",
+    reportLatestUpdateHint: "تساعدنا معرفة ذلك على تحديد سبب المشكلة.",
+    reportUpdateYes: "نعم، آخر تحديث",
+    reportUpdateNo: "لا",
+    reportUpdateUnsure: "لا أدري",
+    reportIssueQuestion: "ما المشكلة التي واجهتها؟",
+    reportIssueTranslation: "خطأ في الترجمة",
+    reportIssueMissing: "نصوص غير معرّبة",
+    reportIssueDisplay: "مشكلة في عرض النص",
+    reportIssueFont: "الخط أو حجمه",
+    reportIssueLanguage: "ظهور لغة غير العربية",
+    reportIssueCrash: "اللعبة لا تعمل أو تتعطل",
+    reportIssueInstall: "مشكلة في تثبيت التعريب",
+    reportIssueOther: "شيء آخر",
+    reportDetailsLabel: "تفاصيل إضافية (اختياري)",
+    reportDetailsPlaceholder: "صف المشكلة أو اذكر الخطوات التي أدت إليها...",
+    reportCharacters: "{count}/500",
+    reportBack: "رجوع",
+    reportNext: "التالي",
+    reportSubmit: "إرسال البلاغ",
+    reportSubmitting: "جارٍ إرسال البلاغ...",
+    reportSuccessTitle: "شكرًا لبلاغك، وصل للفريق.",
+    reportSuccessDescription: "سنراجع المشكلة ونتابعها مع فريق التعريب.",
+    reportClose: "إغلاق",
+    reportSubmitError: "تعذر إرسال البلاغ الآن. تحقق من اتصالك وحاول مجددًا.",
+    reportAlreadySubmitted: "سبق أن أرسلت بلاغًا عن هذه اللعبة. يمكنك إرسال بلاغ واحد فقط لكل لعبة.",
+    reportsOpen: "بلاغات",
+    reportsBackToLibrary: "العودة للتعريبات",
+    reportsEyebrow: "مراجعة ملاحظات اللاعبين",
+    reportsTitle: "بلاغات <span>التعريبات</span>",
+    reportsDescription: "راجع المشكلات التي أبلغ عنها اللاعبون وتابع حالتها.",
+    reportsCount: "بلاغ",
+    reportsStatusLabel: "تصفية البلاغات",
+    reportsPending: "قيد المراجعة",
+    reportsResolved: "تمت المراجعة",
+    reportsSearchPlaceholder: "ابحث باسم اللعبة أو الحساب أو البلاغ...",
+    reportsRefresh: "تحديث البلاغات",
+    reportsEmptyTitle: "لا توجد بلاغات مطابقة",
+    reportsEmptyDescription: "ستظهر بلاغات اللاعبين الجديدة هنا.",
+    reportStatusSaved: "تم تحديث حالة البلاغ.",
+    reportDeleteAction: "حذف",
+    reportDeleted: "تم حذف البلاغ.",
+    reportDeleteConfirm: "هل تريد حذف بلاغ «{game}»؟ لا يمكن التراجع عن هذا الإجراء.",
+    reportStatusPendingAction: "إعادة للمراجعة",
+    reportStatusResolvedAction: "تمت المراجعة",
+    reportSubmittedDate: "تاريخ البلاغ",
+    reportSubmittedBy: "مقدم البلاغ",
+    reportLatestLabel: "حالة تحديث اللعبة",
+    reportIssueLabel: "نوع المشكلة",
+    reportDetailsAdminLabel: "تفاصيل اللاعب",
+    reportUpdateValueYes: "آخر تحديث",
+    reportUpdateValueNo: "ليست على آخر تحديث",
+    reportUpdateValueUnsure: "غير متأكد",
     updateChecking: "جارٍ التحقق من وجود تحديث...",
     updateCurrent: "أنت تستخدم أحدث إصدار ({version}).",
     updateAvailable: "يتوفر الإصدار {version}. جارٍ تنزيله...",
@@ -149,6 +210,10 @@ const translations = {
     libraryEyebrow: "استكشف المكتبة",
     libraryTitle: "مجموعة <span>الألعاب</span>",
     translationCount: "ترجمة",
+    paginationLabel: "التنقل بين صفحات المكتبة",
+    paginationPrevious: "الصفحة السابقة",
+    paginationNext: "الصفحة التالية",
+    paginationPage: "صفحة",
     filterLatest: "الأحدث",
     filterPopular: "الأكثر رواجاً",
     weekButton: "تعريبات Dreko",
@@ -284,11 +349,11 @@ const translations = {
     emptyDescription: "جرّب تغيير كلمات البحث أو نوع الترجمة.",
     communityEyebrow: "",
     communityTitle: "اللعب أجمل <span>بلغة العربية</span>",
-    communityDescription: "مساحة تمكن الاعبين العرب من لعب العابهم بلغة العربية بكل سهولة",
+    communityDescription: "مساحة تمكن الاعبين العرب من لعب ألعابهم بلغة العربية بكل سهولة",
     communityCta: "اكتشف المجتمع",
-    footerNote: "جميع الحقوق محفوظة © Dreko Studio. جميع حقوق الملكية الفكرية والعلامات التجارية والمحتويات الخاصة بالمنصة محفوظة لـ Dreko Studio.",
-    footerStatus: "منصة مستقلة لتعريب الألعاب",
-    footerCopyright: "© 2026 DREKO TRANSLATION — جميع الحقوق محفوظة.",
+    footerNote: "جميع التعريبات المتوفرة في هذا التطبيق حقوقها محفوظة لأصحابها الأصليين. لا يدّعي «دريكو» ملكية أي تعريب، ولا يَنسب أي عمل لنفسه، جُمعت هذه التعريبات من مصادر عامة متاحة على الإنترنت وأُعيد تنظيمها هنا لتسهيل الوصول إليها فقط. تبقى كامل الحقوق لأصحابها، ونحترم جهودهم كل الاحترام. إذا كنت صاحب أي تعريب وترغب بإزالته أو تصحيح نسبته، تواصل معنا عبر سيرفر Discord ويُنفَّذ طلبك فورًا",
+    footerStatus: "الحالة: متصل",
+    footerCopyright: "© 2026 DREKO TRANSLATION — حقوق التعريبات لأصحابها.",
     genreAdventure: "مغامرة",
     genreAction: "أكشن",
     genreRpg: "أدوار",
@@ -538,13 +603,74 @@ const translations = {
     discordJoinServer: "Join the Dreko server",
     discordGateSecurity: "Dreko never asks for your Discord password.",
     discordLogoutLabel: "Sign out of Discord",
-    language: "English",
+    language: "العربية",
     navLibrary: "Library",
     navCommunity: "Community",
     navOurSite: "Our Site",
     navPremium: "Dreko Premium",
     navUpdates: "Updates",
     navSupport: "Support",
+    navReport: "Report",
+    reportGameButton: "Report an issue",
+    reportTitle: "Report a problem",
+    reportIntro: "Tell us about the problem you encountered with this translation.",
+    reportStep: "Step {step} of 3",
+    reportChooseGame: "Choose a game",
+    reportSearchGame: "Search the library...",
+    reportNoGames: "No matching games.",
+    reportLatestUpdate: "Is your game up to date?",
+    reportLatestUpdateHint: "This helps us identify what may be causing the problem.",
+    reportUpdateYes: "Yes, up to date",
+    reportUpdateNo: "No",
+    reportUpdateUnsure: "Not sure",
+    reportIssueQuestion: "What problem did you encounter?",
+    reportIssueTranslation: "Translation mistake",
+    reportIssueMissing: "Untranslated text",
+    reportIssueDisplay: "Text display issue",
+    reportIssueFont: "Font or font size",
+    reportIssueLanguage: "Text is not in Arabic",
+    reportIssueCrash: "Game won't launch or crashes",
+    reportIssueInstall: "Translation installation issue",
+    reportIssueOther: "Other",
+    reportDetailsLabel: "Additional details (optional)",
+    reportDetailsPlaceholder: "Describe the issue or steps that caused it...",
+    reportCharacters: "{count}/500",
+    reportBack: "Back",
+    reportNext: "Next",
+    reportSubmit: "Submit report",
+    reportSubmitting: "Submitting report...",
+    reportSuccessTitle: "Thank you. Your report has reached our team.",
+    reportSuccessDescription: "We’ll review the issue with the translation team.",
+    reportClose: "Close",
+    reportSubmitError: "Unable to send your report right now. Check your connection and try again.",
+    reportAlreadySubmitted: "You have already reported this game. Only one report is allowed per game.",
+    reportsOpen: "Reports",
+    reportsBackToLibrary: "Back to translations",
+    reportsEyebrow: "PLAYER FEEDBACK",
+    reportsTitle: "Translation <span>reports</span>",
+    reportsDescription: "Review issues reported by players and track their status.",
+    reportsCount: "reports",
+    reportsStatusLabel: "Filter reports",
+    reportsPending: "Needs review",
+    reportsResolved: "Reviewed",
+    reportsSearchPlaceholder: "Search game, account, or report...",
+    reportsRefresh: "Refresh reports",
+    reportsEmptyTitle: "No matching reports",
+    reportsEmptyDescription: "New player reports will appear here.",
+    reportStatusSaved: "Report status updated.",
+    reportDeleteAction: "Delete",
+    reportDeleted: "Report deleted.",
+    reportDeleteConfirm: "Delete the report for “{game}”? This cannot be undone.",
+    reportStatusPendingAction: "Reopen",
+    reportStatusResolvedAction: "Mark reviewed",
+    reportSubmittedDate: "Reported",
+    reportSubmittedBy: "Reported by",
+    reportLatestLabel: "Game update status",
+    reportIssueLabel: "Issue type",
+    reportDetailsAdminLabel: "Player details",
+    reportUpdateValueYes: "Up to date",
+    reportUpdateValueNo: "Not up to date",
+    reportUpdateValueUnsure: "Not sure",
     updateChecking: "Checking for updates...",
     updateCurrent: "You are using the latest version ({version}).",
     updateAvailable: "Version {version} is available. Downloading...",
@@ -656,6 +782,10 @@ const translations = {
     libraryEyebrow: "EXPLORE THE LIBRARY",
     libraryTitle: "Game <span>collection</span>",
     translationCount: "translations",
+    paginationLabel: "Library pages",
+    paginationPrevious: "Previous page",
+    paginationNext: "Next page",
+    paginationPage: "Page",
     filterLatest: "Latest",
     filterPopular: "Most popular",
     weekButton: "Dreko translations",
@@ -793,8 +923,8 @@ const translations = {
     communityTitle: "Better games, <span>in Arabic.</span>",
     communityDescription: "A space where Arab players can easily enjoy their games in Arabic.",
     communityCta: "Explore the community",
-    footerNote: "Dreko Translation is an independent platform. All games and translations remain the property of their respective owners. We do not claim ownership of any game or translation; we only gather publicly available translations from their sources to make them easier to find.",
-    footerStatus: "An independent platform for game localization",
+    footerNote: "All localizations (translations) available in this application remain the property of their original creators. «Dreko» does not claim ownership of any of these translations, nor does it attribute any of the work to itself. These translations have been gathered from publicly available sources on the internet and reorganized here solely to make them easier to access. All rights remain with the original creators, and we hold their efforts in the highest regard. If you are the creator of any of these translations and would like to have it removed or its attribution corrected, please contact us via our Discord server, and your request will be addressed immediately.",
+    footerStatus: "Status: Online",
     footerCopyright: "© 2026 DREKO TRANSLATION — All rights reserved by their respective owners.",
     genreAdventure: "Adventure",
     genreAction: "Action",
@@ -1039,6 +1169,7 @@ const state = {
   premiumOnly: false,
   adminVisibility: "all",
   query: "",
+  libraryPage: 1,
   adminQuery: "",
   view: "grid",
   screen: "public",
@@ -1054,6 +1185,10 @@ const state = {
   adminTranslationRequests: [],
   adminRequestsQuery: "",
   adminRequestsStatus: "pending",
+  adminReports: [],
+  adminReportsQuery: "",
+  adminReportsStatus: "pending",
+  reportDraft: null,
   discordAccessGranted: false,
   discordAuthInitialized: false,
   discordVerifyingUserUid: "",
@@ -1093,10 +1228,46 @@ let postLoginExperienceStarted = false;
 let requiredUpdateVersion = "";
 const cloudCoverUrls = new Map();
 const cloudCoverRequests = new Set();
+const cloudCoverPromises = new Map();
+const cloudCoverQueue = [];
+const CLOUD_COVER_CONCURRENCY = 4;
+let activeCloudCoverRequests = 0;
+let cloudCoverGeneration = 0;
+const CLOUD_COVER_URLS_STORAGE_KEY = "dreko-cloud-cover-urls";
+function isCacheableCloudCoverUrl(value) {
+  if (typeof value !== "string" || value.length > 4096) return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" &&
+      url.hostname === "firebasestorage.googleapis.com" &&
+      url.pathname.startsWith("/v0/b/");
+  } catch {
+    return false;
+  }
+}
+
+const cachedCloudCoverUrls = (() => {
+  try {
+    const stored = JSON.parse(localStorage.getItem(CLOUD_COVER_URLS_STORAGE_KEY) || "{}");
+    if (!stored || typeof stored !== "object" || Array.isArray(stored)) return [];
+    return Object.entries(stored).filter(([cover, url]) =>
+      typeof cover === "string" &&
+      cover.startsWith("storage:covers/") &&
+      isCacheableCloudCoverUrl(url)
+    );
+  } catch (error) {
+    console.warn("Unable to read cached cloud cover URLs:", error?.name || "UNKNOWN");
+    return [];
+  }
+})();
+for (const [cover, url] of cachedCloudCoverUrls) cloudCoverUrls.set(cover, url);
 const grid = document.querySelector("#translation-grid");
 const searchInput = document.querySelector("#search-input");
 const resultCount = document.querySelector("#result-count");
 const emptyState = document.querySelector("#empty-state");
+const libraryPagination = document.querySelector("#library-pagination");
+const reportDialog = document.querySelector("#report-dialog");
+const reportContent = document.querySelector("#report-content");
 const categoryMenu = document.querySelector("#category-menu");
 const installedGamesDialog = document.querySelector("#installed-games-dialog");
 const installedGamesContent = document.querySelector("#installed-games-content");
@@ -1185,6 +1356,70 @@ function localCoverPath(cover) {
     return cloudCoverUrls.get(cover) || "./assets/covers/astral-observer.svg";
   }
   return COVER_LABELS[cover] ? `./assets/covers/${cover}.svg` : "./assets/covers/astral-observer.svg";
+}
+
+function persistCloudCoverUrls() {
+  try {
+    localStorage.setItem(CLOUD_COVER_URLS_STORAGE_KEY, JSON.stringify(
+      Object.fromEntries([...cloudCoverUrls].filter(([, url]) =>
+        isCacheableCloudCoverUrl(url)
+      ))
+    ));
+  } catch (error) {
+    console.warn("Unable to cache cloud cover URLs:", error?.name || "UNKNOWN");
+  }
+}
+
+function updateVisibleCloudCover(cover, url) {
+  document.querySelectorAll("[data-cover-key]").forEach((image) => {
+    if (image.dataset.coverKey === cover) image.src = url;
+  });
+}
+
+function processCloudCoverQueue() {
+  while (activeCloudCoverRequests < CLOUD_COVER_CONCURRENCY && cloudCoverQueue.length) {
+    const request = cloudCoverQueue.shift();
+    activeCloudCoverRequests += 1;
+    void firebaseCloud.downloadCover(request.cover)
+      .then((url) => {
+        if (url && request.generation === cloudCoverGeneration) {
+          cloudCoverUrls.set(request.cover, url);
+          persistCloudCoverUrls();
+          updateVisibleCloudCover(request.cover, url);
+        }
+        request.resolve(url);
+      })
+      .catch(request.reject)
+      .finally(() => {
+        activeCloudCoverRequests -= 1;
+        if (cloudCoverPromises.get(request.cover) === request.pending) {
+          cloudCoverRequests.delete(request.cover);
+          cloudCoverPromises.delete(request.cover);
+        }
+        processCloudCoverQueue();
+      });
+  }
+}
+
+function queueCloudCoverDownload(cover) {
+  if (cloudCoverUrls.has(cover)) return Promise.resolve(cloudCoverUrls.get(cover));
+  const existing = cloudCoverPromises.get(cover);
+  if (existing?.generation === cloudCoverGeneration) return existing.promise;
+
+  const pending = { generation: cloudCoverGeneration, promise: null };
+  cloudCoverRequests.add(cover);
+  pending.promise = new Promise((resolve, reject) => {
+    cloudCoverQueue.push({
+      cover,
+      generation: pending.generation,
+      pending,
+      resolve,
+      reject
+    });
+    processCloudCoverQueue();
+  });
+  cloudCoverPromises.set(cover, pending);
+  return pending.promise;
 }
 
 function genreName(genre, short = false) {
@@ -1306,36 +1541,33 @@ function showFirebaseError(error, element = null) {
   else showToast(statusErrorMessage(firebaseErrorCode(error)));
 }
 
-async function hydrateCloudCovers(items) {
+async function hydrateCloudCovers(items, { all = false, silent = false } = {}) {
+  const visibleCovers = new Set([...document.querySelectorAll("[data-cover-key]")]
+    .map((image) => image.dataset.coverKey));
   const covers = new Set(
     items.map((item) => item.cover).filter((cover) =>
       typeof cover === "string" &&
+      (all || visibleCovers.has(cover)) &&
       (cover.startsWith("storage:") || cover.startsWith("firestore:covers/")) &&
       !cloudCoverUrls.has(cover) && !cloudCoverRequests.has(cover))
   );
 
+  let coverLoadError = null;
   await Promise.all([...covers].map(async (cover) => {
-    cloudCoverRequests.add(cover);
     try {
-      const url = await firebaseCloud.downloadCover(cover);
-      if (url) cloudCoverUrls.set(cover, url);
+      await queueCloudCoverDownload(cover);
     } catch (error) {
       console.error("Unable to load a Firebase game cover:", error);
-      showToast(statusErrorMessage(firebaseErrorCode(error)));
-    } finally {
-      cloudCoverRequests.delete(cover);
+      coverLoadError ||= error;
     }
   }));
 
-  if (covers.size) {
-    renderCatalog();
-    if (state.screen === "admin") renderAdminTable();
-    const editorCover = document.querySelector("#translation-cover").value;
-    if (editorDialog.open && cloudCoverUrls.has(editorCover)) {
-      const preview = document.querySelector("#cover-preview img");
-      if (preview) preview.src = cloudCoverUrls.get(editorCover);
-    }
+  const editorCover = document.querySelector("#translation-cover").value;
+  if (editorDialog.open && cloudCoverUrls.has(editorCover)) {
+    const preview = document.querySelector("#cover-preview img");
+    if (preview) preview.src = cloudCoverUrls.get(editorCover);
   }
+  if (coverLoadError && !silent) showToast(statusErrorMessage(firebaseErrorCode(coverLoadError)));
 }
 
 function updateMessage(element, message, isSuccess = false) {
@@ -1527,11 +1759,9 @@ function handleUpdateStatus(status) {
       updateCheckPending = false;
       requiredUpdateVersion = String(status.version || requiredUpdateVersion);
       if (mandatoryUpdateMode) {
-        showMandatoryUpdateState("mandatoryUpdateReady", {
-          version: requiredUpdateVersion
-        }, { progress: 100, ready: true });
+        showMandatoryUpdateState("mandatoryUpdateInstalling", {}, { progress: 100 });
       } else {
-        showUpdateNotice("updateDownloaded", { version: String(status.version || "") }, { canInstall: true });
+        showUpdateNotice("updateInstalling");
       }
       break;
     case "error":
@@ -1850,11 +2080,11 @@ function renderFeaturedCarousel() {
     return;
   }
 
-  const cards = latest.map((item) => {
+  const cards = latest.map((item, index) => {
     const title = translationName(item);
     return `
-      <article class="feature-card featured-game-card${isPremiumTranslationLocked(item) ? " premium-locked-card" : ""}" data-featured-id="${escapeHtml(item.id)}" tabindex="0" role="button" aria-label="${escapeHtml(title)}${isPremiumTranslationLocked(item) ? `: ${escapeHtml(text("premiumAccessRequired"))}` : ""}">
-        <img class="featured-game-art" src="${escapeHtml(localCoverPath(item.cover))}" alt="" draggable="false" />
+      <article class="feature-card featured-game-card${isPremiumTranslationLocked(item) ? " premium-locked-card" : ""}" style="--enter-delay:${Math.min(index, 6) * 32}ms" data-featured-id="${escapeHtml(item.id)}" tabindex="0" role="button" aria-label="${escapeHtml(title)}${isPremiumTranslationLocked(item) ? `: ${escapeHtml(text("premiumAccessRequired"))}` : ""}">
+        <img class="featured-game-art" data-cover-key="${escapeHtml(item.cover)}" src="${escapeHtml(localCoverPath(item.cover))}" alt="" draggable="false" fetchpriority="${index < 4 ? "high" : "auto"}" />
         ${item.premium === true ? `
           <span class="premium-translation-badge">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 7 4.5 4L12 4l4.5 7L21 7l-2 12H5L3 7Z"/><path d="M5 22h14"/></svg>
@@ -1914,8 +2144,56 @@ function animateFeaturedCarousel(timestamp) {
   featuredTrackFrame = requestAnimationFrame(animateFeaturedCarousel);
 }
 
+function renderLibraryPagination(itemCount) {
+  const pageCount = Math.ceil(itemCount / 18);
+  state.libraryPage = Math.min(Math.max(1, state.libraryPage), Math.max(1, pageCount));
+  if (pageCount <= 1) {
+    libraryPagination.hidden = true;
+    libraryPagination.replaceChildren();
+    return;
+  }
+
+  const visiblePages = new Set([1, pageCount]);
+  if (state.libraryPage <= 3) {
+    for (let page = 2; page <= Math.min(4, pageCount - 1); page += 1) {
+      visiblePages.add(page);
+    }
+  } else {
+    for (let page = state.libraryPage - 1; page <= state.libraryPage + 1; page += 1) {
+      if (page > 1 && page < pageCount) visiblePages.add(page);
+    }
+  }
+
+  const pages = [...visiblePages].sort((left, right) => left - right);
+  const pageButtons = [];
+  let previousPage = 0;
+  for (const page of pages) {
+    if (page - previousPage > 1) {
+      pageButtons.push('<span class="pagination-ellipsis" aria-hidden="true">…</span>');
+    }
+    pageButtons.push(`
+      <button class="pagination-button pagination-page${page === state.libraryPage ? " selected" : ""}" type="button" data-page="${page}" aria-label="${escapeHtml(text("paginationPage"))} ${page}"${page === state.libraryPage ? ' aria-current="page"' : ""}>
+        ${page}
+      </button>
+    `);
+    previousPage = page;
+  }
+
+  libraryPagination.innerHTML = `
+    <button class="pagination-button pagination-next" type="button" data-page="${state.libraryPage + 1}" aria-label="${escapeHtml(text("paginationNext"))}"${state.libraryPage >= pageCount ? " disabled" : ""}>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+    ${pageButtons.join("")}
+    <button class="pagination-button pagination-previous" type="button" data-page="${state.libraryPage - 1}" aria-label="${escapeHtml(text("paginationPrevious"))}"${state.libraryPage <= 1 ? " disabled" : ""}>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+  `;
+  libraryPagination.hidden = false;
+}
+
 function renderCatalog() {
   if (state.installedGamesMode) {
+    libraryPagination.hidden = true;
     renderInstalledGamesCatalog();
     renderFeaturedCarousel();
     return;
@@ -1965,12 +2243,15 @@ function renderCatalog() {
       return true;
     });
 
-  grid.innerHTML = filtered.map((item) => {
+  renderLibraryPagination(filtered.length);
+  const pageStart = (state.libraryPage - 1) * 18;
+  const pageItems = filtered.slice(pageStart, pageStart + 18);
+  grid.innerHTML = pageItems.map((item, index) => {
     const title = translationName(item);
     return `
-      <article class="translation-card${item.premium === true ? " premium-card" : ""}${isPremiumTranslationLocked(item) ? " premium-locked-card" : ""}" data-id="${escapeHtml(item.id)}" tabindex="0" role="button" aria-label="${escapeHtml(title)}${isPremiumTranslationLocked(item) ? `: ${escapeHtml(text("premiumAccessRequired"))}` : ""}">
+      <article class="translation-card${item.premium === true ? " premium-card" : ""}${isPremiumTranslationLocked(item) ? " premium-locked-card" : ""}" style="--enter-delay:${Math.min(index, 8) * 24}ms" data-id="${escapeHtml(item.id)}" tabindex="0" role="button" aria-label="${escapeHtml(title)}${isPremiumTranslationLocked(item) ? `: ${escapeHtml(text("premiumAccessRequired"))}` : ""}">
         <div class="game-cover">
-          <img class="game-cover-art" src="${escapeHtml(localCoverPath(item.cover))}" alt="" draggable="false" />
+          <img class="game-cover-art" data-cover-key="${escapeHtml(item.cover)}" src="${escapeHtml(localCoverPath(item.cover))}" alt="" draggable="false" loading="${index < 6 ? "eager" : "lazy"}" fetchpriority="${index < 4 ? "high" : "auto"}" />
           ${item.premium === true ? `
             <span class="premium-translation-badge">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 7 4.5 4L12 4l4.5 7L21 7l-2 12H5L3 7Z"/><path d="M5 22h14"/></svg>
@@ -2010,9 +2291,11 @@ function renderCatalog() {
   emptyState.hidden = filtered.length > 0;
   grid.hidden = filtered.length === 0;
   renderFeaturedCarousel();
+  void hydrateCloudCovers(state.catalog);
 }
 
 function renderInstalledGamesCatalog() {
+  libraryPagination.hidden = true;
   grid.classList.add("installed-games-view");
   grid.classList.toggle("list-view", state.view === "list");
   document.querySelector("#library-title").textContent = text("myGamesTitle");
@@ -2107,7 +2390,7 @@ function renderAdminTable() {
     <tr data-id="${escapeHtml(item.id)}">
       <td>
         <div class="admin-game-cell">
-          <div class="admin-game-thumb"><img src="${escapeHtml(localCoverPath(item.cover))}" alt="" /></div>
+          <div class="admin-game-thumb"><img data-cover-key="${escapeHtml(item.cover)}" src="${escapeHtml(localCoverPath(item.cover))}" alt="" /></div>
           <div class="admin-game-titles"><strong>${escapeHtml(item.title)}</strong><small lang="en">${escapeHtml(item.titleEn)}</small></div>
         </div>
       </td>
@@ -2209,6 +2492,282 @@ function renderAdminAccounts() {
     image.addEventListener("error", () => {
       image.hidden = true;
     }, { once: true });
+  });
+}
+
+const REPORT_ISSUE_KEYS = {
+  translation: "reportIssueTranslation",
+  missing: "reportIssueMissing",
+  display: "reportIssueDisplay",
+  font: "reportIssueFont",
+  language: "reportIssueLanguage",
+  crash: "reportIssueCrash",
+  install: "reportIssueInstall",
+  other: "reportIssueOther"
+};
+
+function reportGameTitle(item) {
+  return state.locale === "ar" ? translationName(item) : item.titleEn || item.title;
+}
+
+function renderTranslationReportWizard() {
+  const draft = state.reportDraft;
+  if (!draft) return;
+  if (draft.status === "success") {
+    reportContent.innerHTML = `
+      <section class="report-success">
+        <span class="report-success-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></span>
+        <h2 id="report-title">${escapeHtml(text("reportSuccessTitle"))}</h2>
+        <p>${escapeHtml(text("reportSuccessDescription"))}</p>
+        <button class="primary-action report-primary-action" type="button" data-report-action="close">${escapeHtml(text("reportClose"))}</button>
+      </section>
+    `;
+    return;
+  }
+
+  const selectedGame = state.catalog.find((item) => item.id === draft.translationId);
+  const issueTypes = Object.entries(REPORT_ISSUE_KEYS);
+  const stepLabel = text("reportStep").replace("{step}", String(draft.step));
+  let stepMarkup = "";
+  if (draft.step === 1) {
+    const games = state.catalog.filter((item) => item.visibility === "published");
+    stepMarkup = `
+      <label class="report-field-label" for="report-game-search">${escapeHtml(text("reportChooseGame"))}</label>
+      <div class="report-game-search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        <input id="report-game-search" type="search" placeholder="${escapeHtml(text("reportSearchGame"))}" autocomplete="off" />
+      </div>
+      <div class="report-game-grid">
+        ${games.map((item) => `
+          <button class="report-game-option${draft.translationId === item.id ? " selected" : ""}" type="button" data-report-game="${escapeHtml(item.id)}" aria-pressed="${String(draft.translationId === item.id)}">
+            <span class="report-game-cover"><img data-cover-key="${escapeHtml(item.cover)}" src="${escapeHtml(localCoverPath(item.cover))}" alt="" loading="lazy" /></span>
+            <span>${escapeHtml(reportGameTitle(item))}</span>
+          </button>
+        `).join("")}
+      </div>
+      <p class="report-game-empty" hidden>${escapeHtml(text("reportNoGames"))}</p>
+    `;
+  } else if (draft.step === 2) {
+    stepMarkup = `
+      <div class="report-selected-game">${escapeHtml(selectedGame ? reportGameTitle(selectedGame) : "")}</div>
+      <fieldset class="report-fieldset">
+        <legend>${escapeHtml(text("reportLatestUpdate"))}</legend>
+        <p>${escapeHtml(text("reportLatestUpdateHint"))}</p>
+        <div class="report-choice-row">
+          ${[
+            ["yes", "reportUpdateYes"],
+            ["no", "reportUpdateNo"],
+            ["unsure", "reportUpdateUnsure"]
+          ].map(([value, key]) => `
+            <button class="report-choice-card${draft.latestUpdate === value ? " selected" : ""}" type="button" data-report-update="${value}" aria-pressed="${String(draft.latestUpdate === value)}">
+              <span class="report-choice-icon" aria-hidden="true">
+                ${value === "yes"
+                  ? '<svg viewBox="0 0 24 24"><path d="m6 12.5 4 4L18.5 8"/></svg>'
+                  : value === "no"
+                    ? '<svg viewBox="0 0 24 24"><path d="m7 7 10 10M17 7 7 17"/></svg>'
+                    : '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.7 9a2.4 2.4 0 0 1 4.6 1c0 1.5-2.3 2-2.3 3.5m0 3h.01"/></svg>'}
+              </span>
+              <span>${escapeHtml(text(key))}</span>
+            </button>
+          `).join("")}
+        </div>
+      </fieldset>
+      <fieldset class="report-fieldset">
+        <legend>${escapeHtml(text("reportIssueQuestion"))}</legend>
+        <div class="report-issue-grid">
+          ${issueTypes.map(([value, key]) => `
+            <button class="report-issue-option${draft.issueType === value ? " selected" : ""}" type="button" data-report-issue="${value}" aria-pressed="${String(draft.issueType === value)}">
+              <span>${escapeHtml(text(key))}</span>
+            </button>
+          `).join("")}
+        </div>
+      </fieldset>
+    `;
+  } else {
+    stepMarkup = `
+      <div class="report-selected-game">${escapeHtml(selectedGame ? reportGameTitle(selectedGame) : "")}</div>
+      <dl class="report-summary">
+        <div><dt>${escapeHtml(text("reportLatestLabel"))}</dt><dd>${escapeHtml(text(`reportUpdateValue${draft.latestUpdate[0].toLocaleUpperCase()}${draft.latestUpdate.slice(1)}`))}</dd></div>
+        <div><dt>${escapeHtml(text("reportIssueLabel"))}</dt><dd>${escapeHtml(text(REPORT_ISSUE_KEYS[draft.issueType]))}</dd></div>
+      </dl>
+      <label class="report-field-label" for="report-details">${escapeHtml(text("reportDetailsLabel"))}</label>
+      <textarea class="report-details-input" id="report-details" maxlength="500" placeholder="${escapeHtml(text("reportDetailsPlaceholder"))}">${escapeHtml(draft.details)}</textarea>
+      <div class="report-details-count">${escapeHtml(text("reportCharacters").replace("{count}", String(draft.details.length)))}</div>
+      <p class="report-submit-error" role="alert" hidden></p>
+    `;
+  }
+
+  reportContent.innerHTML = `
+    <header class="report-header">
+      <span class="eyebrow"><span class="eyebrow-line"></span>${escapeHtml(text("navReport"))}</span>
+      <span class="report-step-count">${escapeHtml(stepLabel)}</span>
+      <h2 id="report-title">${escapeHtml(text("reportTitle"))}</h2>
+      <p>${escapeHtml(text("reportIntro"))}</p>
+      <div class="report-progress" aria-hidden="true">${[1, 2, 3].map((step) =>
+        `<span class="${step <= draft.step ? "complete" : ""}"></span>`).join("")}</div>
+    </header>
+    <div class="report-step-content">${stepMarkup}</div>
+    <footer class="report-actions">
+      ${draft.step > 1 ? `<button class="outline-button report-back-button" type="button" data-report-action="back">${escapeHtml(text("reportBack"))}</button>` : '<span></span>'}
+      ${draft.step < 3
+        ? `<button class="primary-action report-primary-action" type="button" data-report-action="next"${(draft.step === 1 && !draft.translationId) || (draft.step === 2 && (!draft.latestUpdate || !draft.issueType)) ? " disabled" : ""}>${escapeHtml(text("reportNext"))}</button>`
+        : `<button class="primary-action report-primary-action" type="button" data-report-action="submit">${escapeHtml(text("reportSubmit"))}</button>`}
+    </footer>
+  `;
+
+  reportContent.querySelectorAll(".report-game-cover img").forEach((image) => {
+    image.addEventListener("error", () => {
+      image.src = "./assets/covers/astral-observer.svg";
+    }, { once: true });
+  });
+}
+
+function openTranslationReport(translationId = "") {
+  if (!state.discordAccessGranted || !state.firebaseUser) {
+    showToast("discordGatePrompt");
+    return;
+  }
+  if (!state.catalog.some((item) => item.visibility === "published")) {
+    showToast("reportNoGames");
+    return;
+  }
+  const selectedTranslation = translationId
+    ? state.catalog.find((item) => item.id === translationId && item.visibility === "published")
+    : null;
+  if (translationId && !selectedTranslation) {
+    showToast("reportNoGames");
+    return;
+  }
+  state.reportDraft = {
+    step: selectedTranslation ? 2 : 1,
+    translationId: selectedTranslation?.id || "",
+    latestUpdate: "",
+    issueType: "",
+    details: "",
+    status: "form"
+  };
+  renderTranslationReportWizard();
+  reportDialog.showModal();
+  requestAnimationFrame(() => reportContent.querySelector("#report-game-search")?.focus());
+}
+
+async function submitTranslationReport() {
+  const draft = state.reportDraft;
+  const submitButton = reportContent.querySelector('[data-report-action="submit"]');
+  if (!draft || draft.step !== 3 || !submitButton || submitButton.disabled) return;
+  submitButton.disabled = true;
+  submitButton.textContent = text("reportSubmitting");
+  try {
+    await firebaseCloud.submitTranslationReport({
+      translationId: draft.translationId,
+      latestUpdate: draft.latestUpdate,
+      issueType: draft.issueType,
+      details: draft.details
+    }, state.firebaseUser);
+    draft.status = "success";
+    renderTranslationReportWizard();
+  } catch (error) {
+    console.error("Unable to submit translation report:", error?.code || error?.name || "UNKNOWN");
+    const errorMessage = error?.code === "TRANSLATION_REPORT_ALREADY_EXISTS"
+      ? text("reportAlreadySubmitted")
+      : error?.code === "GUILD_MEMBERSHIP_REQUIRED" ||
+          error?.code === "INVALID_DISCORD_USER"
+        ? text("discordGateRejected")
+        : text("reportSubmitError");
+    const errorElement = reportContent.querySelector(".report-submit-error");
+    if (errorElement) {
+      errorElement.textContent = errorMessage;
+      errorElement.hidden = false;
+      submitButton.disabled = false;
+      submitButton.textContent = text("reportSubmit");
+    } else {
+      showToast(errorMessage);
+      renderTranslationReportWizard();
+    }
+  }
+}
+
+function renderAdminTranslationReports() {
+  const query = state.adminReportsQuery.trim().toLocaleLowerCase(state.locale);
+  const reports = state.adminReports.filter((report) => {
+    const statusMatches = report.status === state.adminReportsStatus;
+    const searchMatches = !query || [
+      report.gameName,
+      report.username,
+      report.discordUserId,
+      report.details,
+      text(REPORT_ISSUE_KEYS[report.issueType] || "reportIssueOther")
+    ].some((value) => String(value || "").toLocaleLowerCase(state.locale).includes(query));
+    return statusMatches && searchMatches;
+  });
+
+  document.querySelector("#reports-count").textContent = reports.length.toLocaleString(state.locale);
+  document.querySelector("#player-reports-list").innerHTML = reports.map((report) => {
+    const date = new Date(report.createdAt);
+    const dateText = Number.isNaN(date.getTime())
+      ? "—"
+      : new Intl.DateTimeFormat(state.locale === "ar" ? "ar" : "en", {
+        dateStyle: "medium",
+        timeStyle: "short"
+      }).format(date);
+    const discordUserId = /^\d{17,20}$/.test(report.discordUserId)
+      ? report.discordUserId
+      : report.uid.match(/^discord_(\d{17,20})$/)?.[1] || "";
+    const avatarHash = /^[A-Za-z0-9_]{1,128}$/.test(report.avatar) ? report.avatar : "";
+    const avatarUrl = discordUserId
+      ? avatarHash
+        ? `https://cdn.discordapp.com/avatars/${discordUserId}/${encodeURIComponent(avatarHash)}.${avatarHash.startsWith("a_") ? "gif" : "png"}?size=64`
+        : `https://cdn.discordapp.com/embed/avatars/${Number((BigInt(discordUserId) >> 22n) % 6n)}.png`
+      : "";
+    const translation = state.catalog.find((item) => item.id === report.translationId);
+    const cover = translation ? localCoverPath(translation.cover) : "./assets/covers/astral-observer.svg";
+    const statusAction = report.status === "resolved" ? "pending" : "resolved";
+    const statusActionKey = report.status === "resolved" ? "reportStatusPendingAction" : "reportStatusResolvedAction";
+    const latestUpdateKey = `reportUpdateValue${report.latestUpdate[0].toLocaleUpperCase()}${report.latestUpdate.slice(1)}`;
+    return `
+      <article class="player-report-card" data-report-id="${escapeHtml(report.id)}">
+        <div class="player-report-main">
+          <img class="player-report-cover"${translation ? ` data-cover-key="${escapeHtml(translation.cover)}"` : ""} src="${escapeHtml(cover)}" alt="" loading="lazy" />
+          <div class="player-report-game-copy">
+            <strong>${escapeHtml(report.gameName)}</strong>
+            <span>${escapeHtml(text("reportIssueLabel"))}: ${escapeHtml(text(REPORT_ISSUE_KEYS[report.issueType] || "reportIssueOther"))}</span>
+            <span>${escapeHtml(text("reportLatestLabel"))}: ${escapeHtml(text(latestUpdateKey))}</span>
+          </div>
+        </div>
+        <div class="player-report-user">
+          <span class="translation-request-avatar" aria-hidden="true">
+            ${escapeHtml((report.username || "?").slice(0, 1).toLocaleUpperCase(state.locale))}
+            ${avatarUrl ? `<img src="${escapeHtml(avatarUrl)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" />` : ""}
+          </span>
+          <div class="translation-request-user-copy">
+            <span>${escapeHtml(text("reportSubmittedBy"))}</span>
+            <strong>${escapeHtml(report.username || "—")}</strong>
+            <small><bdi>${escapeHtml(report.discordUserId || report.uid.replace(/^discord_/, ""))}</bdi></small>
+          </div>
+        </div>
+        <div class="player-report-date">
+          <span>${escapeHtml(text("reportSubmittedDate"))}</span>
+          <time datetime="${escapeHtml(report.createdAt)}">${escapeHtml(dateText)}</time>
+        </div>
+        ${report.details ? `<p class="player-report-details"><strong>${escapeHtml(text("reportDetailsAdminLabel"))}:</strong> ${escapeHtml(report.details)}</p>` : ""}
+        <div class="player-report-actions">
+          <button class="outline-button report-status-action" type="button" data-report-action="${statusAction}">${escapeHtml(text(statusActionKey))}</button>
+          <button class="outline-button report-delete-action" type="button" data-report-action="delete">${escapeHtml(text("reportDeleteAction"))}</button>
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  document.querySelectorAll(".player-report-user img").forEach((image) => {
+    image.addEventListener("error", () => {
+      image.hidden = true;
+    }, { once: true });
+  });
+  document.querySelector("#reports-empty").hidden = reports.length > 0;
+  document.querySelectorAll("[data-report-status]").forEach((button) => {
+    const selected = button.dataset.reportStatus === state.adminReportsStatus;
+    button.classList.toggle("selected", selected);
+    button.setAttribute("aria-pressed", String(selected));
   });
 }
 
@@ -2315,17 +2874,35 @@ function setAdminSubpage(page) {
   document.querySelector("#translation-admin-view").hidden = page !== "translations";
   document.querySelector("#accounts-admin-view").hidden = page !== "accounts";
   document.querySelector("#requests-admin-view").hidden = page !== "requests";
+  document.querySelector("#reports-admin-view").hidden = page !== "reports";
+  const activeAdminView = document.querySelector(
+    page === "translations" ? "#translation-admin-view" :
+      page === "accounts" ? "#accounts-admin-view" :
+        page === "requests" ? "#requests-admin-view" : "#reports-admin-view"
+  );
+  playSlideInDown(activeAdminView);
   document.querySelector("#admin-accounts-toggle").textContent = text(
     page === "accounts" ? "accountsBackToLibrary" : "accountsOpen"
   );
   document.querySelector("#admin-requests-toggle").textContent = text(
     page === "requests" ? "requestsBackToLibrary" : "requestsOpen"
   );
+  document.querySelector("#admin-reports-toggle").textContent = text(
+    page === "reports" ? "reportsBackToLibrary" : "reportsOpen"
+  );
   if (page === "accounts") renderAdminAccounts();
   if (page === "requests") renderAdminTranslationRequests();
+  if (page === "reports") renderAdminTranslationReports();
+}
+
+function playSlideInDown(element) {
+  element.classList.remove("slide-in-down");
+  void element.offsetWidth;
+  element.classList.add("slide-in-down");
 }
 
 function setScreen(screen, { scrollToTop = true } = {}) {
+  const screenChanged = state.screen !== screen;
   if (screen !== "admin" && editorDialog.open) {
     state.pendingArtwork = null;
     editorDialog.close();
@@ -2336,6 +2913,14 @@ function setScreen(screen, { scrollToTop = true } = {}) {
   document.querySelector("#admin-auth").hidden = screen !== "auth";
   document.querySelector("#admin-panel").hidden = screen !== "admin";
   document.querySelector("#app-footer").hidden = screen === "auth" || screen === "profile";
+  if (screenChanged) {
+    const activeScreen = document.querySelector(
+      screen === "public" ? "#public-view" :
+        screen === "profile" ? "#profile-screen" :
+          screen === "auth" ? "#admin-auth" : "#admin-panel"
+    );
+    playSlideInDown(activeScreen);
+  }
   document.querySelector("#profile-button").classList.toggle("active", screen === "profile");
   document.querySelector("#profile-button").setAttribute("aria-pressed", String(screen === "profile"));
   const adminSelected = screen === "admin" || screen === "auth";
@@ -2400,8 +2985,10 @@ function navigateToPublic(link) {
   const target = destination === "#home"
     ? null
     : document.getElementById(decodeURIComponent(destination.slice(1)));
-  if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
-  else window.scrollTo({ top: 0, behavior: "smooth" });
+  if (destination !== "#updates") {
+    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+    else window.scrollTo({ top: 0, behavior: "smooth" });
+  }
   if (destination === "#updates") void checkForApplicationUpdates();
 }
 
@@ -2466,6 +3053,7 @@ function applyLocale() {
   renderCatalog();
   if (state.catalog.length) void hydrateCloudCovers(state.catalog);
   if (state.screen === "admin") setAdminSubpage(state.adminSubpage);
+  if (reportDialog.open) renderTranslationReportWizard();
 }
 
 function openTranslation(item) {
@@ -2479,7 +3067,11 @@ function openTranslation(item) {
   const installPathInputId = `game-install-path-${crypto.randomUUID()}`;
   const headerMarkup = `
     <div class="dialog-cover install-dialog-cover">
-      <img src="${escapeHtml(localCoverPath(item.cover))}" alt="" />
+      <img data-cover-key="${escapeHtml(item.cover)}" src="${escapeHtml(localCoverPath(item.cover))}" alt="" />
+      <button class="install-report-button" type="button" data-report-translation-id="${escapeHtml(item.id)}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V5m0 0c4-3 8 3 14 0v10c-6 3-10-3-14 0"/></svg>
+        <span>${escapeHtml(text("reportGameButton"))}</span>
+      </button>
       <div class="install-dialog-heading">
         <div class="dialog-cover-title" lang="en">${escapeHtml(item.titleEn || item.title)}</div>
         <div class="install-dialog-meta">
@@ -3335,7 +3927,7 @@ async function refreshCatalog() {
     if (!state.discordAccessGranted || state.firebaseUser?.uid !== verifiedUid) return false;
     state.catalog = translations;
     renderCatalog();
-    void hydrateCloudCovers(state.catalog);
+    void hydrateCloudCovers(state.catalog, { all: true, silent: true });
     return true;
   } catch (error) {
     showFirebaseError(error);
@@ -3440,7 +4032,7 @@ async function activateDiscordUser(user, { recordLogin = false } = {}) {
       if (!state.discordAccessGranted) return;
       state.catalog = items;
       renderCatalog();
-      void hydrateCloudCovers(items);
+      void hydrateCloudCovers(items, { all: true, silent: true });
     }, showFirebaseError);
 
     if (discordMembershipTimer) window.clearInterval(discordMembershipTimer);
@@ -3518,11 +4110,17 @@ function lockDiscordGate(messageKey = "discordGatePrompt", status = "info") {
   state.adminTranslations = [];
   state.adminAccounts = [];
   state.adminTranslationRequests = [];
+  state.adminReports = [];
+  state.reportDraft = null;
   state.adminSubpage = "translations";
   state.catalog = [];
   state.pendingArtwork = null;
+  cloudCoverGeneration += 1;
   cloudCoverUrls.clear();
+  cloudCoverRequests.clear();
+  cloudCoverPromises.clear();
   if (dialog.open) dialog.close();
+  if (reportDialog.open) reportDialog.close();
   setScreen("public", { scrollToTop: false });
   renderCatalog();
   renderAdminTable();
@@ -3685,7 +4283,7 @@ async function refreshAdminList() {
   try {
     state.adminTranslations = await firebaseCloud.listAdminTranslations(state.firebaseUser);
     renderAdminTable();
-    void hydrateCloudCovers(state.adminTranslations);
+    void hydrateCloudCovers(state.adminTranslations, { all: true, silent: true });
     return true;
   } catch (error) {
     if (error?.code === "ADMIN_REQUIRED") {
@@ -3694,6 +4292,7 @@ async function refreshAdminList() {
       state.adminTranslations = [];
       state.adminAccounts = [];
       state.adminTranslationRequests = [];
+      state.adminReports = [];
       updateHeader();
       setScreen("auth");
       showToast("accessDenied");
@@ -3740,6 +4339,26 @@ async function refreshAdminTranslationRequests() {
       state.authenticated = false;
       state.isAdministrator = false;
       state.adminTranslationRequests = [];
+      state.adminReports = [];
+      setScreen("public");
+      showToast("accessDenied");
+      return false;
+    }
+    showFirebaseError(error);
+    return false;
+  }
+}
+
+async function refreshAdminTranslationReports() {
+  try {
+    state.adminReports = await firebaseCloud.listAdminTranslationReports(state.firebaseUser);
+    renderAdminTranslationReports();
+    return true;
+  } catch (error) {
+    if (error?.code === "ADMIN_REQUIRED") {
+      state.authenticated = false;
+      state.isAdministrator = false;
+      state.adminReports = [];
       setScreen("public");
       showToast("accessDenied");
       return false;
@@ -3780,12 +4399,34 @@ async function showAdminTranslationRequests() {
       state.authenticated = false;
       state.isAdministrator = false;
       state.adminTranslationRequests = [];
+      state.adminReports = [];
       setScreen("public");
       showToast("accessDenied");
       return;
     }
     setAdminSubpage("requests");
     await refreshAdminTranslationRequests();
+  } catch (error) {
+    showFirebaseError(error);
+  }
+}
+
+async function showAdminTranslationReports() {
+  if (!state.authenticated || !state.firebaseUser || !state.isAdministrator) {
+    showToast("accessDenied");
+    return;
+  }
+  try {
+    if (!await firebaseCloud.isAdministrator(state.firebaseUser)) {
+      state.authenticated = false;
+      state.isAdministrator = false;
+      state.adminReports = [];
+      setScreen("public");
+      showToast("accessDenied");
+      return;
+    }
+    setAdminSubpage("reports");
+    await refreshAdminTranslationReports();
   } catch (error) {
     showFirebaseError(error);
   }
@@ -4313,9 +4954,21 @@ document.querySelector("#theme-toggle").addEventListener("click", () => {
 document.querySelectorAll(".filter-button").forEach((button) => {
   button.addEventListener("click", () => {
     state.filter = button.dataset.filter;
+    state.libraryPage = 1;
     document.querySelectorAll(".filter-button").forEach((filter) => filter.classList.toggle("selected", filter === button));
     renderCatalog();
   });
+});
+
+libraryPagination.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-page]");
+  if (!button || button.disabled) return;
+  const page = Number(button.dataset.page);
+  if (!Number.isInteger(page) || page < 1 || page === state.libraryPage) return;
+  state.libraryPage = page;
+  renderCatalog();
+  libraryPagination.querySelector('[aria-current="page"]')?.focus({ preventScroll: true });
+  document.querySelector("#library").scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
 document.querySelectorAll(".view-button").forEach((button) => {
@@ -4820,6 +5473,7 @@ categoryMenu.addEventListener("click", (event) => {
   const button = event.target.closest("[data-category-option]");
   if (!button) return;
   state.category = button.dataset.categoryOption;
+  state.libraryPage = 1;
   document.querySelector("#category-filter span").textContent = text(
     state.category === "all" ? "categoryAll" : state.category === "full" ? "categoryFull" : "categoryInterface"
   );
@@ -4829,6 +5483,7 @@ categoryMenu.addEventListener("click", (event) => {
 
 searchInput.addEventListener("input", () => {
   state.query = searchInput.value;
+  state.libraryPage = 1;
   renderCatalog();
 });
 
@@ -4848,6 +5503,7 @@ document.querySelector("#refresh-library").addEventListener("click", async (even
 document.querySelector("#week-filter").addEventListener("click", (event) => {
   const button = event.currentTarget;
   state.premiumOnly = !state.premiumOnly;
+  state.libraryPage = 1;
   button.dataset.active = String(state.premiumOnly);
   button.setAttribute("aria-pressed", String(state.premiumOnly));
   renderCatalog();
@@ -4954,6 +5610,74 @@ document.querySelector("#admin-requests-toggle").addEventListener("click", () =>
   if (state.adminSubpage === "requests") setAdminSubpage("translations");
   else void showAdminTranslationRequests();
 });
+document.querySelector("#admin-reports-toggle").addEventListener("click", () => {
+  if (state.adminSubpage === "reports") setAdminSubpage("translations");
+  else void showAdminTranslationReports();
+});
+document.querySelector("#report-nav-link").addEventListener("click", () => openTranslationReport());
+dialogContent.addEventListener("click", (event) => {
+  const reportButton = event.target.closest("[data-report-translation-id]");
+  if (reportButton) openTranslationReport(reportButton.dataset.reportTranslationId);
+});
+document.querySelector("#report-close").addEventListener("click", () => reportDialog.close());
+reportDialog.addEventListener("close", () => {
+  state.reportDraft = null;
+});
+reportContent.addEventListener("input", (event) => {
+  if (event.target.id === "report-game-search") {
+    const query = event.target.value.trim().toLocaleLowerCase(state.locale);
+    let visibleGames = 0;
+    reportContent.querySelectorAll(".report-game-option").forEach((button) => {
+      const visible = button.textContent.toLocaleLowerCase(state.locale).includes(query);
+      button.hidden = !visible;
+      if (visible) visibleGames += 1;
+    });
+    reportContent.querySelector(".report-game-empty").hidden = visibleGames > 0;
+  } else if (event.target.id === "report-details" && state.reportDraft) {
+    state.reportDraft.details = event.target.value.slice(0, 500);
+    reportContent.querySelector(".report-details-count").textContent =
+      text("reportCharacters").replace("{count}", String(state.reportDraft.details.length));
+  }
+});
+reportContent.addEventListener("click", async (event) => {
+  const gameButton = event.target.closest("[data-report-game]");
+  if (gameButton && state.reportDraft) {
+    state.reportDraft.translationId = gameButton.dataset.reportGame;
+    renderTranslationReportWizard();
+    return;
+  }
+  const updateButton = event.target.closest("[data-report-update]");
+  if (updateButton && state.reportDraft) {
+    state.reportDraft.latestUpdate = updateButton.dataset.reportUpdate;
+    renderTranslationReportWizard();
+    return;
+  }
+  const issueButton = event.target.closest("[data-report-issue]");
+  if (issueButton && state.reportDraft) {
+    state.reportDraft.issueType = issueButton.dataset.reportIssue;
+    renderTranslationReportWizard();
+    return;
+  }
+  const actionButton = event.target.closest("[data-report-action]");
+  if (!actionButton || actionButton.disabled || !state.reportDraft) return;
+  const action = actionButton.dataset.reportAction;
+  if (action === "close") {
+    reportDialog.close();
+  } else if (action === "back") {
+    state.reportDraft.step = Math.max(1, state.reportDraft.step - 1);
+    renderTranslationReportWizard();
+  } else if (action === "next") {
+    if (state.reportDraft.step === 1 &&
+        !state.catalog.some((item) => item.id === state.reportDraft.translationId &&
+          item.visibility === "published")) return;
+    if (state.reportDraft.step === 2 &&
+        (!state.reportDraft.latestUpdate || !REPORT_ISSUE_KEYS[state.reportDraft.issueType])) return;
+    state.reportDraft.step = Math.min(3, state.reportDraft.step + 1);
+    renderTranslationReportWizard();
+  } else if (action === "submit") {
+    await submitTranslationReport();
+  }
+});
 document.querySelector("#auth-back").addEventListener("click", () => {
   hideMessage(authMessage);
   setScreen("public");
@@ -4986,6 +5710,7 @@ document.querySelector("#accounts-search").addEventListener("input", (event) => 
 });
 document.querySelector("#accounts-refresh").addEventListener("click", () => void refreshAdminAccounts());
 document.querySelector("#requests-refresh").addEventListener("click", () => void refreshAdminTranslationRequests());
+document.querySelector("#reports-refresh").addEventListener("click", () => void refreshAdminTranslationReports());
 document.querySelector("#requests-search").addEventListener("input", (event) => {
   state.adminRequestsQuery = event.target.value;
   renderAdminTranslationRequests();
@@ -4995,6 +5720,50 @@ document.querySelectorAll("[data-request-status]").forEach((button) => {
     state.adminRequestsStatus = button.dataset.requestStatus;
     renderAdminTranslationRequests();
   });
+});
+document.querySelector("#reports-search").addEventListener("input", (event) => {
+  state.adminReportsQuery = event.target.value;
+  renderAdminTranslationReports();
+});
+document.querySelectorAll("[data-report-status]").forEach((button) => {
+  button.addEventListener("click", () => {
+    state.adminReportsStatus = button.dataset.reportStatus;
+    renderAdminTranslationReports();
+  });
+});
+document.querySelector("#player-reports-list").addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-report-action]");
+  if (!button || button.disabled) return;
+  const card = button.closest("[data-report-id]");
+  if (!card) return;
+  const report = state.adminReports.find((item) => item.id === card.dataset.reportId);
+  if (!report) return;
+  const action = button.dataset.reportAction;
+  if (action === "delete" &&
+      !window.confirm(text("reportDeleteConfirm").replace("{game}", report.gameName))) return;
+  button.disabled = true;
+  try {
+    if (action === "delete") {
+      await firebaseCloud.deleteAdminTranslationReport(report.id, state.firebaseUser);
+    } else {
+      await firebaseCloud.setAdminTranslationReportStatus(report.id, action, state.firebaseUser);
+    }
+    if (await refreshAdminTranslationReports()) {
+      showToast(action === "delete" ? "reportDeleted" : "reportStatusSaved");
+    }
+  } catch (error) {
+    console.error("Unable to update translation report:", error?.code || error?.name || "UNKNOWN");
+    if (error?.code === "ADMIN_REQUIRED") {
+      state.authenticated = false;
+      state.isAdministrator = false;
+      state.adminReports = [];
+      setScreen("public");
+      showToast("accessDenied");
+    } else {
+      showFirebaseError(error);
+      renderAdminTranslationReports();
+    }
+  }
 });
 document.querySelector("#translation-requests-list").addEventListener("click", async (event) => {
   const button = event.target.closest("[data-request-action]");

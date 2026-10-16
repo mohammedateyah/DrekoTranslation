@@ -62,6 +62,17 @@ const BUILT_IN_COVERS = new Set([
 const CATEGORIES = new Set(["full", "interface"]);
 const STATUSES = new Set(["ready", "progress"]);
 const VISIBILITIES = new Set(["published", "draft"]);
+const REPORT_UPDATE_STATUSES = new Set(["yes", "no", "unsure"]);
+const REPORT_ISSUE_TYPES = new Set([
+  "translation",
+  "missing",
+  "display",
+  "font",
+  "language",
+  "crash",
+  "install",
+  "other"
+]);
 const GENRES = new Set([
   "adventure",
   "action",
@@ -152,6 +163,26 @@ function translationRequestFromSnapshot(snapshot) {
     platform: value.platform || "Steam",
     status: value.status || "pending",
     createdAt: normalizeTimestamp(value.createdAt)
+  };
+}
+
+function translationReportFromSnapshot(snapshot) {
+  const value = snapshot.data();
+  return {
+    id: snapshot.id,
+    uid: value.uid || "",
+    discordUserId: value.discordUserId || "",
+    username: value.username || "",
+    avatar: value.avatar || "",
+    translationId: value.translationId || "",
+    gameName: value.gameName || "",
+    latestUpdate: value.latestUpdate || "unsure",
+    issueType: value.issueType || "other",
+    details: value.details || "",
+    status: value.status === "resolved" ? "resolved" : "pending",
+    createdAt: normalizeTimestamp(value.createdAt),
+    resolvedAt: nullableTimestamp(value.resolvedAt),
+    resolvedBy: value.resolvedBy || ""
   };
 }
 
@@ -613,6 +644,135 @@ export async function listAdminTranslationRequests(user = auth.currentUser) {
     .sort((left, right) =>
       new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime() ||
       left.id.localeCompare(right.id));
+}
+
+export async function submitTranslationReport(input, user = auth.currentUser) {
+  if (!user || !await isDiscordGuildMember(user)) {
+    const error = new Error("GUILD_MEMBERSHIP_REQUIRED");
+    error.code = error.message;
+    throw error;
+  }
+  const translationId = typeof input?.translationId === "string" ? input.translationId : "";
+  const latestUpdate = input?.latestUpdate;
+  const issueType = input?.issueType;
+  const details = typeof input?.details === "string" ? input.details.trim() : "";
+  if (!/^[A-Za-z0-9-]{1,64}$/.test(translationId) ||
+      !REPORT_UPDATE_STATUSES.has(latestUpdate) ||
+      !REPORT_ISSUE_TYPES.has(issueType) ||
+      details.length > 500) {
+    const error = new Error("INVALID_TRANSLATION_REPORT");
+    error.code = error.message;
+    throw error;
+  }
+
+  const translationSnapshot = await getDoc(doc(database, "translations", translationId));
+  if (!translationSnapshot.exists() || translationSnapshot.data().visibility !== "published") {
+    const error = new Error("TRANSLATION_NOT_FOUND");
+    error.code = error.message;
+    throw error;
+  }
+  const translation = translationSnapshot.data();
+  const token = await user.getIdTokenResult();
+  const discordUserId = token.claims.discordUserId;
+  const username = String(token.claims.discordUsername || "").trim().slice(0, 80);
+  const avatar = String(token.claims.discordAvatar || "").slice(0, 128);
+  if (typeof discordUserId !== "string" || !DISCORD_USER_ID_PATTERN.test(discordUserId) || !username) {
+    const error = new Error("INVALID_DISCORD_USER");
+    error.code = error.message;
+    throw error;
+  }
+  const reportReference = doc(collection(database, "translationReports"));
+  const reportLockReference = doc(
+    database,
+    "translationReportLocks",
+    `${user.uid}_${translationId}`
+  );
+  await runTransaction(database, async (transaction) => {
+    const lockSnapshot = await transaction.get(reportLockReference);
+    if (lockSnapshot.exists()) {
+      const previousReportReference = doc(
+        database,
+        "translationReports",
+        lockSnapshot.data().reportId
+      );
+      const previousReportSnapshot = await transaction.get(previousReportReference);
+      if (previousReportSnapshot.exists() && previousReportSnapshot.data().status !== "resolved") {
+        const error = new Error("TRANSLATION_REPORT_ALREADY_EXISTS");
+        error.code = error.message;
+        throw error;
+      }
+    }
+    transaction.set(reportLockReference, {
+      uid: user.uid,
+      translationId,
+      reportId: reportReference.id,
+      createdAt: serverTimestamp()
+    });
+    transaction.set(reportReference, {
+      uid: user.uid,
+      discordUserId,
+      username,
+      avatar,
+      translationId,
+      gameName: translation.titleEn,
+      latestUpdate,
+      issueType,
+      details,
+      status: "pending",
+      createdAt: serverTimestamp(),
+      resolvedAt: null,
+      resolvedBy: null
+    });
+  });
+}
+
+export async function listAdminTranslationReports(user = auth.currentUser) {
+  await requireAdministrator(user);
+  const snapshot = await getDocs(collection(database, "translationReports"));
+  return snapshot.docs.map(translationReportFromSnapshot)
+    .sort((left, right) =>
+      new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime() ||
+      left.id.localeCompare(right.id));
+}
+
+export async function setAdminTranslationReportStatus(reportId, status, user = auth.currentUser) {
+  await requireAdministrator(user);
+  if (typeof reportId !== "string" || !/^[A-Za-z0-9_-]{20,150}$/.test(reportId) ||
+      !["pending", "resolved"].includes(status)) {
+    const error = new Error("INVALID_TRANSLATION_REPORT_STATUS");
+    error.code = error.message;
+    throw error;
+  }
+  await updateDoc(doc(database, "translationReports", reportId), {
+    status,
+    resolvedAt: status === "resolved" ? serverTimestamp() : null,
+    resolvedBy: status === "resolved" ? user.uid : null
+  });
+}
+
+export async function deleteAdminTranslationReport(reportId, user = auth.currentUser) {
+  await requireAdministrator(user);
+  if (typeof reportId !== "string" || !/^[A-Za-z0-9_-]{20,150}$/.test(reportId)) {
+    const error = new Error("INVALID_TRANSLATION_REPORT");
+    error.code = error.message;
+    throw error;
+  }
+  const reportReference = doc(database, "translationReports", reportId);
+  await runTransaction(database, async (transaction) => {
+    const reportSnapshot = await transaction.get(reportReference);
+    if (!reportSnapshot.exists()) return;
+    const report = reportSnapshot.data();
+    const reportLockReference = doc(
+      database,
+      "translationReportLocks",
+      `${report.uid}_${report.translationId}`
+    );
+    const lockSnapshot = await transaction.get(reportLockReference);
+    transaction.delete(reportReference);
+    if (lockSnapshot.exists() && lockSnapshot.data().reportId === reportId) {
+      transaction.delete(reportLockReference);
+    }
+  });
 }
 
 export async function setAdminTranslationRequestStatus(requestId, status, user = auth.currentUser) {

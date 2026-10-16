@@ -61,6 +61,7 @@
           <nav class="primary-nav primary-nav-start" aria-label="روابط الدعم والتحديثات">
             <a class="nav-link" href="#support" data-nav="support" data-i18n="navSupport">الدعم</a>
             <a class="nav-link" href="#updates" data-nav="updates" data-i18n="navUpdates">التحديثات</a>
+            <button class="nav-link report-nav-link" id="report-nav-link" type="button" data-i18n="navReport">إبلاغ</button>
           </nav>
         </div>
 
@@ -143,6 +144,7 @@
             </div>
 
             <div class="translation-grid" id="translation-grid"></div>
+            <nav class="library-pagination" id="library-pagination" aria-label="التنقل بين صفحات المكتبة" data-i18n-aria-label="paginationLabel" hidden></nav>
             <div class="empty-state" id="empty-state" hidden>
               <span class="empty-state-icon">⌕</span>
               <h3 data-i18n="emptyTitle">لا توجد نتائج</h3>
@@ -253,6 +255,7 @@
               <span data-i18n="secureSession">جلسة مسؤول آمنة</span>
               <button class="outline-button dashboard-action-button" id="admin-accounts-toggle" type="button" data-i18n="accountsOpen">الحسابات</button>
               <button class="outline-button dashboard-action-button" id="admin-requests-toggle" type="button" data-i18n="requestsOpen">طلبات التعريب</button>
+              <button class="outline-button dashboard-action-button" id="admin-reports-toggle" type="button" data-i18n="reportsOpen">بلاغات</button>
             </div>
           </div>
           <div id="translation-admin-view">
@@ -397,6 +400,38 @@
               </div>
             </div>
           </section>
+          <section class="reports-admin-view" id="reports-admin-view" aria-labelledby="reports-admin-title" hidden>
+            <div class="dashboard-heading accounts-admin-heading">
+              <div>
+                <div class="eyebrow"><span class="eyebrow-line"></span><span data-i18n="reportsEyebrow">مراجعة ملاحظات اللاعبين</span></div>
+                <h1 id="reports-admin-title" data-i18n="reportsTitle">بلاغات <span>التعريبات</span></h1>
+                <p data-i18n="reportsDescription">راجع المشكلات التي أبلغ عنها اللاعبون وتابع حالتها.</p>
+              </div>
+              <span class="admin-library-count"><span id="reports-count">0</span> <span data-i18n="reportsCount">بلاغ</span></span>
+            </div>
+            <div class="accounts-library reports-library">
+              <div class="request-admin-toolbar">
+                <div class="request-admin-tabs" role="group" aria-label="تصفية البلاغات" data-i18n-aria-label="reportsStatusLabel">
+                  <button type="button" class="request-admin-tab selected" data-report-status="pending" data-i18n="reportsPending">قيد المراجعة</button>
+                  <button type="button" class="request-admin-tab" data-report-status="resolved" data-i18n="reportsResolved">تمت المراجعة</button>
+                </div>
+                <div class="admin-search search-box">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+                  <input id="reports-search" type="search" placeholder="ابحث باسم اللعبة أو الحساب أو البلاغ..." data-i18n-placeholder="reportsSearchPlaceholder" />
+                </div>
+                <span class="toolbar-spacer"></span>
+                <button class="icon-button" id="reports-refresh" type="button" aria-label="تحديث البلاغات" data-i18n-aria-label="reportsRefresh">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 9A7 7 0 0 1 18 6l2 6M4 12l2 6a7 7 0 0 0 11.9-3"/></svg>
+                </button>
+              </div>
+              <div class="player-reports-list" id="player-reports-list"></div>
+              <div class="admin-empty accounts-empty" id="reports-empty" hidden>
+                <span class="empty-state-icon">⌕</span>
+                <h3 data-i18n="reportsEmptyTitle">لا توجد بلاغات مطابقة</h3>
+                <p data-i18n="reportsEmptyDescription">ستظهر بلاغات اللاعبين الجديدة هنا.</p>
+              </div>
+            </div>
+          </section>
         </section>
       </main>
 
@@ -432,6 +467,13 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 6-12 12M6 6l12 12"/></svg>
       </button>
       <div id="dialog-content"></div>
+    </dialog>
+
+    <dialog class="translation-dialog report-dialog" id="report-dialog" aria-labelledby="report-title">
+      <button class="dialog-close icon-button" id="report-close" type="button" aria-label="إغلاق" data-i18n-aria-label="closeDialog">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 6-12 12M6 6l12 12"/></svg>
+      </button>
+      <div id="report-content"></div>
     </dialog>
 
     <dialog class="editor-dialog" id="editor-dialog">
