@@ -124,6 +124,7 @@ const translations = {
     whatsNewDisplayImprovements: "تحسين واجهة العرض: تم ضبط أحجام الصفحات والصناديق لتتناسب بشكل أفضل مع الشاشات الكبيرة، مما يوفر تجربة استخدام أكثر راحة وتنظيماً.",
     whatsNewReports: "إتاحة قسم البلاغات: أصبح بإمكانك الآن الإبلاغ عن أي مشكلة تواجهك أثناء استخدام التعريبات، للمساعدة في تحسين جودتها وتوفير تجربة أفضل للجميع.",
     whatsNewKeepLanguage: "يحافظ التحديث التلقائي الآن على لغة الواجهة التي اخترتها.",
+    whatsNewMembershipSecurity: "تحسين أمان التحقق من عضوية Discord قبل استخدام الترجمة بالذكاء الاصطناعي.",
     whatsNewDone: "تمام، فهمت",
     updateUnavailable: "تعذر التحقق من التحديث الآن. تحقق من اتصالك وحاول مجدداً.",
     updateFeedNotConfigured: "خدمة تحديثات التطبيق غير مهيأة حالياً.",
@@ -699,6 +700,7 @@ const translations = {
     whatsNewDisplayImprovements: "Display improvements: Page and card sizes have been adjusted to better fit larger screens, creating a more comfortable and organized experience.",
     whatsNewReports: "Reports are now available: Report any issue you encounter while using translations to help improve their quality and provide a better experience for everyone.",
     whatsNewKeepLanguage: "Automatic updates now preserve your selected interface language.",
+    whatsNewMembershipSecurity: "Improved Discord membership verification security for AI translation.",
     whatsNewDone: "Got it",
     updateUnavailable: "Unable to check for updates right now. Check your connection and try again.",
     updateFeedNotConfigured: "The app update service is not configured yet.",
@@ -1705,7 +1707,8 @@ function showWhatsNewIfNeeded() {
     "whatsNewRequiredUpdate",
     "whatsNewDisplayImprovements",
     "whatsNewReports",
-    "whatsNewKeepLanguage"
+    "whatsNewKeepLanguage",
+    "whatsNewMembershipSecurity"
   ]) {
     const item = document.createElement("li");
     item.textContent = text(key);

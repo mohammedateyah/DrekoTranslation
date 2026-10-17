@@ -41,17 +41,25 @@ function translationRequest(body = translationBody, token = translationToken) {
   });
 }
 
-function translationAuth({ member = true } = {}) {
+function translationAuth(options = {}) {
+  const member = options.member ?? true;
+  const membershipExpiresAt = Object.hasOwn(options, "membershipExpiresAt")
+    ? options.membershipExpiresAt
+    : Math.floor(Date.now() / 1000) + 6 * 60;
   return {
     async verifyIdToken(token) {
       assert.equal(token, translationToken);
+      const claims = {
+        discordUserId: "12345678901234567",
+        discordGuildMember: member,
+        discordGuildId: "guild-test"
+      };
+      if (membershipExpiresAt !== undefined) {
+        claims.discordMembershipExpiresAt = membershipExpiresAt;
+      }
       return {
         uid: "discord_12345678901234567",
-        claims: {
-          discordUserId: "12345678901234567",
-          discordGuildMember: member,
-          discordGuildId: "guild-test"
-        }
+        claims
       };
     }
   };
@@ -284,6 +292,26 @@ test("Gemini translation proxy validates membership and keeps the API secret in 
     errors: []
   });
   assert.equal(upstreamOptions.headers["x-goog-api-key"], "server-only-test-gemini-key");
+});
+
+test("Gemini translation proxy requires an unexpired integer membership lease", async () => {
+  for (const membershipExpiresAt of [
+    Math.floor(Date.now() / 1000) - 1,
+    undefined,
+    "not-a-timestamp",
+    123.5
+  ]) {
+    const result = await translateGeminiRequest({
+      request: translationRequest(),
+      env: { GEMINI_API_KEY: "server-only-test-gemini-key", DISCORD_GUILD_ID: "guild-test" },
+      firebaseAuth: translationAuth({ membershipExpiresAt }),
+      database: translationDatabase(),
+      fetchImpl: async () => assert.fail("Gemini must not be called without a valid membership lease")
+    });
+
+    assert.equal(result.status, 403);
+    assert.equal((await result.json()).code, "GUILD_MEMBERSHIP_REQUIRED");
+  }
 });
 
 test("Gemini translation proxy rejects missing secrets, non-members, and oversized contexts", async () => {

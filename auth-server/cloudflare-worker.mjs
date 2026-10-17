@@ -209,6 +209,11 @@ export async function translateGeminiRequest({
       decoded.claims?.discordGuildId !== env.DISCORD_GUILD_ID) {
     return json({ code: "GUILD_MEMBERSHIP_REQUIRED" }, 403);
   }
+  const membershipExpiresAt = decoded.claims?.discordMembershipExpiresAt;
+  if (!Number.isSafeInteger(membershipExpiresAt) ||
+      membershipExpiresAt * 1000 <= Date.now()) {
+    return json({ code: "GUILD_MEMBERSHIP_REQUIRED" }, 403);
+  }
 
   const contentLength = Number(request.headers.get("Content-Length") || 0);
   if (contentLength > GEMINI_REQUEST_LIMIT) return json({ code: "INVALID_TRANSLATION_REQUEST" }, 413);
