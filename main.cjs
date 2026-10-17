@@ -495,7 +495,7 @@ if (!gotSingleInstanceLock) {
     setTimeout(() => {
       if (isQuitting) return;
       console.info(`Installing Dreko update ${downloadedUpdateVersion} and restarting.`);
-      autoUpdater.quitAndInstall(true, true);
+      app.quit();
     }, 1500);
   }
 
@@ -504,7 +504,7 @@ if (!gotSingleInstanceLock) {
       autoUpdater.setFeedURL({ provider: "generic", url: updateFeedUrl });
     }
     autoUpdater.autoDownload = true;
-    autoUpdater.autoInstallOnAppQuit = false;
+    autoUpdater.autoInstallOnAppQuit = true;
     autoUpdater.autoRunAppAfterInstall = true;
     autoUpdater.allowPrerelease = false;
     autoUpdater.on("checking-for-update", () => {
@@ -560,7 +560,7 @@ if (!gotSingleInstanceLock) {
       if (!app.isPackaged || !updateDownloaded) {
         return { ok: false, code: "UPDATE_NOT_READY" };
       }
-      autoUpdater.quitAndInstall(true, true);
+      scheduleDownloadedUpdateInstall();
       return { ok: true };
     });
   }
